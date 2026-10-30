@@ -29,7 +29,8 @@ export function buildGround(data: TileData) {
   for (const p of data.plazas) flatPoly(ground, p.o, p.h, 0.03, S('plaza'))
 
   const water = new Geo()
-  for (const w of data.water) flatPoly(water, w.o, w.h, 0.02, S('water'))
+  // woda nad zielenią i placami (fontanny i stawy bywają w środku łąki albo parku), pod drogami
+  for (const w of data.water) flatPoly(water, w.o, w.h, 0.1, S('water'))
 
   const roads = new Geo()
   const sorted = data.roads.slice().sort((a, b) => a.w - b.w)

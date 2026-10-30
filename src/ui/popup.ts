@@ -14,10 +14,11 @@ export interface PopupContent {
   text?: string
   img?: string
   link?: { href: string; label: string }
+  credit?: string // podpis zdjęcia (autor, licencja)
 }
 
 export function openPopup(c: PopupContent) {
-  const img = c.img && /\.(jpe?g|png|webp|gif)(\?|$)/i.test(c.img) && c.img.startsWith('http') ? `<img src="${esc(c.img)}" alt="" loading="lazy" referrerpolicy="no-referrer">` : ''
+  const img = c.img && /\.(jpe?g|png|webp|gif)(\?|$)/i.test(c.img) && c.img.startsWith('http') ? `<img src="${esc(c.img)}" alt="" loading="lazy" referrerpolicy="no-referrer">${c.credit ? `<small class="credit">fot. ${esc(c.credit)}</small>` : ''}` : ''
   body.innerHTML = `<h2>${esc(c.title)}</h2>${c.sub ? `<div class="sub">${esc(c.sub)}</div>` : ''}${img}${c.text ? `<p>${esc(c.text)}</p>` : ''}${
     c.link && /^https?:/.test(c.link.href) ? `<a href="${esc(c.link.href)}" target="_blank" rel="noopener">${esc(c.link.label)}</a>` : ''
   }`

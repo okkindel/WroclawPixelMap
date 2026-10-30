@@ -132,6 +132,7 @@ a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text
 #popup .sub { font: 16px var(--head); color: var(--odra); margin-bottom: 8px; }
 #popup img { max-width: 100%; max-height: 240px; display: block; margin: 8px 0; box-shadow: 0 0 0 2px var(--ink); }
 #popup a { color: var(--odra); font-weight: 600; }
+#popup .credit { display: block; margin: -4px 0 8px; font-size: 11px; color: var(--ink2); }
 #popup .close { position: absolute; top: 6px; right: 8px; background: none; border: 0; font-size: 24px; color: var(--ink2); }
 
 #toast { position: fixed; left: 50%; top: 70px; transform: translateX(-50%); background: var(--red); color: var(--paper); font: 18px var(--head); padding: 8px 14px; box-shadow: var(--shadow); z-index: 20; }

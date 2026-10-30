@@ -188,7 +188,7 @@ export async function startApp() {
     const L = lang()
     labels.addMarker(
       { id: `neon-${n.id}`, lat: n.lat, lon: n.lon, title: n.title[L], text: n.text[L], trigger: 'click' },
-      () => openPopup({ title: n.title[L], sub: t('layer.neons'), text: n.text[L], link: { href: n.source, label: t('source') } }),
+      () => openPopup({ title: n.title[L], sub: t('layer.neons'), text: n.text[L], img: n.img, credit: n.credit, link: { href: n.source, label: t('source') } }),
       '?', 'neon', n.from,
     )
   }
@@ -474,6 +474,7 @@ export async function startApp() {
     const far = camera.zoom < 0.55
     if (life) { life.group.visible = !far || !lowDetailHidesLife; if (life.group.visible) life.update(dt) }
     tiles.setTreesVisible(layers.trees && camera.zoom > 0.35)
+    tiles.setZoom(camera.zoom)
     governor(dt)
     if (timetable) {
       timetable.mesh.visible = layers.trams && epoch.year >= 1877

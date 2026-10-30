@@ -29,6 +29,8 @@ export interface NeonSpec {
   title: Txt
   text: Txt
   source: string
+  img?: string // zdjęcie z Wikimedia Commons
+  credit?: string // autor i licencja zdjęcia
 }
 
 const RUSKA = 'https://www.wroclaw.pl/dla-mieszkanca/nowe-neony-w-galerii-neon-side-w-podworku-przy-ulicy-ruskiej-46-wroclaw'
@@ -50,7 +52,7 @@ function ruska(id: string, text: string, color: string, wall: 'W' | 'E' | 'S', l
 
 export const NEONS: NeonSpec[] = [
   {
-    id: 'dobry-wieczor', lines: ['Dobry wieczór', 'we Wrocławiu'], color: '#5dff8a', font: 'script', sprite: 'gent', kind: 'roof', free: true,
+    id: 'dobry-wieczor', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/WK14_Neon_naprzeciwko_dworca_Wroc%C5%82aw_G%C5%82%C3%B3wny_%28cropped%29.JPG?width=480', credit: 'Lichen99, CC BY-SA 4.0', lines: ['Dobry wieczór', 'we Wrocławiu'], color: '#5dff8a', font: 'script', sprite: 'gent', kind: 'roof', free: true,
     lat: 51.099729, lon: 17.037852, h: 20.7, az: 199.4, letter: 2.5, span: 60, from: 1962, flicker: 2,
     title: { pl: 'Dobry wieczór we Wrocławiu', en: 'Good Evening in Wrocław' },
     text: {
@@ -62,7 +64,7 @@ export const NEONS: NeonSpec[] = [
   {
     // wolnostojące litery wzdłuż długiej elewacji bloku KDM od strony ul. Świdnickiej (naprzeciw Renomy),
     // tuż przed licem elewacji, dolna krawędź nad okapem (ok. 12 m; kalenica 17.5 m)
-    id: 'pzu', lines: ['Ubezpiecz mieszkanie w PZU'], color: '#5f8fe8', accent: ['PZU', '#eef6ff'], day: '#3a6fc4', thief: true, free: true, kind: 'roof',
+    id: 'pzu', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/PZU_advertising_sign_and_Konstal_102N_tram_nr_2038%2C_Ul._%C5%9Awidnicka%2C_Wroc%C5%82aw_Tramwaj_Linia_20_._Nov_1989_-_Flickr_-_sludgegulper.jpg?width=480', credit: 'Felix O, CC BY-SA 2.0 (1989)', lines: ['Ubezpiecz mieszkanie w PZU'], color: '#5f8fe8', accent: ['PZU', '#eef6ff'], day: '#3a6fc4', thief: true, free: true, kind: 'roof',
     lat: 51.10356, lon: 17.02986, h: 13, az: 196.5, letter: 3, span: 44, from: 1975, flicker: 1,
     title: { pl: 'Złodziej z PZU', en: 'The PZU burglar' },
     text: {
@@ -72,7 +74,7 @@ export const NEONS: NeonSpec[] = [
     source: 'https://archiwum.wroclife.pl/nasze-miasto/neon-plac-kosciuszki/',
   },
   {
-    id: 'wroclaw-glowny', lines: ['WROCŁAW GŁÓWNY'], color: '#ff3b3b', kind: 'wall',
+    id: 'wroclaw-glowny', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/W-w_g%C5%82_neon.jpg?width=480', credit: 'Panek, CC BY-SA 3.0 PL', lines: ['WROCŁAW GŁÓWNY'], color: '#ff3b3b', kind: 'wall',
     lat: 51.098969, lon: 17.036027, h: 7.5, az: 11.3, letter: 1.8, span: 40, from: 1970,
     title: { pl: 'Wrocław Główny', en: 'Wrocław Główny' },
     text: {
@@ -82,8 +84,8 @@ export const NEONS: NeonSpec[] = [
     source: RUSKA3,
   },
   {
-    id: 'zoo', lines: ['ZOO'], color: '#ffd23c', bg: '#1f7a3a', sprite: 'lion', kind: 'gate',
-    lat: 51.105688, lon: 17.075771, h: 5, az: 28, letter: 2.5, span: 12, from: 1962,
+    id: 'zoo', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wroc%C5%82awskie_ZOO_neon_fot_BMaliszewska.jpg?width=480', credit: 'Barbara Maliszewska, CC BY-SA 3.0 PL', lines: ['ZOO'], color: '#ffd23c', bg: '#1f7a3a', sprite: 'lion', kind: 'gate',
+    lat: 51.105621, lon: 17.076231, h: 5, az: 28, letter: 2.5, span: 12, from: 1962,
     title: { pl: 'Lew nad bramą ZOO', en: 'The zoo gate lion' },
     text: {
       pl: 'Złoty lew na zielonym tle i napis „ZOO” nad wejściem do ogrodu zoologicznego przy ul. Wróblewskiego (lata 60., proj. Stanisław Chronowski). W 2015 r. burza strąciła lwa na bruk — wrócił po naprawie.',
