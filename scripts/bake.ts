@@ -226,6 +226,7 @@ const out: World = {
   buildings: [], water: [], green: [], plazas: [], roads: [], rails: [], trams: [], trees: [],
   cityWalls: [], named: [], dwarfs: [], runway: null, stadiums: [],
 }
+const soccer: Flat[] = []
 const seenBuildingWays = new Set<number>()
 
 // Rozpoznawalne obiekty: nazwane budynki/obszary o znanej funkcji albo z wpisem w Wikidacie.
@@ -376,6 +377,7 @@ for (const el of raw) {
 
   // stadiony: obrys do proceduralnych trybun (OSM rzadko ma trybuny jako budynki)
   if (t.leisure === 'stadium') for (const p of polygons(el)) if (ringArea(p.outer) > 3000) out.stadiums.push({ ...encodePoly(p), n: t.name || undefined })
+  if (t.leisure === 'pitch' && t.sport === 'soccer') for (const p of polygons(el)) if (ringArea(p.outer) > 4000) soccer.push(flat(p.outer))
 
   const g = GREEN[t.leisure!] || GREEN[t.landuse!] || GREEN[t.natural!]
   if (g) {
@@ -741,6 +743,12 @@ const meta: WorldMeta = {
   tiles: [...tiles.entries()].map(([k, t]) => ({ k, n: t.buildings.length })),
   cityWalls: out.cityWalls, named: out.named, dwarfs: out.dwarfs, runway: out.runway,
   speedway: speedway(), stadiums: out.stadiums,
+  // boisko, którego środek leży w obrysie stadionu
+  pitches: soccer.flatMap((o) => {
+    const c = meanPt(ringOf(o))
+    const st = out.stadiums.find((s) => pointInRing(c, ringOf(s.o)))
+    return st ? [{ o, stadium: st.n }] : []
+  }),
   structures: built.list, aerialways: built.lines,
   // jedna nazwa = jeden napis (budynek bywa zmapowany kilka razy, np. obszar i bryła)
   pois: [...new Map(pois.map((p) => [p[0], p])).values()],

@@ -1,6 +1,9 @@
 // Smaczki: scenki zależne od daty, pory dnia i epoki (jarmark, sylwester, Odra, latarnik) oraz dźwięki miasta.
 // Dane z public/data/scenes.json (scripts/bake-scenes.ts); bez nich zostają tylko scenki, które da się zbudować z World.
 import * as THREE from 'three'
+import { Football, matchOn } from './football.ts'
+import { Speedway, raceOn } from './speedway.ts'
+import { SINCE } from '../history/milestones.ts'
 import { bbox, toLocal } from '../engine/geo.ts'
 import type { Flat, World } from '../types/world.ts'
 import { Boats, type BoatKind } from './boats.ts'
@@ -38,7 +41,7 @@ const TEXT = {
   },
 }
 
-export type SceneName = 'market' | 'fireworks' | 'lamplighter'
+export type SceneName = 'market' | 'fireworks' | 'lamplighter' | 'match' | 'speedway'
 
 export class Scenes {
   group = new THREE.Group()
@@ -51,8 +54,14 @@ export class Scenes {
   private fireworks: Fireworks
   private boats: Boats | null = null
   private lamplighter: Lamplighter | null = null
+  private match: Football | null = null
+  speedway: Speedway | null = null
 
-  constructor(world: World, data?: ScenesData) {
+  constructor(world: World, data?: ScenesData, speedwayTrack?: Flat | null) {
+    if (speedwayTrack) {
+      this.speedway = new Speedway(speedwayTrack)
+      this.group.add(this.speedway.group)
+    }
     if (data?.rynek.stalls.length) {
       this.market = new Market(data.rynek.stalls, data.rynek.tree)
       this.group.add(this.market.group)
@@ -82,9 +91,24 @@ export class Scenes {
       this.lamplighter = new Lamplighter(route, lamps)
       this.group.add(this.lamplighter.group)
     }
+    const arena = world.pitches?.find((p) => /Tarczyński/.test(p.stadium ?? ''))
+    if (arena) {
+      this.match = new Football(arena.o)
+      this.group.add(this.match.group)
+    }
   }
 
   update(dt: number, now: Date, epochYear: number, night: number) {
+    // żużel i mecz: same w terminach zawodów albo włączone ręcznie z menu
+    if (this.speedway) {
+      this.speedway.group.visible = epochYear >= SINCE.speedway && (this.forced.has('speedway') || raceOn(now))
+      if (this.speedway.group.visible) this.speedway.update(dt)
+    }
+    // stadion otwarto w 2011 r.
+    if (this.match) {
+      this.match.group.visible = epochYear >= 2011 && (this.forced.has('match') || matchOn(now))
+      if (this.match.group.visible) this.match.update(dt)
+    }
     const m = this.market
     if (m) {
       m.group.visible = this.forced.has('market') || marketOpen(now, epochYear)

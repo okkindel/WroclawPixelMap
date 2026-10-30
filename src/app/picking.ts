@@ -4,7 +4,6 @@ import { t } from '../i18n/index.ts'
 import type { Dwarfs } from '../layers/dwarfs.ts'
 import type { Monuments } from '../layers/monuments.ts'
 import type { Neons } from '../layers/neons.ts'
-import type { Speedway } from '../layers/speedway.ts'
 import type { Timetable } from '../life/timetable.ts'
 import type { Scenes } from '../scenes/index.ts'
 import { openPopup } from '../ui/popup.ts'
@@ -20,7 +19,6 @@ export interface Pickables {
   timetable: Timetable | null
   monuments: Monuments | null
   neons: Neons
-  speedway: Speedway | null
   tiles: Tiles
   // scenki powstają dopiero po wczytaniu miasta
   scenes: () => Scenes | null
@@ -62,7 +60,7 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     }
     const scene = p.scenes()?.hit(ray)
     if (scene) return openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text })
-    if (p.speedway?.hit(ray)) return openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') })
+    if (p.scenes()?.speedway?.group.visible && p.scenes()?.speedway?.hit(ray)) return openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') })
     const b = p.tiles.pick(ray)
     if (b?.n) {
       const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')

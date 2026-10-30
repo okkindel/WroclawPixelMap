@@ -119,3 +119,9 @@ function reversePts(p: Flat): Flat {
   for (let i = p.length - 2; i >= 0; i -= 2) out.push(p[i], p[i + 1])
   return out
 }
+
+// Zawody żużlowe na Olimpijskim: sezon kwiecień–wrzesień, niedzielne popołudnia i piątkowe wieczory.
+export function raceOn(now: Date) {
+  const day = now.getDay(), h = now.getHours() + now.getMinutes() / 60, month = now.getMonth()
+  return month >= 3 && month <= 8 && ((day === 0 && h >= 16 && h < 19) || (day === 5 && h >= 18 && h < 21))
+}

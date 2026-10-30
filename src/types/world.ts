@@ -71,6 +71,8 @@ export interface World {
   dwarfs: Dwarf[]
   runway: Flat[] | null
   stadiums: (Poly & { n?: string })[]
+  // boiska piłkarskie leżące na stadionach (do scenki meczu): obrys i nazwa stadionu
+  pitches?: { o: Flat; stadium?: string }[]
 }
 
 // Zawartość jednego kafla public/data/tiles/I_J.bin (format binarny: src/world/tilecodec.ts)
@@ -91,7 +93,7 @@ export type Poi = [name: string, x: number, y: number, kind: PoiKind, rank: 1 | 
 // Osiedle/dzielnica: nazwa, położenie, ranga (0 = osiedle, 1 = część osiedla, 2 = okolica)
 export type Place = [name: string, x: number, y: number, rank: 0 | 1 | 2]
 
-export interface WorldMeta extends Pick<World, 'origin' | 'bounds' | 'cityWalls' | 'named' | 'dwarfs' | 'runway' | 'stadiums'> {
+export interface WorldMeta extends Pick<World, 'origin' | 'bounds' | 'cityWalls' | 'named' | 'dwarfs' | 'runway' | 'stadiums' | 'pitches'> {
   places: Place[]
   pois: Poi[]
   structures: Structure[]

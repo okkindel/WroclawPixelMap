@@ -16,7 +16,6 @@ import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
 import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
-import { Speedway } from './layers/speedway.ts'
 import { Neons } from './layers/neons.ts'
 import { Monuments } from './layers/monuments.ts'
 import type { PinGroup } from './layers/labels.ts'
@@ -114,6 +113,8 @@ export async function startApp() {
   let life: Life | null = null
   let scenes: Scenes | null = null
   const forcedScenes = new Set<SceneName>()
+  // stan początkowy z HTML (mecz i żużel włączone domyślnie)
+  document.querySelectorAll<HTMLInputElement>('input[data-scene]').forEach((i) => { if (i.checked) forcedScenes.add(i.dataset.scene as SceneName) })
   document.querySelectorAll<HTMLInputElement>('input[data-scene]').forEach((i) => i.addEventListener('change', () => {
     const n = i.dataset.scene as SceneName
     if (i.checked) forcedScenes.add(n)
@@ -147,8 +148,6 @@ export async function startApp() {
       scene.add(monuments.group)
     }
   } catch { /* brak pomników */ }
-  const speedway = meta.speedway ? new Speedway(meta.speedway) : null
-  if (speedway) scene.add(speedway.group)
 
   const dwarfs = new Dwarfs(meta.dwarfs)
   scene.add(dwarfs.mesh)
@@ -266,7 +265,7 @@ export async function startApp() {
     if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
     if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
-  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, speedway, tiles, scenes: () => scenes, onDwarf: clickDwarf })
+  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf })
 
   // --- skróty i easter eggi z klawiatury ---
   initKeys({
@@ -311,7 +310,7 @@ export async function startApp() {
         .then((r) => (r.ok ? r.json() : undefined))
         .catch(() => undefined)
         .then((data) => {
-          scenes = new Scenes(world, data)
+          scenes = new Scenes(world, data, meta.speedway)
           scenes.forced = forcedScenes
           scenes.boatsOn = layers.boats
           scene.add(scenes.group)
@@ -382,10 +381,6 @@ export async function startApp() {
     }
     neons.group.visible = layers.neons
     if (neons.group.visible) neons.update(dt, sun.night, epoch.year, (camera.zoom * NEON_PIXEL) / px)
-    if (speedway) {
-      speedway.group.visible = epoch.year >= SINCE.speedway && layers.eggs
-      if (speedway.group.visible) speedway.update(dt)
-    }
     scenes?.update(dt, now, epoch.year, sun.night)
     pixel.render(scene, camera)
 
