@@ -7,7 +7,7 @@ import type { Building, Flat, World } from '../types/world.ts'
 import type { Epoch, Walls } from '../content/index.ts'
 import {
   CATHEDRAL_RADIUS,
-  GROD_CHURCHES,
+  GROD_RAMPART_UNTIL,
   LOCATION_YEAR,
   OLD_TOWN_MAX_H,
   WALLED_MAX_H,
@@ -16,6 +16,8 @@ import {
   prewarRadius,
 } from '../rules/epochs.ts'
 import { SINCE } from '../rules/milestones.ts'
+import { modernFortifications } from './fortifications.ts'
+import { grodScene } from './grod.ts'
 
 export interface EpochScene {
   opts: BuildOpts
@@ -64,30 +66,6 @@ function wallAlong(p: Flat, width: number, height: number, color: string, every 
     }
   }
   return g
-}
-
-function bastion(x: number, y: number, towardX: number, towardY: number) {
-  // Pięcioboczny bastion skierowany na zewnątrz (od środka miasta).
-  const ang = Math.atan2(y - towardY, x - towardX)
-  const shape = new THREE.Shape()
-  const pts = [
-    [-30, -35],
-    [15, -40],
-    [55, 0],
-    [15, 40],
-    [-30, 35],
-  ]
-  pts.forEach(([a, b], i) => {
-    const px = a * Math.cos(ang) - b * Math.sin(ang),
-      py = a * Math.sin(ang) + b * Math.cos(ang)
-    i ? shape.lineTo(px, py) : shape.moveTo(px, py)
-  })
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: 9, bevelEnabled: false })
-  geo.rotateX(-Math.PI / 2)
-  const m = new THREE.Mesh(geo, lambert('#7cb35a'))
-  m.position.set(x, 0, -y)
-  m.castShadow = m.receiveShadow = true
-  return m
 }
 
 function closedRing(p: Flat): Flat {
@@ -205,41 +183,21 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
     const opts: BuildOpts = {
       keep: (b) => {
         if (b.y && b.y > Y) return false
-        // w grodzie: tylko miejsca pierwszych świątyń (katedra, św. Marcin), reszta przyszła później
-        if (early) return GROD_CHURCHES.test(b.n ?? '')
+        // w grodzie nic z dzisiejszej zabudowy: gród (z pierwszą katedrą i kaplicą św. Marcina) rysuje grodScene
+        if (early) return false
         const town = inside(medieval ? inner : outer, b)
         if (town) return b.k === 'church' || b.H < (medieval ? WALLED_MAX_H.medieval : WALLED_MAX_H.fortress)
         return !!b.y || (b.k === 'church' && Math.hypot(b.o[0] - cathedral[0], b.o[1] - cathedral[1]) < CATHEDRAL_RADIUS)
       },
       mod: (b) => (b.y ? undefined : { roof: b.k === 'church' ? undefined : '#b5523a' }),
     }
-    if (early) {
-      // Drewniana palisada grodu przy kościele św. Marcina (zachodni cypel Ostrowa Tumskiego).
-      // Kształt przybliżony: elipsa, której punkty cofamy z wody na ląd.
-      const grod = toLocal(51.1155, 17.0429)
-      const onWater = (x: number, y: number) => world.water.some((w) => pointInRing(x, y, w.o))
-      const ring: Flat = []
-      for (let a = 0; a <= 32; a++) {
-        const ang = (a / 32) * 6.283
-        let r = 1
-        let x = 0,
-          y = 0
-        for (; r > 0.2; r -= 0.05) {
-          x = grod[0] + Math.cos(ang) * 130 * r
-          y = grod[1] + Math.sin(ang) * 90 * r
-          if (!onWater(x, y)) break
-        }
-        ring.push(x, y)
-      }
-      extras.add(wallAlong(ring, 2, 5, '#8a3b2a', 70, '#5a2e22'))
-    } else {
+    if (early) extras.add(grodScene(true))
+    else {
+      if (Y < GROD_RAMPART_UNTIL) extras.add(grodScene(false))
       extras.add(wallAlong(inner.slice(0, -2), 2.5, 10, '#8a3b2a', 55, '#8a3b2a'))
       if (!medieval) {
-        extras.add(wallAlong(outer.slice(0, -2), 14, 7, '#6aa64f'))
-        for (const bs of walls.bastions) {
-          const [x, y] = toLocal(bs.lat, bs.lon)
-          extras.add(bastion(x, y, cityCenter[0], cityCenter[1]))
-        }
+        const bastions = walls.bastions.map((bs) => toLocal(bs.lat, bs.lon))
+        extras.add(modernFortifications(outer.slice(0, -2), bastions, cityCenter))
       }
     }
     return { opts, extras, update, life }

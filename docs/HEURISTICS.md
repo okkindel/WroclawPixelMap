@@ -76,7 +76,7 @@ reguły przeglądarki w `src/rules/`. Zmiana progu = zmiana w jednym miejscu (i 
 | Reguła | Co robi | Dlaczego | Wyjątki / uwagi | Gdzie |
 | --- | --- | --- | --- | --- |
 | Rok budowy rozstrzyga | budynek z datą jest widoczny od swojego roku | jedyna pewna informacja | daty ma ~2,5% budynków | `src/history/epochs.ts` `epochScene` |
-| Gród | przed 1242: tylko katedra i św. Marcin | miasto lokacyjne powstało później | — | `LOCATION_YEAR`, `GROD_CHURCHES` |
+| Gród | przed 1242: wał z palisadą wokół zachodniej części Ostrowa, rekonstrukcja katedry, św. Marcina, palatium i ok. 70 chat; budynki z OSM ukryte; do 1300 sam wał z resztkami palisady | miasto lokacyjne powstało później; wymiary katedry i przebieg wału z literatury | obwód odrysowany z dzisiejszych brzegów | `LOCATION_YEAR`, `GROD`, `GROD_RAMPART_UNTIL` |
 | W murach | bez daty: kościoły i bryły < 18 m (średniowiecze) / < 24 m (twierdza) | wyższe to XIX-wieczne kamienice i bloki | poza murami tylko kościoły do 900 m od katedry | `WALLED_MAX_H`, `CATHEDRAL_RADIUS` |
 | Przed 1945 | zasięg zabudowy od Rynku: 1300 m (< 1850), 2600 m (< 1905), 3200 m | rozrost miasta w XIX w. | Stare Miasto: chowamy tylko bryły ≥ 28 m (oprócz kościołów i publicznych) | `prewarRadius`, `OLD_TOWN_MAX_H` |
 | Wygląda na powojenne | > 35 m, albo > 17 m / handel / mieszkalny > 12 m bez starego dachu | przedwojenny Wrocław nie miał wysokościowców | kościoły nigdy; dachy dwuspadowe, mansardowe, hełmy = stare | `looksPostwar` |

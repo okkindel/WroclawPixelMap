@@ -6,8 +6,56 @@ import { SINCE } from './milestones.ts'
 
 // Lokacja miasta (1242): wcześniej jest tylko gród na Ostrowie Tumskim.
 export const LOCATION_YEAR = 1242
-// W grodzie zostają tylko miejsca pierwszych świątyń (katedra, św. Marcin); reszta przyszła później.
-export const GROD_CHURCHES = /Archikatedra|Marcina/
+// Gród na Ostrowie Tumskim (ok. 1000 r.): wał drewniano-ziemny z palisadą wokół zachodniej części wyspy,
+// od kościoła św. Marcina (kaplica książęca) po katedrę Chrobrego (bazylika ok. 33,5 × 18 m, wieże od wschodu).
+// Układ w metrach względem punktu `at` (x = wschód, y = północ). Obwód odrysowany z dzisiejszych brzegów Odry
+// (zachodnia odnoga przy Moście Tumskim, Odra Południowa) z marginesem ok. 12 m; od północy i wschodu
+// wyspę oblewała odnoga zasypana po 1807 r. (jej śladem jest staw w Ogrodzie Botanicznym).
+type XY = [number, number]
+export const GROD: { at: XY; ring: XY[]; cathedral: XY; martin: XY; palatium: XY; square: XY; roads: XY[][]; huts: number } = {
+  at: [51.1148, 17.044],
+  // pierwszy punkt = brama od strony Mostu Tumskiego (szlak z Piasku)
+  ring: [
+    [-84, -12],
+    [-68, -60],
+    [-48, -98],
+    [0, -134],
+    [80, -166],
+    [160, -188],
+    [238, -206],
+    [285, -150],
+    [280, -40],
+    [250, 60],
+    [170, 95],
+    [90, 128],
+    [-40, 130],
+    [-122, 110],
+    [-118, 60],
+    [-96, 22],
+  ],
+  cathedral: [185, -70],
+  martin: [-84, 78],
+  palatium: [-25, 92],
+  square: [60, -20],
+  // drogi: od bramy przez placyk pod katedrę i do palatium
+  roads: [
+    [
+      [-84, -12],
+      [-40, -16],
+      [60, -20],
+      [120, -48],
+      [166, -68],
+    ],
+    [
+      [60, -20],
+      [20, 40],
+      [-25, 82],
+    ],
+  ],
+  huts: 70,
+}
+// Po lokacji wał grodu jeszcze stoi (z resztkami palisady), potem znika pod zabudową.
+export const GROD_RAMPART_UNTIL = 1300
 // W murach (średniowiecze / twierdza): bez daty zostają kościoły i bryły niższe niż tyle metrów
 // (wyższe to kamienice z XIX w. i bloki).
 export const WALLED_MAX_H = { medieval: 18, fortress: 24 } as const
