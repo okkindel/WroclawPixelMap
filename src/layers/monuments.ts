@@ -3,6 +3,8 @@
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import { lang } from '../i18n/index.ts'
+import { vertexLambert } from '../scenes/util.ts'
+import { SPECIAL } from './monuments.models.ts'
 
 export type MonumentKind = 'statue' | 'bust' | 'obelisk' | 'stele' | 'cross' | 'sculpture' | 'other'
 
@@ -107,6 +109,7 @@ function merge(parts: THREE.BufferGeometry[]) {
 const boxes = (bs: Box[]) => bs.map(([w, h, d, x, y0, z = 0]) => new THREE.BoxGeometry(w, h, d).translate(x, y0 + h / 2, z))
 
 interface Part { mesh: THREE.InstancedMesh; idx: number[] } // idx: instancja → indeks pomnika
+interface Special { mesh: THREE.Mesh; i: number } // ręczny model (monuments.models.ts) → indeks pomnika
 
 const LABEL = {
   pl: { statue: 'Pomnik', bust: 'Popiersie', obelisk: 'Obelisk', stele: 'Stela', cross: 'Krzyż pamiątkowy', sculpture: 'Rzeźba', other: 'Pomnik', author: 'Autor', year: 'Odsłonięty', ins: 'Napis', wp: 'Wikipedia', wd: 'Wikidane', osm: 'OpenStreetMap' },
@@ -117,6 +120,7 @@ export class Monuments {
   group = new THREE.Group()
   private list: Monument[]
   private parts: Part[] = []
+  private specials: Special[] = []
   private year = NaN
   private m = new THREE.Matrix4()
   private q = new THREE.Quaternion()
@@ -130,7 +134,7 @@ export class Monuments {
     const fig = new THREE.MeshLambertMaterial({ color: '#ffffff' })
     const col = new THREE.Color()
     for (const k of Object.keys(SHAPES) as MonumentKind[]) {
-      const idx = data.flatMap((d, i) => (d.k === k ? [i] : []))
+      const idx = data.flatMap((d, i) => (d.k === k && !SPECIAL[d.id] ? [i] : []))
       if (!idx.length) continue
       const sh = SHAPES[k]
       const geoms: [THREE.BufferGeometry, boolean][] = [[merge(boxes(sh.base)), false], [merge([...boxes(sh.fig), ...(sh.extra?.() ?? [])]), true]]
@@ -144,12 +148,30 @@ export class Monuments {
         this.group.add(mesh)
       }
     }
+    // najbardziej znane pomniki: osobne bryły z kolorami w wierzchołkach, ustawione raz na stałe
+    const vmat = vertexLambert()
+    data.forEach((d, i) => {
+      const sp = SPECIAL[d.id]
+      if (!sp) return
+      const mesh = new THREE.Mesh(sp.build(), vmat)
+      mesh.position.set(d.x, 0, -d.y)
+      mesh.rotation.y = (sp.angle * Math.PI) / 180
+      mesh.castShadow = true
+      mesh.receiveShadow = true
+      mesh.visible = false
+      this.specials.push({ mesh, i })
+      this.group.add(mesh)
+    })
   }
 
   // year: rok epoki — pomnik stoi od roku odsłonięcia (brak daty = zawsze)
   update(_dt: number, year: number) {
     if (year === this.year) return
     this.year = year
+    for (const { mesh, i } of this.specials) {
+      const yr = this.list[i].yr
+      mesh.visible = yr == null || year >= yr
+    }
     for (const { mesh, idx } of this.parts) {
       const H = SHAPES[mesh.userData.kind as MonumentKind].H
       idx.forEach((i, j) => {
@@ -176,6 +198,11 @@ export class Monuments {
       const yr = this.list[i].yr
       if (yr != null && this.year < yr) continue
       best = { d: h.distance, i }
+    }
+    for (const { mesh, i } of this.specials) {
+      if (!mesh.visible) continue
+      const h = ray.intersectObject(mesh, false)[0]
+      if (h && (!best || h.distance < best.d)) best = { d: h.distance, i }
     }
     return best ? this.describe(best.i) : null
   }

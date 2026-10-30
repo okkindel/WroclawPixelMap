@@ -19,12 +19,16 @@
     "fetch-gtfs": "node scripts/fetch-gtfs.ts",
     "bake-gtfs": "node scripts/bake-gtfs.ts",
     "bake-monuments": "node scripts/bake-monuments.ts",
+    "bake-wiki": "node scripts/bake-wiki.ts",
+    "lint": "biome lint src scripts",
+    "format": "biome format --write src scripts",
     "lod2": "node scripts/lod2.ts"
   },
   "dependencies": {
     "three": "^0.160.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.6.4",
     "@types/node": "^22.20.5",
     "@types/three": "^0.160.0",
     "geotiff": "^3.0.5",
