@@ -31,7 +31,6 @@ import type { WorldMeta } from './types/world.ts'
 import { View } from './app/view.ts'
 import { buildLabels } from './app/labels.ts'
 import { initPicking } from './app/picking.ts'
-import { wikiForBuilding } from './app/wiki.ts'
 import { initKeys } from './app/keys.ts'
 import { PowerSaver } from './app/saver.ts'
 import { searchItems } from './app/search.ts'
@@ -266,7 +265,7 @@ export async function startApp() {
     if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
     if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
-  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf, highlight: pixel.highlight, wikiFor: (n, x, y) => wikiForBuilding(meta, n, x, y) })
+  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf, highlight: pixel.highlight, openerFor: (n, x, y) => labels.openerFor(n, x, y) })
 
   // --- skróty i easter eggi z klawiatury ---
   initKeys({

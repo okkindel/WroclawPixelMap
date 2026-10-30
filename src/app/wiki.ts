@@ -1,7 +1,6 @@
 // Opisy i zdjęcia z Wikipedii dla obiektów z OSM (public/data/wiki.json, scripts/bake/bake-wiki.ts).
 // Wczytywane leniwie przy pierwszym kliknięciu.
 import { lang } from '../i18n/index.ts'
-import type { WorldMeta } from '../types/world.ts'
 
 export interface WikiEntry { pl?: string; en?: string; img?: string; credit?: string }
 export interface WikiInfo { text?: string; img?: string; credit?: string; link?: { href: string; label: string } }
@@ -19,9 +18,4 @@ export async function wikiInfo(wiki: string | undefined): Promise<WikiInfo> {
   if (!wiki) return {}
   const w = (await wikiData())[wiki]
   return { text: w?.[lang()] ?? w?.pl ?? w?.en, img: w?.img, credit: w?.credit, link: { href: wiki, label: wikiLabel(wiki) } }
-}
-
-// Artykuł dla budynku: obiekt z OSM (meta.pois) o tej samej nazwie w promieniu 250 m.
-export function wikiForBuilding(meta: WorldMeta, name: string, x: number, y: number): string | undefined {
-  return meta.pois.find(([n, px, py, , , w]) => n === name && w && Math.hypot(px - x, py - y) < 250)?.[5]
 }

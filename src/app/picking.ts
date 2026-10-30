@@ -7,7 +7,6 @@ import type { Neons } from '../layers/neons.ts'
 import type { Timetable } from '../life/timetable.ts'
 import type { Scenes } from '../scenes/index.ts'
 import { openPopup } from '../ui/popup.ts'
-import { wikiInfo } from './wiki.ts'
 import type { Tiles } from '../world/tiles.ts'
 import type { Building } from '../types/world.ts'
 import { byId } from '../ui/dom.ts'
@@ -30,8 +29,8 @@ export interface Pickables {
   onDwarf: (i: number) => void
   // scena podświetlenia filtra pikselowego (PixelPass.highlight)
   highlight: THREE.Scene
-  // adres artykułu Wikipedii dla budynku o danej nazwie i położeniu
-  wikiFor: (name: string, x: number, y: number) => string | undefined
+  // akcja napisu (zabytek, obiekt z OSM) o tej nazwie w pobliżu — wspólne okienko dla napisu i bryły
+  openerFor: (name: string, x: number, y: number) => (() => void) | undefined
 }
 
 export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: Pickables) {
@@ -146,14 +145,12 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
       return { open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }), shape: hitShape(speedway.group), live: true }
     }
     const b = p.tiles.pick(ray)
-    // budynek klikalny tylko, gdy jest co pokazać: artykuł w Wikipedii albo znany rok budowy
-    const wiki = b?.n ? p.wikiFor(b.n, b.o[0], b.o[1]) : undefined
-    if (b?.n && (wiki || b.y)) {
-      const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')
-      const name = b.n
+    // budynek z napisem otwiera to samo okienko co napis; bez napisu — tylko gdy znamy rok budowy
+    const opener = b?.n ? p.openerFor(b.n, b.o[0], b.o[1]) : undefined
+    if (b?.n && (opener || b.y)) {
+      const name = b.n, year = b.y
       const shape = buildingShape(b)
-      // opis i zdjęcie z Wikipedii, jeśli obiekt o tej nazwie w pobliżu ma artykuł
-      const open = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki)) })
+      const open = opener ?? (() => openPopup({ title: name, sub: t('building.built', { y: year! }) }))
       return { open, shape: () => shape }
     }
     return null

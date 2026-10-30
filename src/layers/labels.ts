@@ -55,8 +55,15 @@ export class Labels {
   }
 
   // Napis z nazwą (zabytki, uczelnie, obiekty z OSM).
+  // Akcja napisu o danej nazwie w pobliżu punktu (x, y) — żeby kliknięcie w bryłę budynku otwierało to samo okienko.
+  private openers: { name: string; x: number; y: number; open: () => void }[] = []
+  openerFor(name: string, x: number, y: number, radius = 250) {
+    return this.openers.find((o) => o.name === name && Math.hypot(o.x - x, o.y - y) < radius)?.open
+  }
+
   addLabel(name: string, lat: number, lon: number, minZoom: number, onClick: () => void, cls = '', fromYear?: number, group: PinGroup = 'labels') {
     const [x, y] = toLocal(lat, lon)
+    this.openers.push({ name, x, y, open: onClick })
     const el = document.createElement('button')
     el.className = `label ${cls}`
     el.textContent = name
