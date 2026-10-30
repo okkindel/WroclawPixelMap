@@ -39,12 +39,14 @@ const TEXT = {
   },
 }
 
-export type SceneName = 'market' | 'fireworks' | 'boats' | 'lamplighter'
+export type SceneName = 'market' | 'fireworks' | 'lamplighter'
 
 export class Scenes {
   group = new THREE.Group()
   // scenki włączone ręcznie z menu: widoczne niezależnie od daty, pory i epoki
   forced = new Set<SceneName>()
+  // statki to warstwa życia miasta (przełącznik w „Na mapie”), nie scenka
+  boatsOn = true
   private forcedT = 0
   private market: Market | null = null
   private fireworks: Fireworks
@@ -99,11 +101,11 @@ export class Scenes {
     if (ny !== null) this.fireworks.update(dt, ny)
     else this.fireworks.clear()
 
-    if (this.boats) {
+    if (this.boats) this.boats.group.visible = this.boatsOn
+    if (this.boats && this.boatsOn) {
       const month = now.getMonth()
       const season = month >= 4 && month <= 8 && night < 0.5
-      const all = this.forced.has('boats')
-      const show: Record<BoatKind, boolean> = { barge: true, cruise: all || (season && epochYear >= 1900), kayak: all || (season && epochYear >= 1960) }
+      const show: Record<BoatKind, boolean> = { barge: true, cruise: season && epochYear >= 1900, kayak: season && epochYear >= 1960 }
       this.boats.update(dt, show)
     }
 

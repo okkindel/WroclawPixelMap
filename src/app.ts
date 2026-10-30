@@ -18,6 +18,7 @@ import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
 import { Labels } from './layers/labels.ts'
 import { Speedway } from './layers/speedway.ts'
+import { Neons } from './layers/neons.ts'
 import { WALLS, type Egg, type Epoch } from './history/content.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
 import type { Trivia } from './history/trivia.ts'
@@ -104,6 +105,8 @@ export async function startApp() {
   scene.add(structures.group)
   const historyLayer = new HistoryLayer(meta)
   scene.add(historyLayer.group)
+  const neons = new Neons()
+  scene.add(neons.group)
   const speedway = meta.speedway ? new Speedway(meta.speedway) : null
   if (speedway) scene.add(speedway.group)
 
@@ -117,7 +120,7 @@ export async function startApp() {
   // --- epoki ---
   let epoch: Epoch = EPOCHS[EPOCHS.length - 1]
   let epochState: EpochScene | null = null
-  const layers: Record<Layer, boolean> = { dwarfs: true, trams: true, trains: true, cars: true, people: true, birds: true, clouds: true, trees: true, labels: true, eggs: true }
+  const layers: Record<Layer, boolean> = { dwarfs: true, neons: true, trams: true, trains: true, boats: true, cars: true, people: true, birds: true, clouds: true, trees: true, labels: true, eggs: true }
 
   const markEpoch = initTimeline(EPOCHS, (e) => setEpoch(e))
   function setEpoch(e: Epoch) {
@@ -146,6 +149,7 @@ export async function startApp() {
     }
     tiles.setTreesVisible(layers.trees)
     stands.visible = epoch.year >= 1928
+    if (scenes) scenes.boatsOn = layers.boats
     structures.setYear(epoch.year)
     historyLayer.show(HistoryLayer.planFor(epoch.year))
     labels.year = epoch.year
@@ -279,6 +283,8 @@ export async function startApp() {
       const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
       if (info) return openPopup({ title: t('tram.title', { line: info.line }), sub: t('tram.sub', { head: info.head }), text: t('tram.text', { dep: info.dep, arr: info.arr }) })
     }
+    const neon = neons.group.visible ? neons.hit(ray) : null
+    if (neon) return openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link: neon.source ? { href: neon.source, label: t('source') } : undefined })
     const sc = scenes?.hit(ray)
     if (sc) return openPopup({ title: sc.title, sub: t('sub.trivia'), text: sc.text })
     if (speedway?.hit(ray)) {
@@ -393,6 +399,7 @@ export async function startApp() {
         .then((data) => {
           scenes = new Scenes(world, data)
           scenes.forced = forcedScenes
+          scenes.boatsOn = layers.boats
           scene.add(scenes.group)
           scenes.setSound(sound)
         })
@@ -456,6 +463,9 @@ export async function startApp() {
     dwarfs.update(dt)
     epochState?.update(dt)
     structures.update(dt)
+    // neony liczą rozmiar dla piksela ok. 2 — przeliczamy powiększenie na bieżący piksel
+    neons.group.visible = layers.neons
+    if (neons.group.visible) neons.update(dt, sun.night, epoch.year, (camera.zoom * 2) / px)
     if (speedway) speedway.group.visible = epoch.year >= 1988 && layers.eggs
     if (speedway?.group.visible) speedway.update(dt)
     scenes?.update(dt, now, epoch.year, sun.night)

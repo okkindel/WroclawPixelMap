@@ -2,7 +2,7 @@
 import type { Epoch } from '../history/content.ts'
 import { lang } from '../i18n/index.ts'
 
-export type Layer = 'dwarfs' | 'trams' | 'trains' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees' | 'labels' | 'eggs'
+export type Layer = 'dwarfs' | 'neons' | 'trams' | 'trains' | 'boats' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees' | 'labels' | 'eggs'
 export type LookOpt = 'palette' | 'outline' | 'dither'
 
 export interface PanelHandlers {
