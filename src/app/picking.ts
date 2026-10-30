@@ -78,19 +78,31 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     while (top.parent && top.parent !== root) top = top.parent
     return () => objectCopy(top)
   }
-  // budynek z częściami: graniastosłupy wszystkich brył o tej samej nazwie w pobliżu
-  const partsOf = (b: Building): Building[] => {
+  // Budynek z częściami: dokładnie te trójkąty, z których jest narysowany (te same dachy i hełmy),
+  // ze wszystkich brył o tej samej nazwie w pobliżu. Każdy trójkąt siatki kafla zna swój budynek (owners).
+  const buildingShape = (b: Building): THREE.Object3D[] => {
     const [x, y] = [b.o[0], b.o[1]]
-    return p.tiles.list.flatMap((tile) => tile.data.buildings).filter((o) => o.n === b.n && Math.hypot(o.o[0] - x, o.o[1] - y) < 250)
-  }
-  const prism = (b: Building) => {
-    const shape = new THREE.Shape()
-    for (let i = 0; i < b.o.length; i += 2) (i ? shape.lineTo : shape.moveTo).call(shape, b.o[i], b.o[i + 1])
-    const g = new THREE.ExtrudeGeometry(shape, { depth: b.H - (b.m ?? 0), bevelEnabled: false })
-    // kształt (x, y) wyciągnięty wzdłuż z → obrót: z staje się wysokością, a y przechodzi w -z sceny
-    g.rotateX(-Math.PI / 2)
-    g.translate(0, b.m ?? 0, 0)
-    return new THREE.Mesh(g, MASK)
+    const out: THREE.Object3D[] = []
+    for (const tile of p.tiles.list) {
+      const mesh = tile.far ? tile.simple : tile.buildings
+      const owners: Int32Array | undefined = mesh.geometry.userData.owners
+      const pos = mesh.geometry.getAttribute('position')
+      if (!owners || !pos) continue
+      const mine = (i: number) => {
+        const o = tile.data.buildings[owners[i]]
+        return !!o && o.n === b.n && Math.hypot(o.o[0] - x, o.o[1] - y) < 250
+      }
+      const tris: number[] = []
+      for (let f = 0; f < owners.length; f++) {
+        if (!mine(f)) continue
+        for (let k = 0; k < 9; k++) tris.push(pos.array[f * 9 + k])
+      }
+      if (!tris.length) continue
+      const g = new THREE.BufferGeometry()
+      g.setAttribute('position', new THREE.Float32BufferAttribute(tris, 3))
+      out.push(new THREE.Mesh(g, MASK))
+    }
+    return out
   }
 
   const find = (): Target | null => {
@@ -134,14 +146,13 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     if (b?.n) {
       const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')
       const name = b.n
-      const parts = partsOf(b)
-      return { open: () => openPopup({ title: name, sub }), shape: () => parts.map(prism) }
+      const shape = buildingShape(b)
+      return { open: () => openPopup({ title: name, sub }), shape: () => shape }
     }
     return null
   }
 
   const showOutline = (target: Target | null) => {
-    for (const c of p.highlight.children) if ((c as THREE.Mesh).geometry.type === 'ExtrudeGeometry') (c as THREE.Mesh).geometry.dispose()
     p.highlight.clear()
     if (target && byId<HTMLInputElement>('opt-hover').checked) p.highlight.add(...target.shape())
   }
