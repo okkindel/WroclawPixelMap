@@ -121,6 +121,7 @@ a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text
 #pins .label.uni { background: var(--odra); color: var(--paper); }
 #pins .label.uni::before { content: '🎓 '; }
 #pins .egg.cult { background: var(--gold); color: var(--ink); }
+#pins .egg.neon { background: #2f6fa8; box-shadow: 0 0 0 2px var(--paper), 0 0 8px 2px #8fc1e3; }
 /* gwiazdka rysowana kształtem (znak z fontu pikselowego jest przesunięty) */
 #pins .egg.cult::before { content: ''; width: 12px; height: 12px; background: var(--ink); clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
 @keyframes bob { 50% { margin-top: -5px; } }

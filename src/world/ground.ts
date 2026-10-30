@@ -16,7 +16,6 @@ export function buildBase(bounds: World['bounds']) {
   const ground = new Geo()
   const [x0, y0, x1, y1] = bounds
   const pad = 3000
-  ground.quad([x0 - pad, -0.2, -(y0 - pad)], [x1 + pad, -0.2, -(y0 - pad)], [x1 + pad, -0.2, -(y1 + pad)], [x0 - pad, -0.2, -(y1 + pad)], [0, 1, 0], S('groundOut'))
   ground.quad([x0, 0, -y0], [x1, 0, -y0], [x1, 0, -y1], [x0, 0, -y1], [0, 1, 0], S('ground'))
   return ground.build()
 }

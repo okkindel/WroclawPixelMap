@@ -20,6 +20,8 @@ import { Dwarfs } from './layers/dwarfs.ts'
 import { Labels } from './layers/labels.ts'
 import { Speedway } from './layers/speedway.ts'
 import { Neons } from './layers/neons.ts'
+import { NEONS } from './layers/neons.data.ts'
+import { lang } from './i18n/index.ts'
 import { WALLS, type Egg, type Epoch } from './history/content.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
 import type { Trivia } from './history/trivia.ts'
@@ -69,6 +71,14 @@ export async function startApp() {
   const lambert = () => new THREE.MeshLambertMaterial({ vertexColors: true })
   const groundMat = windowShader(lambert(), uniforms)
   const base = new THREE.Mesh(buildBase(meta.bounds), groundMat)
+  // poza obszarem danych: płaska, nieoświetlona płaszczyzna w kolorze tła (pod wałem chmur)
+  {
+    const [bx0, by0, bx1, by1] = meta.bounds
+    const out = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0 + 30000, by1 - by0 + 30000), new THREE.MeshBasicMaterial({ color: FOG_COLOR }))
+    out.rotation.x = -Math.PI / 2
+    out.position.set((bx0 + bx1) / 2, -0.3, -(by0 + by1) / 2)
+    scene.add(out)
+  }
   base.receiveShadow = true
   scene.add(base)
   const tiles = new Tiles(meta, {
@@ -171,6 +181,16 @@ export async function startApp() {
     if (t.category === 'uczelnia') labels.addLabel(t.title, t.lat, t.lon, 0.9, () => showTrivia(t), 'uni')
     else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1945)
     else labels.addMarker(t, () => showTrivia(t))
+  }
+  // ciekawostki przy neonach (galeria przy Ruskiej jako jeden znacznik)
+  for (const n of NEONS) {
+    if (n.id.startsWith('ns-')) continue
+    const L = lang()
+    labels.addMarker(
+      { id: `neon-${n.id}`, lat: n.lat, lon: n.lon, title: n.title[L], text: n.text[L], trigger: 'click' },
+      () => openPopup({ title: n.title[L], sub: t('layer.neons'), text: n.text[L], link: { href: n.source, label: t('source') } }),
+      '?', 'neon', n.from,
+    )
   }
   for (const [name, x, y, rank] of meta.places) labels.addPlace(name, x, y, rank)
   // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
@@ -440,6 +460,7 @@ export async function startApp() {
     uniforms.uNight.value = sun.night
     pixel.material.uniforms.uNight.value = sun.night
     uTime.value += dt
+    pixel.material.uniforms.uOutlineK.value = THREE.MathUtils.clamp((camera.zoom - 0.25) / 0.9, 0, 1)
     if (performance.now() - lastClock > 1000) { setClock(now); lastClock = performance.now() }
 
     // daleko: ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy

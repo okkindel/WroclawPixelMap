@@ -1,24 +1,53 @@
-// Brzeg mapy: pas niskich, pikselowych chmur zakrywający urwane dane i tło za granicą obszaru.
+// Brzeg mapy: kreskówkowe obłoki (kremowe u góry, lawendowe od spodu, płaskie dno) —
+// gęsty wał za krawędzią danych i luźniejsze chmurki nad brzegiem miasta.
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import type { WorldMeta } from '../types/world.ts'
 
-const BAND = 700 // szerokość pasa chmur [m] — od krawędzi danych na zewnątrz
+const BAND = 2600 // szerokość wału chmur na zewnątrz krawędzi [m]
+const INNER = 450 // jak daleko w głąb mapy sięgają pojedyncze chmurki [m]
+// THREE.Color.set() przelicza sRGB na liniowe (tak jak w reszcie geometrii)
+const TOP = new THREE.Color().set('#f4ecd8')
+const SHADE = new THREE.Color().set('#b9b4d6')
+
+// Obłok: kilka kopuł o płaskim dnie; kolor zależny od wysokości wierzchołka (dwa pasy, bez cieniowania).
+function cloudGeometry() {
+  const parts: THREE.BufferGeometry[] = []
+  const puffs = [[0, 0, 0, 1], [-0.9, 0, 0.1, 0.7], [0.9, 0, -0.1, 0.75], [-0.35, 0, -0.5, 0.6], [0.4, 0, 0.5, 0.55]]
+  for (const [x, y, z, r] of puffs) {
+    const g = new THREE.SphereGeometry(r, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2)
+    g.translate(x, y, z)
+    parts.push(g.toNonIndexed())
+  }
+  const pos: number[] = [], col: number[] = []
+  for (const g of parts) {
+    const p = g.attributes.position.array as Float32Array
+    for (let i = 0; i < p.length; i += 3) {
+      pos.push(p[i], p[i + 1], p[i + 2])
+      const c = p[i + 1] > 0.32 ? TOP : SHADE
+      col.push(c.r, c.g, c.b)
+    }
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3))
+  return g
+}
 
 export function buildCloudEdge(bounds: WorldMeta['bounds']) {
   const [x0, y0, x1, y1] = bounds
-  const pts: [number, number, number][] = []
+  const pts: [number, number, number][] = [] // x, y, odległość od krawędzi (ujemna = nad mapą)
   let n = 0
-  // obwód przechodzony co ~45 m; w każdym miejscu kilka chmur w głąb pasa
   const edge = (ax: number, ay: number, bx: number, by: number, ox: number, oy: number) => {
     const L = Math.hypot(bx - ax, by - ay)
-    for (let s = -BAND; s <= L + BAND; s += 45) {
-      for (let row = 0; row < 4; row++) {
-        const r = hash(n++, 31)
-        const depth = row * (BAND / 4) + r * (BAND / 4) - 60
-        const x = ax + ((bx - ax) * s) / L + ox * depth
-        const y = ay + ((by - ay) * s) / L + oy * depth
-        pts.push([x, y, row])
+    for (let s = -BAND; s <= L + BAND; s += 110) {
+      for (let row = 0; row < 9; row++) {
+        // za krawędzią gęsto, nad mapą rzadko
+        const depth = -INNER + row * ((BAND + INNER) / 8) + (hash(n, 3) - 0.5) * 160
+        if (depth < 0 && hash(n, 5) > 0.12 + (depth + INNER) / INNER * 0.3) { n++; continue }
+        const along = s + (hash(n, 7) - 0.5) * 50
+        pts.push([ax + ((bx - ax) * along) / L + ox * depth, ay + ((by - ay) * along) / L + oy * depth, depth])
+        n++
       }
     }
   }
@@ -27,24 +56,22 @@ export function buildCloudEdge(bounds: WorldMeta['bounds']) {
   edge(x1, y1, x0, y1, 0, 1)
   edge(x0, y1, x0, y0, -1, 0)
 
-  // gładkie kule z mocnym światłem własnym: miękkie, jasne obłoki zamiast kanciastych brył
-  const geo = new THREE.IcosahedronGeometry(1, 2)
-  const mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ emissive: '#8c8fa3' }), pts.length)
+  const mesh = new THREE.InstancedMesh(cloudGeometry(), new THREE.MeshBasicMaterial({ vertexColors: true, depthWrite: false }), pts.length)
+  // bez zapisu głębi: filtr nie rysuje konturów między nakładającymi się obłokami (szarobure plamy)
+  mesh.renderOrder = 10
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3()
-  const c = new THREE.Color()
-  const shades = ['#f4f1e6', '#eef0f5', '#e6e8ef', '#f4f1e6']
-  pts.forEach(([x, y, row], i) => {
-    // dalej od mapy: chmury większe i wyżej (ściana mgły), przy krawędzi niższe i mniejsze
-    const size = 70 + row * 45 + hash(i, 7) * 80
-    v.set(x, 10 + row * 22 + hash(i, 9) * 25, -y)
-    sc.set(size, size * (0.35 + hash(i, 11) * 0.2), size * (0.8 + hash(i, 13) * 0.4))
-    q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), hash(i, 17) * 6.28)
+  pts.forEach(([x, y, depth], i) => {
+    // nad mapą małe chmurki, dalej coraz większe i wyżej
+    const far = Math.max(0, depth) / BAND
+    const size = (depth < 0 ? 35 : 60 + far * 70) + hash(i, 11) * 40
+    v.set(x, 60 + far * 60 + hash(i, 13) * 20, -y)
+    sc.set(size * 1.3, size * (0.8 + hash(i, 17) * 0.4), size)
+    q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), hash(i, 19) * 6.28)
     m.compose(v, q, sc)
     mesh.setMatrixAt(i, m)
-    mesh.setColorAt(i, c.set(shades[Math.floor(hash(i, 19) * shades.length)]))
   })
   return mesh
 }
 
-// Kolor tła za chmurami (mgła), zamiast szarego „nic”.
-export const FOG_COLOR = '#d6d8e2'
+// Kolor tła za chmurami: kremowe niebo jak w reszcie interfejsu.
+export const FOG_COLOR = '#ece6d6'

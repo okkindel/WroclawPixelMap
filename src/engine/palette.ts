@@ -8,6 +8,8 @@ export const PALETTE = [
   '#1f3d2b', '#2e5e3a', '#4a8a45', '#7cb35a', '#b4d77a',
   '#1d3557', '#2c5d8a', '#4b8bbf', '#8fc1e3',
   '#5f9e8c', '#e05a47', '#3a2a40',
+  // lawendowy spód chmur
+  '#b9b4d6',
   // ciepłe półtony elewacji w cieniu
   '#9c7a5c', '#c2a67e', '#7d6450',
 ]
@@ -19,7 +21,7 @@ export const C: {
   wallMaterial: Record<string, string>; roofMaterial: Record<string, string>
 } = {
   ground: '#b3a99a',
-  groundOut: '#d6d8e2',
+  groundOut: '#ece6d6',
   asphalt: '#565a75',
   asphaltLight: '#6b6560',
   paving: '#d6ccb8',
