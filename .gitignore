@@ -4,6 +4,7 @@ dist/
 data/raw/
 data/ortho/
 data/gtfs/
+data/lod2/
 .vite/
 *.log
 .DS_Store

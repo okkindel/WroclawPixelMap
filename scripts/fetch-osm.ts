@@ -93,6 +93,10 @@ for (let r = 0; r < rows; r++) {
 if (ROWS_ONLY) process.exit(0)
 if (!done('dwarfs')) await overpass('dwarfs', dwarfsQuery)
 // Smaczki: tor żużlowy (żużlowiec na Stadionie Olimpijskim).
+// Punkty adresowe: większość adresów we Wrocławiu to osobne punkty, nie tagi obrysów (dopasowanie rejestru NID).
+if (!done('addresses')) await overpass('addresses', `[out:json][timeout:180][bbox:${BBOX.join(',')}];
+node["addr:housenumber"];
+out;`)
 // Nazwy osiedli i dzielnic (napisy widoczne z daleka).
 if (!done('places')) await overpass('places', `[out:json][timeout:60][bbox:${BBOX.join(',')}];
 node["place"~"^(suburb|quarter|neighbourhood)$"]["name"];

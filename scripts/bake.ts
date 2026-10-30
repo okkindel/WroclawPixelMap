@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { readFile, readdir, writeFile, mkdir, rm } from 'node:fs/promises'
 import { BBOX, TILE } from './config.ts'
+import { loadNid, type NidHit } from './nid.ts'
 import type { Aerialway, Building, BuildingKind, Dwarf, Flat, GreenKind, Named, Place, Poi, PoiKind, Poly, Structure, TileData, World, WorldMeta } from '../src/types/world.ts'
 
 type Pt = [number, number]
@@ -44,6 +45,12 @@ const rawPlaces: OsmEl[] = existsSync('data/raw/places.json') ? JSON.parse(await
 const rawStructures: OsmEl[] = existsSync('data/raw/structures.json') ? JSON.parse(await readFile('data/raw/structures.json', 'utf8')).elements : []
 const rawParts: OsmEl[] = existsSync('data/raw/parts.json') ? JSON.parse(await readFile('data/raw/parts.json', 'utf8')).elements : []
 const rawExtras: OsmEl[] = existsSync('data/raw/extras.json') ? JSON.parse(await readFile('data/raw/extras.json', 'utf8')).elements : []
+// rejestr zabytków NID: rok budowy po adresie dla budynków bez start_date
+// Adresy są głównie w osobnych punktach (import PRG), nie na obrysach: data/raw/addresses.json.
+const nid = await loadNid()
+const nidRows = new Set<number>()
+let nidBuildings = 0, nidNear = 0
+const rawAddresses: OsmEl[] = existsSync('data/raw/addresses.json') ? JSON.parse(await readFile('data/raw/addresses.json', 'utf8')).elements : []
 
 // ---------- geometria ----------
 
@@ -228,6 +235,34 @@ for (const el of raw) {
   if (el.type === 'relation' && t.building) for (const m of el.members || []) if (m.type === 'way') seenBuildingWays.add(m.ref)
 }
 
+// Punkty adresowe w siatce 50 m: budynek dostaje adresy punktów leżących w jego obrysie.
+const ADDR_CELL = 50
+const addrGrid = new Map<string, { p: Pt; t: Record<string, string> }[]>()
+for (const el of rawAddresses) {
+  if (el.type !== 'node' || !el.tags) continue
+  const p = proj(el.lat!, el.lon!), k = `${Math.floor(p[0] / ADDR_CELL)},${Math.floor(p[1] / ADDR_CELL)}`
+  if (!addrGrid.has(k)) addrGrid.set(k, [])
+  addrGrid.get(k)!.push({ p, t: el.tags })
+}
+// Rok z NID dla budynku: jego własny adres i punkty adresowe w obrysie; najstarszy wpis.
+function nidYear(t: Record<string, string>, poly: RawPoly): NidHit | null {
+  if (!nid) return null
+  const addrs = [t]
+  const xs = poly.outer.map((q) => q[0]), ys = poly.outer.map((q) => q[1])
+  for (let cx = Math.floor(Math.min(...xs) / ADDR_CELL); cx <= Math.floor(Math.max(...xs) / ADDR_CELL); cx++)
+    for (let cy = Math.floor(Math.min(...ys) / ADDR_CELL); cy <= Math.floor(Math.max(...ys) / ADDR_CELL); cy++)
+      for (const a of addrGrid.get(`${cx},${cy}`) ?? [])
+        if (pointInRing(a.p, poly.outer) && !poly.holes.some((h) => pointInRing(a.p, h))) addrs.push(a.t)
+  let best: NidHit | null = null
+  for (const a of addrs) {
+    const hit = nid.lookup(a['addr:street'] ?? a['addr:place'], a['addr:housenumber'])
+    if (hit) for (const r of hit.rows) nidRows.add(r)
+    if (hit && (!best || hit.y < best.y)) best = hit
+  }
+  if (best) nidBuildings++
+  return best
+}
+
 // Budynek albo część budynku (building:part) -> bryły. Dla części typ bierzemy z tagu building:part.
 function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string): Building[] {
   const out: Building[] = []
@@ -255,13 +290,14 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
     // wąska, okrągła i bardzo wysoka bryła bez tagu man_made to też komin
     const round = p.outer.length >= 8 && area < 400 && hh > 40 && hh / Math.sqrt(area) > 3
     const k: BuildingKind = round && (kind === 'gen' || kind === 'ind') ? 'chimney' : kind
+    const nidHit = t.start_date ? null : nidYear(t, p)
     const b: Building = {
       ...encodePoly(p),
       H: r1(Math.min(hh, 220)),
       m: minH ? r1(minH) : undefined,
       k,
       // budowa w toku (building=construction) istnieje dopiero „dziś”
-      y: year(t.start_date) ?? (buildingTag === 'construction' ? new Date().getFullYear() : undefined),
+      y: year(t.start_date) ?? nidHit?.y ?? (buildingTag === 'construction' ? new Date().getFullYear() : undefined),
       rs: roofShape,
       rc: t['roof:colour'] || undefined,
       c: t['building:colour'] || undefined,
@@ -367,6 +403,41 @@ for (const el of raw) {
   const flatRing = (o: Flat): Pt[] => { const r: Pt[] = []; for (let i = 0; i < o.length; i += 2) r.push([o[i], o[i + 1]]); return r }
   const owner = (x: number, y: number) =>
     (grid.get(`${Math.floor(x / CELL)},${Math.floor(y / CELL)}`) ?? []).find((i) => pointInRing([x, y], flatRing(out.buildings[i].o)))
+  // Punkt adresowy z wpisem NID poza obrysami (np. przy wejściu, na chodniku): rok dostaje najbliższy budynek do 15 m.
+  if (nid) {
+    const R = 15
+    const segDist = ([x, y]: Pt, o: Flat) => {
+      let best = Infinity
+      for (let i = 0; i < o.length; i += 2) {
+        const ax = o[i], ay = o[i + 1], bx = o[(i + 2) % o.length], by = o[(i + 3) % o.length]
+        const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy
+        const u = l2 ? Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / l2)) : 0
+        best = Math.min(best, Math.hypot(x - ax - u * dx, y - ay - u * dy))
+      }
+      return best
+    }
+    for (const cell of addrGrid.values()) for (const a of cell) {
+      const hit = nid.lookup(a.t['addr:street'] ?? a.t['addr:place'], a.t['addr:housenumber'])
+      if (!hit || owner(...a.p) != null) continue
+      let bi = -1, bd = R
+      for (let x = Math.floor((a.p[0] - R) / CELL); x <= Math.floor((a.p[0] + R) / CELL); x++)
+        for (let y = Math.floor((a.p[1] - R) / CELL); y <= Math.floor((a.p[1] + R) / CELL); y++)
+          for (const i of grid.get(`${x},${y}`) ?? []) {
+            const b = out.buildings[i]
+            if (b.k === 'low' || b.k === 'roof') continue
+            const d = segDist(a.p, b.o)
+            if (d < bd) { bd = d; bi = i }
+          }
+      const b = out.buildings[bi]
+      if (!b) continue
+      for (const r of hit.rows) nidRows.add(r)
+      // tylko budynki bez roku (nie nadpisujemy start_date z OSM)
+      if (b.y != null) continue
+      nidBuildings++
+      nidNear++
+      b.y = hit.y
+    }
+  }
   // powierzchnia części w każdym budynku: obrys znika tylko, gdy części pokrywają większość budynku
   // (często zmapowane są tylko pojedyncze elementy, np. arkady albo wieża)
   const covered = new Map<number, number>()
@@ -541,6 +612,7 @@ for (const [k, t] of tiles) {
   }
 }
 console.log(`dachy z ortofotomapy: ${sampled}`)
+if (nid) console.log(`NID: wierszy z Wrocławia ${nid.rows}, z rokiem ${nid.parsed}, dopasowanych do budynków ${nidRows.size}; budynków z rokiem z NID ${nidBuildings} (w tym ${nidNear} najbliższych punktowi adresowemu), z rokiem ogółem ${out.buildings.filter((b) => b.y != null).length}/${out.buildings.length}`)
 
 // Czyścimy tylko stare kafle (usunięcie całego katalogu myli serwer deweloperski Vite).
 await mkdir('public/data/tiles', { recursive: true })
