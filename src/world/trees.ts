@@ -1,9 +1,8 @@
 import * as THREE from 'three'
-import { hash } from '../engine/geo.ts'
+import { hash, pick } from '../engine/geo.ts'
 import type { Flat } from '../types/world.ts'
 
 const col = new THREE.Color()
-const pick = <T>(arr: T[], r: number): T => arr[Math.floor(r * arr.length) % arr.length]
 
 // Drzewa: instancje ośmiościanów (korony) na pniach.
 export function buildTrees(trees: Flat, palette: string[], seed = 0) {

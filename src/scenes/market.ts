@@ -2,7 +2,8 @@
 // przy pręgierzu, nocą migające światełka. Czynny od ok. 21 listopada do 7 stycznia (od 2000 r.).
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
-import { box, merge, place, vertexLambert } from './util.ts'
+import { box, place, vertexLambert } from './util.ts'
+import { merge } from '../world/geometry.ts'
 
 type Stall = [x: number, y: number, angle: number]
 

@@ -5,17 +5,17 @@ import { Geo, flatPoly, strip } from './geometry.ts'
 
 const S = (k: string) => C[k] as string
 
-const ROAD_COLOR = (k: string, car?: 1) => {
-  if (car || k === 'service' || k === 'living_street') return k === 'service' || k === 'living_street' ? S('asphaltLight') : S('asphalt')
+function roadColor(k: string, car?: 1) {
+  if (k === 'service' || k === 'living_street') return S('asphaltLight')
+  if (car) return S('asphalt')
   if (k === 'path' || k === 'track') return S('path')
   return S('paving')
 }
 
-// Podkład pod całą mapą: obszar danych i ciemniejsze tło dookoła.
+// Podkład pod obszarem danych (tło dookoła to płaszczyzna w app.ts).
 export function buildBase(bounds: World['bounds']) {
   const ground = new Geo()
   const [x0, y0, x1, y1] = bounds
-  const pad = 3000
   ground.quad([x0, 0, -y0], [x1, 0, -y0], [x1, 0, -y1], [x0, 0, -y1], [0, 1, 0], S('ground'))
   return ground.build()
 }
@@ -36,7 +36,7 @@ export function buildGround(data: TileData) {
   const sorted = data.roads.slice().sort((a, b) => a.w - b.w)
   for (const r of sorted) {
     if (r.b) continue
-    strip(roads, r.p, r.w, r.car ? 0.14 : 0.12, ROAD_COLOR(r.k, r.car))
+    strip(roads, r.p, r.w, r.car ? 0.14 : 0.12, roadColor(r.k, r.car))
   }
   for (const r of data.rails) if (!r.b) strip(roads, r.p, 3.2, 0.16, S('rail'))
   for (const t of data.trams) if (!t.b) strip(roads, t.p, 1.6, 0.18, S('tramTrack'))
@@ -46,7 +46,7 @@ export function buildGround(data: TileData) {
   for (const r of data.roads) {
     if (!r.b) continue
     strip(bridges, r.p, r.w + 2, 1.0, '#6b6560')
-    strip(bridges, r.p, r.w, 1.12, ROAD_COLOR(r.k, r.car))
+    strip(bridges, r.p, r.w, 1.12, roadColor(r.k, r.car))
   }
   for (const t of data.trams) if (t.b) strip(bridges, t.p, 1.6, 1.2, S('tramTrack'))
   for (const r of data.rails) if (r.b) { strip(bridges, r.p, 6, 1.0, '#565a75'); strip(bridges, r.p, 3.2, 1.1, S('rail')) }

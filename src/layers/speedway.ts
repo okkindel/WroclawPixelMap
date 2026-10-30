@@ -1,7 +1,7 @@
 // Easter egg: bieg żużlowy na Stadionie Olimpijskim. Czterech zawodników (kaski: czerwony, niebieski,
 // biały, żółty), lewe zakręty, przechył w łukach i pył spod tylnego koła.
 import * as THREE from 'three'
-import { signedArea } from '../engine/geo.ts'
+import { centroid, cumLengths, signedArea } from '../engine/geo.ts'
 import type { Flat } from '../types/world.ts'
 
 // Sparta Wrocław jeździ w żółto-czerwonych barwach; rywale w innych kevlarach.
@@ -47,11 +47,8 @@ export class Speedway {
   constructor(ring: Flat) {
     // żużel jeździ w lewo: tor przeciwnie do ruchu wskazówek zegara (w układzie x=wschód, y=północ)
     this.track = signedArea(ring) > 0 ? ring : reversePts(ring)
-    for (let i = 0; i < ring.length; i += 2) { this.cx += ring[i]; this.cy += ring[i + 1] }
-    this.cx /= ring.length / 2
-    this.cy /= ring.length / 2
-    this.cum = [0]
-    for (let i = 2; i < this.track.length; i += 2) this.cum.push(this.cum[this.cum.length - 1] + Math.hypot(this.track[i] - this.track[i - 2], this.track[i + 1] - this.track[i - 1]))
+    ;[this.cx, this.cy] = centroid(ring)
+    this.cum = cumLengths(this.track)
     this.len = this.cum[this.cum.length - 1]
     this.racers = RIDERS.map((r, i) => {
       const bike = rider(r.helmet, r.kevlar)

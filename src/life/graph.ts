@@ -1,4 +1,5 @@
 // Graf ruchu: krawędzie = odcinki dróg/torów z OSM, węzły = wspólne końce (zaokrąglone do 0.5 m).
+import { cumLengths } from '../engine/geo.ts'
 import type { Flat } from '../types/world.ts'
 
 export interface Edge { p: Flat; cum: number[]; len: number; a: string; b: string; y: number }
@@ -11,8 +12,7 @@ export class Graph {
   constructor(lines: { p: Flat; b?: 1 }[]) {
     for (const l of lines) {
       if (l.p.length < 4) continue
-      const cum = [0]
-      for (let i = 2; i < l.p.length; i += 2) cum.push(cum[cum.length - 1] + Math.hypot(l.p[i] - l.p[i - 2], l.p[i + 1] - l.p[i - 1]))
+      const cum = cumLengths(l.p)
       const len = cum[cum.length - 1]
       if (len < 1) continue
       const n = l.p.length

@@ -1,14 +1,16 @@
-// Zamienia surowe dane OSM (data/raw) na kompaktowy świat w metrach (public/data/world.json).
+// Zamienia surowe dane OSM (data/raw) na kompaktowy świat w metrach: kafle public/data/tiles/*.bin i public/data/meta.json.
 // Układ: x = wschód, y = północ, początek w ORIGIN. Współrzędne zaokrąglone do 0.1 m.
 import { existsSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { readFile, readdir, writeFile, mkdir, rm } from 'node:fs/promises'
 import { BBOX, TILE } from './config.ts'
 import { loadNid, type NidHit } from './nid.ts'
+import { bbox, centroid } from '../src/engine/geo.ts'
 import { encodeTile } from '../src/world/tilecodec.ts'
 import type { Aerialway, Building, BuildingKind, Dwarf, Flat, GreenKind, Named, Place, Poi, PoiKind, Poly, Structure, TileData, World, WorldMeta } from '../src/types/world.ts'
 
 type Pt = [number, number]
+type Tags = Record<string, string>
 interface LatLon { lat: number; lon: number }
 interface OsmMember { type: string; ref: number; role: string; geometry?: (LatLon | null)[] }
 interface OsmEl {
@@ -17,7 +19,7 @@ interface OsmEl {
   lat?: number
   lon?: number
   center?: LatLon
-  tags?: Record<string, string>
+  tags?: Tags
   geometry?: (LatLon | null)[]
   members?: OsmMember[]
 }
@@ -27,8 +29,8 @@ const [S, W, N, E] = BBOX
 const ORIGIN: [number, number] = [(S + N) / 2, (W + E) / 2]
 const KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
 const KY = 110540
-const proj = (lat: number, lon: number): Pt => [r1((lon - ORIGIN[1]) * KX), r1((lat - ORIGIN[0]) * KY)]
 const r1 = (v: number) => Math.round(v * 10) / 10
+const proj = (lat: number, lon: number): Pt => [r1((lon - ORIGIN[1]) * KX), r1((lat - ORIGIN[0]) * KY)]
 const [MINX, MINY] = proj(S, W)
 const [MAXX, MAXY] = proj(N, E)
 
@@ -41,19 +43,25 @@ for (const f of (await readdir('data/raw')).filter((f) => /^(world-[\w-]+|landco
     if (!seen.has(id)) { seen.add(id); raw.push(el) }
   }
 }
-const rawDwarfs: OsmEl[] = JSON.parse(await readFile('data/raw/dwarfs.json', 'utf8')).elements
-const rawPlaces: OsmEl[] = existsSync('data/raw/places.json') ? JSON.parse(await readFile('data/raw/places.json', 'utf8')).elements : []
-const rawStructures: OsmEl[] = existsSync('data/raw/structures.json') ? JSON.parse(await readFile('data/raw/structures.json', 'utf8')).elements : []
+// Elementy z data/raw/<name>.json; brak (opcjonalnego) pliku = pusta lista.
+async function readRaw(name: string, optional = true): Promise<OsmEl[]> {
+  const file = `data/raw/${name}.json`
+  if (optional && !existsSync(file)) return []
+  return JSON.parse(await readFile(file, 'utf8')).elements
+}
+const rawDwarfs = await readRaw('dwarfs', false)
+const rawPlaces = await readRaw('places')
+const rawStructures = await readRaw('structures')
 // szkoły i uczelnie jako obszary/punkty (zwykle nie są budynkiem, więc nie ma ich w danych świata)
-const rawSchools: OsmEl[] = existsSync('data/raw/schools.json') ? JSON.parse(await readFile('data/raw/schools.json', 'utf8')).elements : []
-const rawParts: OsmEl[] = existsSync('data/raw/parts.json') ? JSON.parse(await readFile('data/raw/parts.json', 'utf8')).elements : []
-const rawExtras: OsmEl[] = existsSync('data/raw/extras.json') ? JSON.parse(await readFile('data/raw/extras.json', 'utf8')).elements : []
+const rawSchools = await readRaw('schools')
+const rawParts = await readRaw('parts')
+const rawExtras = await readRaw('extras')
 // rejestr zabytków NID: rok budowy po adresie dla budynków bez start_date
 // Adresy są głównie w osobnych punktach (import PRG), nie na obrysach: data/raw/addresses.json.
 const nid = await loadNid()
 const nidRows = new Set<number>()
 let nidBuildings = 0, nidNear = 0
-const rawAddresses: OsmEl[] = existsSync('data/raw/addresses.json') ? JSON.parse(await readFile('data/raw/addresses.json', 'utf8')).elements : []
+const rawAddresses = await readRaw('addresses')
 
 // ---------- geometria ----------
 
@@ -119,6 +127,16 @@ function openRing(r: Pt[]): Pt[] {
   return same(r[0], r[r.length - 1]) ? r.slice(0, -1) : r
 }
 const flat = (pts: Pt[]): Flat => pts.flat()
+// odwrotnie: [x, y, x, y, ...] -> [[x, y], ...]
+function ringOf(o: Flat): Pt[] {
+  const r: Pt[] = []
+  for (let i = 0; i < o.length; i += 2) r.push([o[i], o[i + 1]])
+  return r
+}
+// średnia wierzchołków listy punktów
+function meanPt(pts: Pt[]): Pt {
+  return [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length]
+}
 
 // Zwraca listę wielokątów [{outer, holes}] dla way/relation.
 function polygons(el: OsmEl): RawPoly[] {
@@ -151,11 +169,13 @@ function pointInRing([x, y]: Pt, ring: Pt[]) {
   return inside
 }
 
-function ringArea(r: Pt[]) {
+// Suma ze wzoru Gaussa (podwojone pole ze znakiem zależnym od kierunku obiegu).
+function shoelace(r: Pt[]) {
   let a = 0
   for (let i = 0, j = r.length - 1; i < r.length; j = i++) a += (r[j][0] + r[i][0]) * (r[j][1] - r[i][1])
-  return Math.abs(a / 2)
+  return a
 }
+const ringArea = (r: Pt[]) => Math.abs(shoelace(r) / 2)
 
 const inBox = ([x, y]: Pt) => x >= MINX && x <= MAXX && y >= MINY && y <= MAXY
 
@@ -210,7 +230,7 @@ const seenBuildingWays = new Set<number>()
 
 // Rozpoznawalne obiekty: nazwane budynki/obszary o znanej funkcji albo z wpisem w Wikidacie.
 const pois: Poi[] = []
-function poiKind(t: Record<string, string>): PoiKind | null {
+function poiKind(t: Tags): PoiKind | null {
   if (t.shop === 'mall') return 'mall'
   if (['theatre', 'cinema', 'arts_centre', 'library', 'concert_hall'].includes(t.amenity) || ['museum', 'gallery'].includes(t.tourism)) return 'culture'
   if (['university', 'college'].includes(t.amenity)) return 'edu'
@@ -224,29 +244,32 @@ function poiKind(t: Record<string, string>): PoiKind | null {
 // ogólnikowe nazwy (sama funkcja budynku) nie są warte napisu
 const GENERIC = /^(plebania|kaplica|kościół|cerkiew|dom|budynek|szkoła|przedszkole|garaże?|wieża|pawilon|hala|magazyn|portiernia|biuro|biblioteka|kino|teatr)$/i
 
-function addPoi(el: OsmEl, t: Record<string, string>) {
+function addPoi(el: OsmEl, t: Tags) {
   if (!t.name || GENERIC.test(t.name.trim()) || (!el.geometry && !el.members)) return
   const k = poiKind(t)
   if (!k) return
   const pts = el.type === 'way' ? wayPts(el.geometry!) : (el.members ?? []).filter((m) => m.role !== 'inner' && m.geometry).flatMap((m) => wayPts(m.geometry!))
   if (!pts.length) return
-  const x = pts.reduce((s2, p) => s2 + p[0], 0) / pts.length, y = pts.reduce((s2, p) => s2 + p[1], 0) / pts.length
+  const [x, y] = meanPt(pts)
   if (!inBox([x, y])) return
   const famous = k === 'mall' || !!t.wikidata || !!t.wikipedia
   const wp = t.wikipedia?.match(/^(\w+):(.+)$/)
-  const wiki = wp ? `https://${wp[1]}.wikipedia.org/wiki/${encodeURIComponent(wp[2].replace(/ /g, '_'))}` : t.wikidata ? `https://www.wikidata.org/wiki/${t.wikidata}` : undefined
-  pois.push(wiki ? [t.name, r1(x), r1(y), k, famous ? 1 : 2, wiki] : [t.name, r1(x), r1(y), k, famous ? 1 : 2])
+  const wiki = wp
+    ? `https://${wp[1]}.wikipedia.org/wiki/${encodeURIComponent(wp[2].replace(/ /g, '_'))}`
+    : t.wikidata ? `https://www.wikidata.org/wiki/${t.wikidata}` : undefined
+  const rank = famous ? 1 : 2
+  pois.push(wiki ? [t.name, r1(x), r1(y), k, rank, wiki] : [t.name, r1(x), r1(y), k, rank])
 }
 const encodePoly = (p: RawPoly): Poly => ({ o: flat(p.outer), h: p.holes.length ? p.holes.map(flat) : undefined })
 
 for (const el of raw) {
-  const t: Record<string, string> = el.tags || {}
+  const t: Tags = el.tags || {}
   if (el.type === 'relation' && t.building) for (const m of el.members || []) if (m.type === 'way') seenBuildingWays.add(m.ref)
 }
 
 // Punkty adresowe w siatce 50 m: budynek dostaje adresy punktów leżących w jego obrysie.
 const ADDR_CELL = 50
-const addrGrid = new Map<string, { p: Pt; t: Record<string, string> }[]>()
+const addrGrid = new Map<string, { p: Pt; t: Tags }[]>()
 for (const el of rawAddresses) {
   if (el.type !== 'node' || !el.tags) continue
   const p = proj(el.lat!, el.lon!), k = `${Math.floor(p[0] / ADDR_CELL)},${Math.floor(p[1] / ADDR_CELL)}`
@@ -254,7 +277,7 @@ for (const el of rawAddresses) {
   addrGrid.get(k)!.push({ p, t: el.tags })
 }
 // Rok z NID dla budynku: jego własny adres i punkty adresowe w obrysie; najstarszy wpis.
-function nidYear(t: Record<string, string>, poly: RawPoly): NidHit | null {
+function nidYear(t: Tags, poly: RawPoly): NidHit | null {
   if (!nid) return null
   const addrs = [t]
   const xs = poly.outer.map((q) => q[0]), ys = poly.outer.map((q) => q[1])
@@ -275,7 +298,7 @@ function nidYear(t: Record<string, string>, poly: RawPoly): NidHit | null {
 // Budynek albo część budynku (building:part) -> bryły. Dla części typ bierzemy z tagu building:part.
 const estimated = new WeakSet<Building>()
 
-function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string): Building[] {
+function toBuildings(el: OsmEl, t: Tags, buildingTag: string): Building[] {
   const out: Building[] = []
   const levels = num(t['building:levels'])
   // kominy, zbiorniki i silosy bywają oznaczone jako building — nie mają okien
@@ -296,7 +319,8 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
     // Bez wysokości i pięter w OSM: domy jednorodzinne i małe budynki są niskie i mają dach spadzisty,
     // średnie to ok. 3 kondygnacje; resztę bierzemy z typowej wysokości dla rodzaju budynku.
     const house = HOUSES.has(buildingTag) || (kind === 'gen' && area < 180)
-    const hh = known ? h! : house ? 8 : kind === 'gen' && area < 400 ? 10 : DEFAULT_H[kind] ?? 12
+    // (h jest znane dokładnie wtedy, gdy known)
+    const hh = h ?? (house ? 8 : kind === 'gen' && area < 400 ? 10 : DEFAULT_H[kind] ?? 12)
     const roofShape = t['roof:shape'] && t['roof:shape'] !== 'flat' ? t['roof:shape'] : !known && house && !t['roof:shape'] ? 'gabled' : undefined
     // wąska, okrągła i bardzo wysoka bryła bez tagu man_made to też komin
     // (tylko samodzielne budynki bez kształtu dachu — wieże kościołów to części z hełmami)
@@ -326,7 +350,7 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
 }
 
 for (const el of raw) {
-  const t: Record<string, string> = el.tags || {}
+  const t: Tags = el.tags || {}
   if (el.type !== 'node' && (t.building || t.shop === 'mall' || t.leisure === 'stadium' || t.amenity)) addPoi(el, t)
 
   if (el.type === 'node' && t.natural === 'tree') {
@@ -395,32 +419,33 @@ for (const el of raw) {
   }
 }
 
-// Części budynków: rysujemy je zamiast obrysu budynku, w którym leżą (np. Hala Stulecia, wieże kościołów).
-// Część dziedziczy po budynku nazwę, rok i typ (żeby kościół miał ceglane ściany, a klik pokazywał nazwę).
-{
-  const CELL = 200
+// Siatka indeksów budynków: komórka -> budynki, których prostokąt otaczający na nią zachodzi.
+function buildingGrid(cell: number, include: (b: Building) => boolean = () => true) {
   const grid = new Map<string, number[]>()
-  const bbox = (o: Flat) => {
-    let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity
-    for (let i = 0; i < o.length; i += 2) { a = Math.min(a, o[i]); c = Math.max(c, o[i]); b = Math.min(b, o[i + 1]); d = Math.max(d, o[i + 1]) }
-    return [a, b, c, d]
-  }
   out.buildings.forEach((b, i) => {
-    const [a, bb, c, d] = bbox(b.o)
-    for (let x = Math.floor(a / CELL); x <= Math.floor(c / CELL); x++)
-      for (let y = Math.floor(bb / CELL); y <= Math.floor(d / CELL); y++) {
+    if (!include(b)) return
+    const [x0, y0, x1, y1] = bbox(b.o)
+    for (let x = Math.floor(x0 / cell); x <= Math.floor(x1 / cell); x++)
+      for (let y = Math.floor(y0 / cell); y <= Math.floor(y1 / cell); y++) {
         const k = `${x},${y}`
         const l = grid.get(k) ?? []
         l.push(i)
         grid.set(k, l)
       }
   })
-  const flatRing = (o: Flat): Pt[] => { const r: Pt[] = []; for (let i = 0; i < o.length; i += 2) r.push([o[i], o[i + 1]]); return r }
+  return grid
+}
+
+// Części budynków: rysujemy je zamiast obrysu budynku, w którym leżą (np. Hala Stulecia, wieże kościołów).
+// Część dziedziczy po budynku nazwę, rok i typ (żeby kościół miał ceglane ściany, a klik pokazywał nazwę).
+{
+  const CELL = 200
+  const grid = buildingGrid(CELL)
   const owner = (x: number, y: number) =>
-    (grid.get(`${Math.floor(x / CELL)},${Math.floor(y / CELL)}`) ?? []).find((i) => pointInRing([x, y], flatRing(out.buildings[i].o)))
+    (grid.get(`${Math.floor(x / CELL)},${Math.floor(y / CELL)}`) ?? []).find((i) => pointInRing([x, y], ringOf(out.buildings[i].o)))
   // Punkt adresowy z wpisem NID poza obrysami (np. przy wejściu, na chodniku): rok dostaje najbliższy budynek do 15 m.
   if (nid) {
-    const R = 15
+    const R = 15 // [m]
     const segDist = ([x, y]: Pt, o: Flat) => {
       let best = Infinity
       for (let i = 0; i < o.length; i += 2) {
@@ -458,16 +483,13 @@ for (const el of raw) {
   const covered = new Map<number, number>()
   const added: Building[] = []
   for (const el of rawParts) {
-    const t: Record<string, string> = el.tags || {}
+    const t: Tags = el.tags || {}
     if (t['building:part'] === 'no' || t.building) continue
     for (const part of toBuildings(el, t, t['building:part'])) {
-      let sx = 0, sy = 0
-      for (let i = 0; i < part.o.length; i += 2) { sx += part.o[i]; sy += part.o[i + 1] }
-      const n = part.o.length / 2
-      const i = owner(sx / n, sy / n)
+      const i = owner(...centroid(part.o))
       if (i != null) {
         const parent = out.buildings[i]
-        covered.set(i, (covered.get(i) ?? 0) + ringArea(flatRing(part.o)))
+        covered.set(i, (covered.get(i) ?? 0) + ringArea(ringOf(part.o)))
         part.n ??= parent.n
         part.y ??= parent.y
         // część kościoła jest kościołem (ceglane ściany, bez okien bloków); inne dziedziczą tylko rodzaj ogólny
@@ -476,7 +498,8 @@ for (const el of raw) {
       added.push(part)
     }
   }
-  const replaced = new Set([...covered].filter(([i, a]) => a >= 0.7 * ringArea(flatRing(out.buildings[i].o)) || out.buildings[i].H < 1).map(([i]) => i))
+  const mostlyCovered = ([i, a]: [number, number]) => a >= 0.7 * ringArea(ringOf(out.buildings[i].o)) || out.buildings[i].H < 1
+  const replaced = new Set([...covered].filter(mostlyCovered).map(([i]) => i))
   // obrys, który zostaje obok części: lekko niżej, żeby dachy na tej samej wysokości nie migotały (z-fighting)
   for (const i of covered.keys()) {
     if (replaced.has(i)) continue
@@ -495,29 +518,14 @@ for (const el of raw) {
 if (existsSync('data/lod2/buildings.json')) {
   const lod: { c: [number, number]; mh?: number; H: number }[] = JSON.parse(await readFile('data/lod2/buildings.json', 'utf8'))
   const CELL = 50
-  const grid = new Map<string, number[]>()
-  out.buildings.forEach((b, i) => {
-    if (!estimated.has(b)) return
-    let a = Infinity, c = -Infinity, d = Infinity, e = -Infinity
-    for (let q = 0; q < b.o.length; q += 2) { a = Math.min(a, b.o[q]); c = Math.max(c, b.o[q]); d = Math.min(d, b.o[q + 1]); e = Math.max(e, b.o[q + 1]) }
-    for (let x = Math.floor(a / CELL); x <= Math.floor(c / CELL); x++)
-      for (let y = Math.floor(d / CELL); y <= Math.floor(e / CELL); y++) {
-        const k = `${x},${y}`
-        const l = grid.get(k) ?? []
-        l.push(i)
-        grid.set(k, l)
-      }
-  })
+  const grid = buildingGrid(CELL, (b) => estimated.has(b))
   const best = new Map<number, number>()
   for (const l of lod) {
     const h = l.mh ?? l.H
     if (!(h > 1.5)) continue
     const [x, y] = l.c
     for (const i of grid.get(`${Math.floor(x / CELL)},${Math.floor(y / CELL)}`) ?? []) {
-      const o = out.buildings[i].o
-      const ring: Pt[] = []
-      for (let q = 0; q < o.length; q += 2) ring.push([o[q], o[q + 1]])
-      if (pointInRing([x, y], ring)) { best.set(i, Math.max(best.get(i) ?? 0, h)); break }
+      if (pointInRing([x, y], ringOf(out.buildings[i].o))) { best.set(i, Math.max(best.get(i) ?? 0, h)); break }
     }
   }
   for (const [i, h] of best) {
@@ -537,15 +545,13 @@ for (const r of out.roads) {
 }
 for (const b of out.buildings) {
   if (!b.n || named.has(b.n)) continue
-  let sx = 0, sy = 0
-  for (let i = 0; i < b.o.length; i += 2) { sx += b.o[i]; sy += b.o[i + 1] }
-  const n = b.o.length / 2
-  named.set(b.n, [b.n, r1(sx / n), r1(sy / n), 'budynek'])
+  const [x, y] = centroid(b.o)
+  named.set(b.n, [b.n, r1(x), r1(y), 'budynek'])
 }
 out.named = [...named.values()]
 
 for (const el of rawDwarfs) {
-  const t: Record<string, string> = el.tags || {}
+  const t: Tags = el.tags || {}
   const lat = el.lat ?? el.center?.lat, lon = el.lon ?? el.center?.lon
   if (lat == null || lon == null) continue
   const [x, y] = proj(lat, lon)
@@ -569,32 +575,34 @@ function speedway(): Flat | null {
 
 // Odsunięcie wierzchołków pierścienia o d do środka (wzdłuż dwusiecznej; wystarczające dla małych d).
 function shrink(o: Flat, d: number): Flat {
-  const n = o.length / 2
-  const ring: Pt[] = []
-  for (let i = 0; i < n; i++) ring.push([o[i * 2], o[i * 2 + 1]])
-  const sign = (() => { let a = 0; for (let i = 0, j = n - 1; i < n; j = i++) a += (ring[j][0] + ring[i][0]) * (ring[j][1] - ring[i][1]); return a < 0 ? 1 : -1 })()
+  const ring = ringOf(o)
+  const n = ring.length
+  const sign = shoelace(ring) < 0 ? 1 : -1
   const out: Flat = []
   for (let i = 0; i < n; i++) {
     const [px, py] = ring[(i + n - 1) % n], [x, y] = ring[i], [qx, qy] = ring[(i + 1) % n]
     const l1 = Math.hypot(x - px, y - py) || 1, l2 = Math.hypot(qx - x, qy - y) || 1
     const nx = (-(y - py) / l1 - (qy - y) / l2) * sign, ny = ((x - px) / l1 + (qx - x) / l2) * sign
     const L = Math.hypot(nx, ny) || 1
-    out.push(r1(x + (nx / L) * d * 1.0) , r1(y + (ny / L) * d))
+    out.push(r1(x + (nx / L) * d), r1(y + (ny / L) * d))
   }
   return out
 }
 
 // ---------- konstrukcje i koleje linowe ----------
+// typowa wysokość konstrukcji bez tagu height [m]
+const STRUCTURE_H: Record<string, number> = { water_tower: 30, mast: 40, communications_tower: 60, tower: 25, obelisk: 12, lighthouse: 20 }
+
 function structures() {
   const list: Structure[] = []
   const pylons: [number, number, number][] = []
   const lines: Aerialway[] = []
   for (const el of rawStructures) {
-    const t = el.tags || {}
+    const t: Tags = el.tags || {}
     if (t.building) continue // takie są już budynkami
     const pts = el.type === 'way' && el.geometry ? wayPts(el.geometry) : el.lat != null ? [proj(el.lat, el.lon!)] : []
     if (!pts.length) continue
-    const cx = pts.reduce((s2, p) => s2 + p[0], 0) / pts.length, cy = pts.reduce((s2, p) => s2 + p[1], 0) / pts.length
+    const [cx, cy] = meanPt(pts)
     const H = num(t.height)
     if (t.aerialway === 'pylon') { pylons.push([r1(cx), r1(cy), H ?? 35]); continue }
     if (t.aerialway && el.type === 'way') { lines.push({ p: flat(pts), pylons: [], n: t.name, yr: year(t.start_date) ?? undefined }); continue }
@@ -602,8 +610,13 @@ function structures() {
     if (!m || m === 'flagpole') continue
     // promień z obrysu (dla linii) albo typowy
     const r = el.type === 'way' ? Math.max(1.5, Math.sqrt(ringArea(openRing(pts)) / Math.PI)) : m === 'water_tower' ? 7 : 2
-    const h = H ?? ({ water_tower: 30, mast: 40, communications_tower: 60, tower: 25, obelisk: 12, lighthouse: 20 } as Record<string, number>)[m] ?? 20
-    const k: Structure['k'] = t['tower:type'] === 'lighting' || t['tower:type'] === 'floodlight' ? 'light' : m === 'water_tower' ? 'water' : m === 'mast' || m === 'communications_tower' ? 'mast' : h / r > 12 ? 'needle' : 'tower'
+    const h = H ?? STRUCTURE_H[m] ?? 20
+    const k: Structure['k'] =
+      t['tower:type'] === 'lighting' || t['tower:type'] === 'floodlight' ? 'light'
+      : m === 'water_tower' ? 'water'
+      : m === 'mast' || m === 'communications_tower' ? 'mast'
+      : h / r > 12 ? 'needle'
+      : 'tower'
     if (inBox([cx, cy])) list.push({ x: r1(cx), y: r1(cy), H: r1(h), r: r1(r), k, n: t.name, yr: year(t.start_date) ?? undefined })
   }
   // słupy przypisujemy do najbliższej kolei linowej
@@ -621,10 +634,8 @@ function structures() {
   for (const s of list) {
     if (s.k !== 'light') continue
     let best: [number, number] | null = null, bd = 400
-    for (const st of out.stadiums.length ? out.stadiums : []) {
-      let cx = 0, cy = 0
-      for (let i = 0; i < st.o.length; i += 2) { cx += st.o[i]; cy += st.o[i + 1] }
-      cx /= st.o.length / 2; cy /= st.o.length / 2
+    for (const st of out.stadiums) {
+      const [cx, cy] = centroid(st.o)
       const d = Math.hypot(cx - s.x, cy - s.y)
       if (d < bd) { bd = d; best = [cx, cy] }
     }

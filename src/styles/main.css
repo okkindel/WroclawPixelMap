@@ -81,6 +81,8 @@ a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text
 .toggles span { display: inline-block; padding: 4px 8px; font: 16px var(--head); background: var(--paper2); color: var(--ink2); text-decoration: line-through; }
 .toggles input:checked + span { background: var(--odra); color: var(--paper); text-decoration: none; }
 .toggles input:focus-visible + span { outline: 2px solid var(--red); }
+/* znaczniki wyłączone głównym przełącznikiem (ich stan zostaje) */
+.toggles input:disabled + span { opacity: 0.45; cursor: default; }
 .actions { display: flex; gap: 6px; margin-top: 12px; }
 .actions button { flex: 1; background: var(--gold); border: 0; box-shadow: 0 0 0 2px var(--ink); padding: 8px; font: 16px var(--head); text-transform: uppercase; }
 .hint, .credits { font-size: 11px; color: var(--ink2); margin: 10px 0 0; }
@@ -118,7 +120,7 @@ a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text
 #pins .label.poi-mall { background: var(--gold); }
 #pins .label.church { background: #8a3b2a; color: var(--paper); }
 #pins .label.church::before { content: '✝ '; }
-#pins .label.uni { background: var(--odra); color: var(--paper); }
+#pins .label.uni { background: var(--odra); color: var(--paper); font-size: 13px; }
 #pins .label.uni::before { content: '🎓 '; }
 #pins .egg.cult { background: var(--gold); color: var(--ink); }
 #pins .egg.neon { background: #2f6fa8; box-shadow: 0 0 0 2px var(--paper), 0 0 8px 2px #8fc1e3; }

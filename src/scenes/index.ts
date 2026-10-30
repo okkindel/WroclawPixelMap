@@ -1,7 +1,7 @@
 // Smaczki: scenki zależne od daty, pory dnia i epoki (jarmark, sylwester, Odra, latarnik) oraz dźwięki miasta.
 // Dane z public/data/scenes.json (scripts/bake-scenes.ts); bez nich zostają tylko scenki, które da się zbudować z World.
 import * as THREE from 'three'
-import { toLocal } from '../engine/geo.ts'
+import { bbox, toLocal } from '../engine/geo.ts'
 import type { Flat, World } from '../types/world.ts'
 import { Boats, type BoatKind } from './boats.ts'
 import { Fireworks, newYearMinutes } from './fireworks.ts'
@@ -131,11 +131,7 @@ export class Scenes {
 }
 
 function bboxOf(p: Flat, inset: number): [number, number, number, number] {
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
-  for (let i = 0; i < p.length; i += 2) {
-    x0 = Math.min(x0, p[i]); x1 = Math.max(x1, p[i])
-    y0 = Math.min(y0, p[i + 1]); y1 = Math.max(y1, p[i + 1])
-  }
+  const [x0, y0, x1, y1] = bbox(p)
   return [x0 + inset, y0 + inset, x1 - inset, y1 - inset]
 }
 

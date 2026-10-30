@@ -1,4 +1,4 @@
-// Rzutowanie lat/lon -> lokalne metry (x = wschód, y = północ), to samo co w scripts/bake.mjs.
+// Rzutowanie lat/lon -> lokalne metry (x = wschód, y = północ), to samo co w scripts/bake.ts.
 // W scenie three.js: X = x, Y = wysokość, Z = -y.
 let ORIGIN: [number, number] = [51.11, 17.0425]
 let KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
@@ -19,6 +19,9 @@ export function hash(a: number, b = 0) {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296
 }
 
+// Element tablicy wybrany wartością r z przedziału 0..1 (np. z hash).
+export const pick = <T>(arr: T[], r: number): T => arr[Math.floor(r * arr.length) % arr.length]
+
 export function pointInRing(x: number, y: number, ring: number[]) {
   let inside = false
   for (let i = 0, j = ring.length - 2; i < ring.length; j = i, i += 2) {
@@ -33,6 +36,23 @@ export function centroid(flat: number[]): [number, number] {
   const n = flat.length / 2
   for (let i = 0; i < flat.length; i += 2) { sx += flat[i]; sy += flat[i + 1] }
   return [sx / n, sy / n]
+}
+
+// Prostokąt otaczający [x0, y0, x1, y1].
+export function bbox(flat: number[]): [number, number, number, number] {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+  for (let i = 0; i < flat.length; i += 2) {
+    x0 = Math.min(x0, flat[i]); x1 = Math.max(x1, flat[i])
+    y0 = Math.min(y0, flat[i + 1]); y1 = Math.max(y1, flat[i + 1])
+  }
+  return [x0, y0, x1, y1]
+}
+
+// Długości narastające wzdłuż polilinii: [0, |p0p1|, |p0p1|+|p1p2|, ...].
+export function cumLengths(p: number[]): number[] {
+  const cum = [0]
+  for (let i = 2; i < p.length; i += 2) cum.push(cum[cum.length - 1] + Math.hypot(p[i] - p[i - 2], p[i + 1] - p[i - 1]))
+  return cum
 }
 
 export function signedArea(flat: number[]) {

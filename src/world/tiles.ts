@@ -74,8 +74,12 @@ export class Tiles {
       for (let t = queue.shift(); t; t = queue.shift()) {
         const seed = this.seeds++ * 100003
         if (w && this.defaultOpts) {
-          const msg = await new Promise<WorkerResult>((resolve) => { w.onmessage = (e) => resolve(e.data); w.postMessage({ url: url(t!.k), key: t!.k, seed }) })
-          this.add(t.k, msg.data, seed, msg)
+          const key = t.k
+          const msg = await new Promise<WorkerResult>((resolve) => {
+            w.onmessage = (e) => resolve(e.data)
+            w.postMessage({ url: url(key), key, seed })
+          })
+          this.add(key, msg.data, seed, msg)
         } else {
           this.add(t.k, decodeTile(await (await fetch(url(t.k))).arrayBuffer()), seed)
           // oddaj klatkę przeglądarce, żeby mapa rysowała się w trakcie wczytywania
@@ -191,8 +195,10 @@ export class Tiles {
   pick(ray: THREE.Raycaster): Building | undefined {
     const hit = ray.intersectObjects(this.list.map((t) => (t.far ? t.simple : t.buildings)))[0]
     if (hit?.faceIndex == null) return undefined
-    const tile = this.list.find((t) => t.buildings === hit.object || t.simple === hit.object)!
-    const owners = (hit.object as THREE.Mesh).geometry.userData.owners as Int32Array
+    const tile = this.list.find((t) => t.buildings === hit.object || t.simple === hit.object)
+    if (!tile) return undefined
+    // indeks budynku dla każdego trójkąta (Geo.build / unpack)
+    const owners: Int32Array = (hit.object as THREE.Mesh).geometry.userData.owners
     return tile.data.buildings[owners[hit.faceIndex]]
   }
 }

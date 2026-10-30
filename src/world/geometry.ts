@@ -39,6 +39,24 @@ export class Geo {
   }
 }
 
+// Skleja części w jedną geometrię z kolorem w wierzchołkach (jedna instancja = cały obiekt).
+export function merge(parts: [THREE.BufferGeometry, string][]) {
+  const pos: number[] = [], nrm: number[] = [], col: number[] = []
+  const c = new THREE.Color()
+  for (const [g0, color] of parts) {
+    const g = g0.index ? g0.toNonIndexed() : g0
+    c.set(color)
+    pos.push(...(g.attributes.position.array as Float32Array))
+    nrm.push(...(g.attributes.normal.array as Float32Array))
+    for (let i = 0; i < g.attributes.position.count; i++) col.push(c.r, c.g, c.b)
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3))
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3))
+  return g
+}
+
 const v2 = (flat: Flat) => {
   const out = []
   for (let i = 0; i < flat.length; i += 2) out.push(new THREE.Vector2(flat[i], flat[i + 1]))

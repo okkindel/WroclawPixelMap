@@ -1,21 +1,21 @@
 // Budynki: ściany z oknami, dachy płaskie albo spadziste (na prostokącie otaczającym).
 import * as THREE from 'three'
 import { C } from '../engine/palette.ts'
-import { hash, signedArea } from '../engine/geo.ts'
+import { centroid, hash, pick, signedArea } from '../engine/geo.ts'
 import type { Building, Flat } from '../types/world.ts'
 import { Geo, flatPoly, simplifyRing, walls, type V3 } from './geometry.ts'
 
 const col = new THREE.Color()
+// Kolor z OSM (nazwa CSS albo hex, także bez #); nieznany zapis (np. „limestone”) -> kolor zastępczy.
+// THREE.Color.setStyle tylko ostrzega przy błędzie, więc poprawność sprawdzamy sami.
 function parseColor(c: string | undefined, fallback: string) {
   if (!c) return fallback
-  try {
-    col.setStyle(c.replace(/^([0-9a-f]{6})$/i, '#$1'))
-    return '#' + col.getHexString()
-  } catch {
-    return fallback
-  }
+  const s = c.trim().toLowerCase().replace(/^([0-9a-f]{6}|[0-9a-f]{3})$/, '#$1')
+  const ok = /^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(s) || s in THREE.Color.NAMES
+  if (!ok) return fallback
+  col.setStyle(s)
+  return '#' + col.getHexString()
 }
-const pick = <T>(arr: T[], r: number): T => arr[Math.floor(r * arr.length) % arr.length]
 
 // Minimalny prostokąt otaczający (po krawędziach wielokąta).
 interface Rect { area: number; ux: number; uy: number; a0: number; a1: number; b0: number; b1: number }
@@ -115,10 +115,9 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
       // dach spadzisty → płaski w połowie jego wysokości, szpic → płaski na wysokości okapu
       let top = H
       if (shape && SPIRES.has(shape) && !b.h && H - base > 4) {
-        const area = Math.abs(signedArea(b.o))
-        const rh = b.rh ?? (area < 900 ? Math.min((H - base) * 0.45, Math.sqrt(area) * 1.6) : 0)
+        const rh = spireHeight(b, H, base)
         if (rh > 1) top = Math.max(base + 1, H - rh)
-      } else if (!m?.flat && H - base > 6 && kind !== 'tank' && (TILE_ROOFS.has(shape ?? '') || tileColour(roof))) top = H - 2
+      } else if (!m?.flat && H - base > 6 && kind !== 'tank' && tiledRoof(shape, roof)) top = H - 2
       // obrys bez dziedzińców upraszczamy (wierzchołki odchylone < 2 m, piksel to wtedy ~4 m), z dziedzińcami zostaje cały
       const o = b.h ? b.o : simplifyRing(b.o, 2)
       walls(geo, o, base, top, wall, 0)
@@ -130,8 +129,7 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     let pitched = false
     // hełmy wież: stożek / ostrosłup / cebula na wąskiej bryle — szpic do pełnej wysokości
     if (shape && SPIRES.has(shape) && !b.h && H - base > 4) {
-      const area = Math.abs(signedArea(b.o))
-      const rh = b.rh ?? (area < 900 ? Math.min((H - base) * 0.45, Math.sqrt(area) * 1.6) : 0)
+      const rh = spireHeight(b, H, base)
       if (rh > 1) {
         wallTop = Math.max(base + 1, H - rh)
         spireRoof(geo, b.o, wallTop, H, roof)
@@ -147,7 +145,7 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     }
     // Dachówka (spadzisty dach w OSM albo ceglasty kolor na zdjęciu), a kształt nie jest prostokątem
     // albo ma dziedziniec: dach kopertowy wzdłuż wszystkich krawędzi (kamienice w kwartałach, gmachy z dziedzińcami).
-    if (!pitched && !m?.flat && H - base > 6 && kind !== 'chimney' && kind !== 'tank' && (TILE_ROOFS.has(shape ?? '') || tileColour(roof))) {
+    if (!pitched && !m?.flat && H - base > 6 && kind !== 'chimney' && kind !== 'tank' && tiledRoof(shape, roof)) {
       const d = 5.5, rh = 4
       wallTop = Math.max(base + 2.5, H - rh)
       pitched = ringRoof(geo, b.o, b.h, wallTop, d, H - wallTop, roof)
@@ -167,6 +165,15 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
   })
   return geo.build()
 }
+
+// Wysokość hełmu wieży: z OSM (roof:height) albo z wysokości i powierzchni bryły; duże obrysy bez hełmu.
+function spireHeight(b: Building, H: number, base: number) {
+  const area = Math.abs(signedArea(b.o))
+  return b.rh ?? (area < 900 ? Math.min((H - base) * 0.45, Math.sqrt(area) * 1.6) : 0)
+}
+
+// Dach kryty dachówką: spadzisty kształt w OSM albo ceglasty kolor (np. ze zdjęcia lotniczego).
+const tiledRoof = (shape: string | undefined, roof: string) => TILE_ROOFS.has(shape ?? '') || tileColour(roof)
 
 // czerwień/brąz dachówki: czerwony wyraźnie przeważa nad niebieskim
 function tileColour(hex: string) {
@@ -223,9 +230,7 @@ const SPIRES = new Set(['pyramidal', 'cone', 'onion', 'dome'])
 // Szpic: trójkąty od każdej krawędzi obrysu do wierzchołka nad środkiem.
 function spireRoof(geo: Geo, ring: Flat, top: number, apex: number, color: string) {
   const n = ring.length / 2
-  let cx = 0, cy = 0
-  for (let i = 0; i < n; i++) { cx += ring[i * 2]; cy += ring[i * 2 + 1] }
-  cx /= n; cy /= n
+  const [cx, cy] = centroid(ring)
   const P: V3 = [cx, apex, -cy]
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n

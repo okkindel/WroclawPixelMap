@@ -2,7 +2,8 @@
 // i długą tyczką zapala latarnie gazowe jedna po drugiej; o świcie robi ten sam obchód i je gasi.
 import * as THREE from 'three'
 import type { Flat } from '../types/world.ts'
-import { Path, box, merge, place, vertexLambert } from './util.ts'
+import { Path, box, place, vertexLambert } from './util.ts'
+import { merge } from '../world/geometry.ts'
 
 const WALK = 1.4 // m/s
 const PAUSE = 1.6 // s przy każdej latarni

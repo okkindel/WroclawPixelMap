@@ -1,8 +1,12 @@
 // Panel ustawień, oś czasu i karta informacyjna epoki.
 import type { Epoch } from '../history/content.ts'
 import { lang } from '../i18n/index.ts'
+import { byId } from './dom.ts'
 
-export type Layer = 'dwarfs' | 'neons' | 'trams' | 'trains' | 'boats' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees' | 'labels' | 'eggs'
+export type Layer =
+  | 'dwarfs' | 'neons' | 'monuments' | 'trams' | 'trains' | 'boats' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees'
+  // znaczniki: główny przełącznik i grupy (PinGroup w layers/labels.ts)
+  | 'markers' | 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'
 export type LookOpt = 'palette' | 'outline' | 'dither'
 
 export interface PanelHandlers {
@@ -23,29 +27,35 @@ export function initPanel(h: PanelHandlers) {
       h[group](b.dataset.v!)
     })
   })
-  const px = document.getElementById('pixel') as HTMLInputElement
+  const px = byId<HTMLInputElement>('pixel')
   px.addEventListener('input', () => {
-    document.getElementById('pixel-v')!.textContent = px.value
+    byId('pixel-v').textContent = px.value
     h.pixel(+px.value)
   })
   document.querySelectorAll<HTMLInputElement>('input[data-opt]').forEach((i) => i.addEventListener('change', () => h.look(i.dataset.opt as LookOpt, i.checked)))
-  document.querySelectorAll<HTMLInputElement>('input[data-layer]').forEach((i) => i.addEventListener('change', () => h.layer(i.dataset.layer as Layer, i.checked)))
+  document.querySelectorAll<HTMLInputElement>('input[data-layer]').forEach((i) => i.addEventListener('change', () => {
+    // główny przełącznik znaczników wygasza pozostałe (ich stan zostaje)
+    if (i.dataset.layer === 'markers') {
+      document.querySelectorAll<HTMLInputElement>('input[data-marker]').forEach((m) => (m.disabled = !i.checked))
+    }
+    h.layer(i.dataset.layer as Layer, i.checked)
+  }))
 
-  const drawer = document.getElementById('drawer')!
-  const btn = document.getElementById('btn-settings')!
+  const drawer = byId('drawer')
+  const btn = byId('btn-settings')
   btn.addEventListener('click', () => {
     drawer.hidden = !drawer.hidden
     btn.setAttribute('aria-expanded', String(!drawer.hidden))
   })
-  const attrib = document.getElementById('attrib')!
+  const attrib = byId('attrib')
   const fold = () => attrib.classList.add('folded')
   setTimeout(fold, 8000)
-  document.getElementById('map')!.addEventListener('pointerdown', fold, { once: true })
-  const about = document.getElementById('about') as HTMLDialogElement
-  document.getElementById('btn-about')!.addEventListener('click', () => about.showModal())
+  byId('map').addEventListener('pointerdown', fold, { once: true })
+  const about = byId<HTMLDialogElement>('about')
+  byId('btn-about').addEventListener('click', () => about.showModal())
   about.querySelector('.close')!.addEventListener('click', () => about.close())
   about.addEventListener('click', (e) => { if (e.target === about) about.close() })
-  const card = document.getElementById('info')!
+  const card = byId('info')
   const foldBtn = card.querySelector<HTMLButtonElement>('.fold')!
   foldBtn.addEventListener('click', () => {
     foldBtn.textContent = card.classList.toggle('folded') ? '+' : '–'
@@ -54,7 +64,7 @@ export function initPanel(h: PanelHandlers) {
 
 // Oś czasu jako linijka: epoki rozłożone równo, aktywna zaznaczona czerwonym rombem.
 export function initTimeline(epochs: Epoch[], onPick: (e: Epoch) => void) {
-  const nav = document.getElementById('timeline')!
+  const nav = byId('timeline')
   const rail = document.createElement('div')
   rail.className = 'rail'
   rail.style.minWidth = `${epochs.length * 96}px`
@@ -77,24 +87,24 @@ export function initTimeline(epochs: Epoch[], onPick: (e: Epoch) => void) {
 }
 
 export function setCompass(azimuth: number) {
-  document.getElementById('compass')!.style.setProperty('--rot', `${azimuth}rad`)
+  byId('compass').style.setProperty('--rot', `${azimuth}rad`)
 }
 
 export function showEpoch(e: Epoch) {
-  document.getElementById('info-city')!.textContent = e.city
-  document.getElementById('info-year')!.textContent = String(e.year)
-  document.getElementById('info-label')!.textContent = e.label
-  document.getElementById('info-state')!.textContent = e.state
-  document.getElementById('info-text')!.textContent = e.text
-  document.getElementById('info-flag')!.className = `flag flag-${e.flag}`
+  byId('info-city').textContent = e.city
+  byId('info-year').textContent = String(e.year)
+  byId('info-label').textContent = e.label
+  byId('info-state').textContent = e.state
+  byId('info-text').textContent = e.text
+  byId('info-flag').className = `flag flag-${e.flag}`
 }
 
 export function setClock(d: Date) {
-  document.getElementById('info-clock')!.textContent = d.toLocaleTimeString(lang() === 'en' ? 'en-GB' : 'pl-PL', { hour: '2-digit', minute: '2-digit' })
+  byId('info-clock').textContent = d.toLocaleTimeString(lang() === 'en' ? 'en-GB' : 'pl-PL', { hour: '2-digit', minute: '2-digit' })
 }
 
 export function setDwarfCount(found: number, total: number) {
-  const el = document.getElementById('dwarf-found')!
+  const el = byId('dwarf-found')
   if (el.textContent !== String(found) && el.textContent !== '0') {
     const badge = el.parentElement!
     badge.classList.remove('pop')
@@ -102,5 +112,5 @@ export function setDwarfCount(found: number, total: number) {
     badge.classList.add('pop')
   }
   el.textContent = String(found)
-  document.getElementById('dwarf-total')!.textContent = String(total)
+  byId('dwarf-total').textContent = String(total)
 }

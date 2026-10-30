@@ -3,7 +3,8 @@
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import type { Flat } from '../types/world.ts'
-import { Path, box, merge, place, vertexLambert } from './util.ts'
+import { Path, box, place, vertexLambert } from './util.ts'
+import { merge } from '../world/geometry.ts'
 
 export type BoatKind = 'barge' | 'cruise' | 'kayak'
 

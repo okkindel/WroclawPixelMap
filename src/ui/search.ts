@@ -1,11 +1,13 @@
 // Wyszukiwarka: ulice i budynki z OSM, zabytki, krasnale. Dopasowanie bez polskich znaków.
+import { byId } from './dom.ts'
+
 export interface SearchItem { name: string; kind: string; x: number; y: number; onPick?: () => void }
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
 
 export function initSearch(items: SearchItem[], fly: (x: number, y: number) => void) {
-  const input = document.getElementById('search-input') as HTMLInputElement
-  const list = document.getElementById('search-results')!
+  const input = byId<HTMLInputElement>('search-input')
+  const list = byId('search-results')
   const indexed = items.map((it) => ({ it, key: norm(it.name) }))
   let shown: SearchItem[] = []
   let sel = 0

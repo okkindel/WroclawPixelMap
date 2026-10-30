@@ -1,10 +1,11 @@
 // Epoki: które budynki pokazać, jak je zmienić i co dobudować (mury, bastiony, pas startowy, powódź).
 // Rekonstrukcje są przybliżone: OSM zna rok budowy tylko części budynków.
 import * as THREE from 'three'
-import { distToPolyline, hash, pointInRing, signedArea, toLocal } from '../engine/geo.ts'
+import { bbox, distToPolyline, hash, pointInRing, signedArea, toLocal } from '../engine/geo.ts'
 import type { BuildOpts } from '../world/buildings.ts'
 import type { Building, Flat, World } from '../types/world.ts'
 import type { Epoch, Walls } from './content.ts'
+import { SINCE } from './milestones.ts'
 
 export interface EpochScene {
   opts: BuildOpts
@@ -15,7 +16,9 @@ export interface EpochScene {
 
 const lambert = (color: string, extra: THREE.MeshLambertMaterialParameters = {}) => new THREE.MeshLambertMaterial({ color, ...extra })
 const toFlat = (pts: [number, number][]) => pts.flatMap(([lat, lon]) => toLocal(lat, lon))
-const center = (b: Building) => [b.o[0], b.o[1]] as const
+// punkt zaczepienia budynku: pierwszy wierzchołek obrysu (nie środek!)
+const anchor = (b: Building) => [b.o[0], b.o[1]] as const
+const RYNEK = { lat: 51.1099, lon: 17.0326 }
 
 // Pas muru wzdłuż polilinii: prostopadłościany na każdym odcinku + baszty co `every` metrów.
 function wallAlong(p: Flat, width: number, height: number, color: string, every = 0, towerColor = color) {
@@ -71,18 +74,16 @@ function closedRing(p: Flat): Flat {
   return p.length ? p.concat([p[0], p[1]]) : p
 }
 
-// Powódź 1997: komórki siatki w zasięgu ~170 m od wody (BFS po siatce), z poszarpanym brzegiem.
+// Powódź 1997: komórki siatki w zasięgu od wody (BFS po siatce), z poszarpanym brzegiem.
+const FLOOD_CELL = 15 // [m]
+const FLOOD_MAX_STEPS = 13 // BFS dalej nie idzie (13 × 15 m ≈ 195 m)
 function floodMesh(world: World) {
-  const cell = 15
+  const cell = FLOOD_CELL
   const [x0, y0, x1, y1] = world.bounds
   const nx = Math.ceil((x1 - x0) / cell), ny = Math.ceil((y1 - y0) / cell)
   const dist = new Int16Array(nx * ny).fill(-1)
   const queue: number[] = []
-  const polys = world.water.map((w) => {
-    let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity
-    for (let i = 0; i < w.o.length; i += 2) { a = Math.min(a, w.o[i]); c = Math.max(c, w.o[i]); b = Math.min(b, w.o[i + 1]); d = Math.max(d, w.o[i + 1]) }
-    return { ring: w.o, box: [a, b, c, d] }
-  })
+  const polys = world.water.map((w) => ({ ring: w.o, box: bbox(w.o) }))
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
     const x = x0 + (i + 0.5) * cell, y = y0 + (j + 0.5) * cell
     if (polys.some((p) => x >= p.box[0] && x <= p.box[2] && y >= p.box[1] && y <= p.box[3] && pointInRing(x, y, p.ring))) {
@@ -92,7 +93,7 @@ function floodMesh(world: World) {
   }
   for (let q = 0; q < queue.length; q++) {
     const id = queue[q], i = id % nx, j = (id / nx) | 0, d = dist[id]
-    if (d >= 13) continue
+    if (d >= FLOOD_MAX_STEPS) continue
     for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const a = i + di, b = j + dj
       if (a < 0 || b < 0 || a >= nx || b >= ny || dist[b * nx + a] >= 0) continue
@@ -116,7 +117,6 @@ function floodMesh(world: World) {
   return m
 }
 
-// Dym nad ruinami: instancje sześcianów unoszących się i rosnących.
 // Dym nad ruinami: kilka słupów dymu, każdy z kłębów, które rosną, unoszą się z wiatrem i znikają.
 function smoke(world: World, count: number) {
   const fires = world.buildings.filter((b, i) => hash(i, 41) < 0.004 && b.H > 8).slice(0, 14)
@@ -129,7 +129,7 @@ function smoke(world: World, count: number) {
     seeds.forEach((sd, i) => {
       if (!sd.b) return
       sd.t = (sd.t + dt) % LIFE
-      const [x, y] = center(sd.b)
+      const [x, y] = anchor(sd.b)
       const k = sd.t / LIFE
       v.set(x + Math.sin(sd.t * 0.7 + i) * 4 + k * 70, sd.b.H + 4 + k * 120, -y - k * 25)
       // rośnie, a pod koniec maleje — kłąb „rozpływa się” zamiast znikać nagle
@@ -148,11 +148,11 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   const extras = new THREE.Group()
   let update = (_dt: number) => {}
   const notLater = (b: Building) => !b.y || b.y <= Y
-  const life = { trams: Y >= 1877, cars: Y >= 1925 }
+  const life = { trams: Y >= SINCE.trams, cars: Y >= SINCE.cars }
 
   const outer = closedRing(toFlat(walls.outer))
   const inner = closedRing(toFlat(walls.inner))
-  const cityCenter = toLocal(51.1099, 17.0326) // Rynek
+  const cityCenter = toLocal(RYNEK.lat, RYNEK.lon)
   const inside = (ring: Flat, b: Building) => ring.length > 6 && pointInRing(b.o[0], b.o[1], ring)
 
   if (epoch.mode === 'walls' || epoch.mode === 'medieval') {
@@ -244,7 +244,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
 // Ogólna reguła dla budynków bez daty: szkło i lustra, biurowce i duże galerie handlowe
 // to w Polsce głównie lata 90. i później; ponad 100 m — dopiero XXI w. (Sky Tower 2012).
 function looksLaterThan(b: Building, Y: number) {
-  if (Y >= 2020) return false
+  if (Y >= SINCE.today) return false
   if (b.H > 100 && b.k !== 'chimney') return Y < 2010
   if (Y >= 1995) return false
   const glass = b.bm === 'glass' || b.bm === 'mirror'

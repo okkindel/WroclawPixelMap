@@ -2,6 +2,7 @@
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import type { Dwarf } from '../types/world.ts'
+import { merge } from '../world/geometry.ts'
 
 const STORE = 'wpm.dwarfs.found'
 
@@ -16,20 +17,7 @@ function dwarfGeometry() {
   add(new THREE.BoxGeometry(0.45, 0.4, 0.45), 0, 0.97, 0, '#e8a074') // głowa
   add(new THREE.BoxGeometry(0.4, 0.3, 0.12), 0, 0.8, 0.25, '#f4f1e6') // broda
   add(new THREE.ConeGeometry(0.32, 0.65, 4), 0, 1.45, 0, '#e05a47') // czapka
-  const pos: number[] = [], nrm: number[] = [], colr: number[] = []
-  const c = new THREE.Color()
-  for (const [g0, color] of parts) {
-    const g = g0.toNonIndexed()
-    c.set(color)
-    pos.push(...(g.attributes.position.array as Float32Array))
-    nrm.push(...(g.attributes.normal.array as Float32Array))
-    for (let i = 0; i < g.attributes.position.count; i++) colr.push(c.r, c.g, c.b)
-  }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3))
-  g.setAttribute('color', new THREE.Float32BufferAttribute(colr, 3))
-  return g
+  return merge(parts)
 }
 
 export class Dwarfs {

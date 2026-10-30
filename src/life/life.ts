@@ -2,6 +2,7 @@
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import type { Road, Track } from '../types/world.ts'
+import { merge } from '../world/geometry.ts'
 import { Graph } from './graph.ts'
 import { Movers } from './movers.ts'
 
@@ -18,27 +19,22 @@ export function tramGeometry() {
     [box(9.8, 2.4, 0.5, 2.3), '#2f6fa8'],
     [box(9.0, 2.0, 0.35, 2.8), '#cfd2dc'],
   ]
-  const pos: number[] = [], nrm: number[] = [], colr: number[] = []
-  const c = new THREE.Color()
-  for (const [g0, color] of parts) {
-    const g = g0.toNonIndexed()
-    c.set(color)
-    pos.push(...(g.attributes.position.array as Float32Array))
-    nrm.push(...(g.attributes.normal.array as Float32Array))
-    for (let i = 0; i < g.attributes.position.count; i++) colr.push(c.r, c.g, c.b)
-  }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
-  g.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3))
-  g.setAttribute('color', new THREE.Float32BufferAttribute(colr, 3))
-  return g
+  return merge(parts)
 }
+
+const CAR_COLORS = ['#e05a47', '#f4f1e6', '#2b2d42', '#4b8bbf', '#cfd2dc', '#f2d16b', '#7a7f99', '#5f9e8c']
+const PEOPLE_COLORS = ['#e05a47', '#2c5d8a', '#f2d16b', '#2b2d42', '#f4f1e6', '#5f9e8c', '#c9b6d9', '#d9734e']
+const WALKABLE = ['footway', 'pedestrian', 'living_street', 'path', 'residential']
+// losowe tramwaje po torach z OSM (bez rozkładu GTFS)
+const RANDOM_TRAMS = 110
 
 export class Life {
   group = new THREE.Group()
   trams: Movers
   cars: Movers
   people: Movers
+  // głowy ludzi (osobna bryła o stałym kolorze)
+  heads: THREE.InstancedMesh
   birds: THREE.InstancedMesh
   clouds: THREE.Group
   layers = { trams: true, trains: true, cars: true, people: true, birds: true, clouds: true }
@@ -50,11 +46,16 @@ export class Life {
     const tramGraph = new Graph(trams)
     // Wrocławskie tramwaje MPK są niebieskie: niebieskie pudło, ciemny pas okien, jasny dach.
     // z rozkładem GTFS tramwaje jeżdżą osobno (Timetable); bez niego — losowo po torach z OSM
-    this.trams = new Movers(tramGraph, withTimetable ? 0 : 110, tramGeometry(), ['#ffffff'], [7, 10], { segments: 3, gap: 10.4, seed: 101, vertexColors: true })
+    this.trams = new Movers(tramGraph, withTimetable ? 0 : RANDOM_TRAMS, tramGeometry(), ['#ffffff'], [7, 10], {
+      segments: 3, gap: 10.4, seed: 101, vertexColors: true,
+    })
     const carGraph = new Graph(roads.filter((r) => r.car))
-    this.cars = new Movers(carGraph, 1600, box(4.4, 1.9, 1.5), ['#e05a47', '#f4f1e6', '#2b2d42', '#4b8bbf', '#cfd2dc', '#f2d16b', '#7a7f99', '#5f9e8c'], [6, 12], { offset: 2.2, seed: 202 })
-    const walkGraph = new Graph(roads.filter((r) => ['footway', 'pedestrian', 'living_street', 'path', 'residential'].includes(r.k)))
-    this.people = new Movers(walkGraph, 5000, box(0.8, 0.8, 1.5), ['#e05a47', '#2c5d8a', '#f2d16b', '#2b2d42', '#f4f1e6', '#5f9e8c', '#c9b6d9', '#d9734e'], [0.9, 1.6], { offset: 0.6, seed: 303, extra: [box(0.55, 0.55, 0.5, 1.5), '#e8a074'] })
+    this.cars = new Movers(carGraph, 1600, box(4.4, 1.9, 1.5), CAR_COLORS, [6, 12], { offset: 2.2, seed: 202 })
+    const walkGraph = new Graph(roads.filter((r) => WALKABLE.includes(r.k)))
+    this.people = new Movers(walkGraph, 5000, box(0.8, 0.8, 1.5), PEOPLE_COLORS, [0.9, 1.6], {
+      offset: 0.6, seed: 303, extra: [box(0.55, 0.55, 0.5, 1.5), '#e8a074'],
+    })
+    this.heads = this.people.extra as THREE.InstancedMesh
     // Pociągi po torach z OSM: dalekobieżne (białe z niebieskim), regionalne (żółte), towarowe (długie, brązowe).
     const railGraph = new Graph(rails)
     this.trains = [
@@ -62,7 +63,7 @@ export class Life {
       new Movers(railGraph, 8, box(22, 3, 4), ['#e3b341', '#f2d16b'], [14, 20], { segments: 3, gap: 23, seed: 402 }),
       new Movers(railGraph, 5, box(15, 2.8, 3.6), ['#7d6450', '#5a2e22', '#6b6560'], [9, 13], { segments: 14, gap: 16, seed: 403 }),
     ]
-    this.group.add(this.people.extra!)
+    this.group.add(this.heads)
     this.group.add(this.trams.mesh, this.cars.mesh, this.people.mesh, ...this.trains.map((t) => t.mesh))
 
     // Ptaki: płaskie „V” krążące stadami nad miastem.
@@ -106,7 +107,7 @@ export class Life {
     this.trams.mesh.visible = this.layers.trams
     this.cars.mesh.visible = this.layers.cars
     this.people.mesh.visible = this.layers.people
-    this.people.extra!.visible = this.layers.people
+    this.heads.visible = this.layers.people
     this.birds.visible = this.layers.birds
     this.clouds.visible = this.layers.clouds
 

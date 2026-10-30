@@ -1,7 +1,6 @@
-// Składa mapę: scena, kamera, warstwy, epoki i interfejs.
+// Składa mapę: scena, kamera, warstwy, epoki i interfejs (części w src/app/).
 import * as THREE from 'three'
-import { MapControls } from 'three/addons/controls/MapControls.js'
-import { centroid, setOrigin, toLatLon, toLocal } from './engine/geo.ts'
+import { setOrigin, toLocal } from './engine/geo.ts'
 import { C } from './engine/palette.ts'
 import { PixelPass } from './engine/pixel.ts'
 import { Sun, clockFor, type Season, type TimePreset } from './engine/sun.ts'
@@ -17,31 +16,66 @@ import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
 import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
-import { Labels } from './layers/labels.ts'
 import { Speedway } from './layers/speedway.ts'
 import { Neons } from './layers/neons.ts'
-import { NEONS } from './layers/neons.data.ts'
-import { lang } from './i18n/index.ts'
-import { WALLS, type Egg, type Epoch } from './history/content.ts'
+import { Monuments } from './layers/monuments.ts'
+import type { PinGroup } from './layers/labels.ts'
+import { WALLS, type Epoch } from './history/content.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
-import type { Trivia } from './history/trivia.ts'
+import { SINCE } from './history/milestones.ts'
 import { dwarfFacts, eggs, epochs, landmarkRank, landmarks, t, trivia } from './i18n/index.ts'
 import { initPanel, initTimeline, setClock, setCompass, setDwarfCount, showEpoch, type Layer } from './ui/panel.ts'
-import { openPopup, toast } from './ui/popup.ts'
-import { initSearch, type SearchItem } from './ui/search.ts'
+import { toast } from './ui/popup.ts'
+import { initSearch } from './ui/search.ts'
+import { byId } from './ui/dom.ts'
 import type { WorldMeta } from './types/world.ts'
+import { View } from './app/view.ts'
+import { buildLabels } from './app/labels.ts'
+import { initPicking } from './app/picking.ts'
+import { initKeys } from './app/keys.ts'
+import { PowerSaver } from './app/saver.ts'
+import { searchItems } from './app/search.ts'
+import { showDwarf, showEgg } from './app/popups.ts'
 
-const DEFAULT_TILT = 0.75
 // treści w wybranym języku (PL/EN)
-const EPOCHS = epochs(), LANDMARKS = landmarks(), LANDMARK_RANK = landmarkRank(), EGGS = eggs(), TRIVIA = trivia(), DWARF_FACTS = dwarfFacts()
-const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
+const EPOCHS = epochs()
+const LANDMARKS = landmarks()
+const LANDMARK_RANK = landmarkRank()
+const EGGS = eggs()
+const TRIVIA = trivia()
+const DWARF_FACTS = dwarfFacts()
+
+// widok startowy bez linku: Rynek
+const START = { lat: 51.1099, lon: 17.0326 }
+// wielkość piksela: domyślna i największa, do której schodzi tryb oszczędny
+const PIXEL_DEFAULT = 1.5
+const PIXEL_SAVER_MAX = 3
+const PIXEL_SAVER_STEP = 0.5
+// daleko (zoom poniżej): ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy
+const FAR_ZOOM = 0.55
+const TREES_MIN_ZOOM = 0.35
+// cienie i napisy przeliczamy po zmianie widoku albo co tyle sekund (ruchome obiekty)
+const SHADOW_REFRESH_S = 0.15
+const LABELS_REFRESH_S = 0.5
+const CLOCK_REFRESH_MS = 1000
+const MAX_FRAME_DT = 0.1
+// zasięg mapy cieni rośnie z kadrem, ale nie ponad tyle metrów
+const SHADOW_EXTENT_MAX = 2600
+// neony liczą rozmiar dla piksela ok. 2 — przeliczamy powiększenie na bieżący piksel
+const NEON_PIXEL = 2
+// pomniki chowamy z daleka (są mniejsze niż piksel)
+const MONUMENTS_MIN_ZOOM = 0.3
+// grupy znaczników (każda z własnym przełącznikiem, wszystkie pod głównym „markers”)
+const PIN_GROUPS: PinGroup[] = ['labels', 'places', 'pois', 'unis', 'eggs', 'cult']
+
+const dataUrl = (file: string) => `${import.meta.env.BASE_URL}data/${file}`
 
 export async function startApp() {
-  const res = await fetch(`${import.meta.env.BASE_URL}data/meta.json`)
+  const res = await fetch(dataUrl('meta.json'))
   const meta: WorldMeta = await res.json()
   setOrigin(meta.origin)
 
-  const canvas = document.getElementById('map') as HTMLCanvasElement
+  const canvas = byId<HTMLCanvasElement>('map')
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false })
   renderer.setPixelRatio(1)
   renderer.shadowMap.enabled = true
@@ -54,15 +88,8 @@ export async function startApp() {
   // za brzegiem mapy: mgła i pas chmur zamiast szarego tła
   scene.background = new THREE.Color(FOG_COLOR)
   scene.add(buildCloudEdge(meta.bounds))
-  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 20000)
-  const controls = new MapControls(camera, canvas)
-  controls.enableDamping = true
-  controls.dampingFactor = 0.12
-  controls.minZoom = 0.25
-  controls.maxZoom = 12
-  controls.maxPolarAngle = 1.0
-  controls.zoomToCursor = true
-  controls.listenToKeyEvents(window)
+  const view = new View(canvas)
+  const camera = view.camera
 
   // --- świat statyczny ---
   const uniforms = { uNight: { value: 0 }, uSnow: { value: 0 } }
@@ -71,14 +98,7 @@ export async function startApp() {
   const lambert = () => new THREE.MeshLambertMaterial({ vertexColors: true })
   const groundMat = windowShader(lambert(), uniforms)
   const base = new THREE.Mesh(buildBase(meta.bounds), groundMat)
-  // poza obszarem danych: płaska, nieoświetlona płaszczyzna w kolorze tła (pod wałem chmur)
-  {
-    const [bx0, by0, bx1, by1] = meta.bounds
-    const out = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0 + 30000, by1 - by0 + 30000), new THREE.MeshBasicMaterial({ color: FOG_COLOR }))
-    out.rotation.x = -Math.PI / 2
-    out.position.set((bx0 + bx1) / 2, -0.3, -(by0 + by1) / 2)
-    scene.add(out)
-  }
+  scene.add(outsidePlane(meta.bounds))
   base.receiveShadow = true
   scene.add(base)
   const tiles = new Tiles(meta, {
@@ -103,14 +123,13 @@ export async function startApp() {
   // tramwaje z rozkładu startują od razu, bez czekania na kafle
   let timetable: Timetable | null = null
   try {
-    const r = await fetch(`${import.meta.env.BASE_URL}data/trams.json`)
+    const r = await fetch(dataUrl('trams.json'))
     if (r.ok) {
       timetable = new Timetable(await r.json(), tramGeometry())
       scene.add(timetable.mesh)
     }
   } catch { /* brak rozkładu */ }
 
-  // trybuny (i żużel) dopiero od otwarcia Stadionu Olimpijskiego w 1928 r.
   const stands = buildStands(meta.stadiums)
   scene.add(stands)
   const structures = new Structures(meta.structures, meta.aerialways)
@@ -119,6 +138,15 @@ export async function startApp() {
   scene.add(historyLayer.group)
   const neons = new Neons()
   scene.add(neons.group)
+  // pomniki (scripts/bake-monuments.ts); brak pliku = brak warstwy
+  let monuments: Monuments | null = null
+  try {
+    const r = await fetch(dataUrl('monuments.json'))
+    if (r.ok) {
+      monuments = new Monuments(await r.json())
+      scene.add(monuments.group)
+    }
+  } catch { /* brak pomników */ }
   const speedway = meta.speedway ? new Speedway(meta.speedway) : null
   if (speedway) scene.add(speedway.group)
 
@@ -129,10 +157,14 @@ export async function startApp() {
 
   const sun = new Sun(scene)
 
-  // --- epoki ---
+  // --- epoki i warstwy ---
   let epoch: Epoch = EPOCHS[EPOCHS.length - 1]
   let epochState: EpochScene | null = null
-  const layers: Record<Layer, boolean> = { dwarfs: true, neons: true, trams: true, trains: true, boats: true, cars: true, people: true, birds: true, clouds: true, trees: true, labels: true, eggs: true }
+  const layers: Record<Layer, boolean> = {
+    dwarfs: true, neons: true, monuments: true, trams: true, trains: true, boats: true, cars: true,
+    people: true, birds: true, clouds: true, trees: true,
+    markers: true, labels: true, places: true, pois: true, unis: true, eggs: true, cult: true,
+  }
 
   const markEpoch = initTimeline(EPOCHS, (e) => setEpoch(e))
   function setEpoch(e: Epoch) {
@@ -140,7 +172,7 @@ export async function startApp() {
     if (epochState) scene.remove(epochState.extras)
     epochState = epochScene(e, world, WALLS)
     // „dziś” = wygląd budowany w wątkach roboczych (bez filtrowania budynków)
-    tiles.setBuildOpts(epochState.opts, e.mode === 'today' && e.year >= 2020)
+    tiles.setBuildOpts(epochState.opts, e.mode === 'today' && e.year >= SINCE.today)
     scene.add(epochState.extras)
     showEpoch(e)
     markEpoch(e)
@@ -148,66 +180,29 @@ export async function startApp() {
     saveHash()
   }
 
+  // Widoczność warstw: przełączniki w panelu i to, co istniało w roku epoki.
   function applyLayers() {
-    const modern = epoch.year >= 2001
+    const year = epoch.year
     if (life) {
       life.layers.trams = layers.trams && !!epochState?.life.trams
-      // kolej dotarła do Wrocławia w 1842 r.
-      life.layers.trains = layers.trains && epoch.year >= 1842
+      life.layers.trains = layers.trains && year >= SINCE.railway
       life.layers.cars = layers.cars && !!epochState?.life.cars
       life.layers.people = layers.people
       life.layers.birds = layers.birds
       life.layers.clouds = layers.clouds
     }
     tiles.setTreesVisible(layers.trees)
-    stands.visible = epoch.year >= 1928
+    stands.visible = year >= SINCE.stadium
     if (scenes) scenes.boatsOn = layers.boats
-    structures.setYear(epoch.year)
-    historyLayer.show(HistoryLayer.planFor(epoch.year))
-    labels.year = epoch.year
-    // pierwszy krasnal stanął w 2001 r.
-    dwarfs.mesh.visible = layers.dwarfs && modern
-    labels.showLabels = layers.labels
-    labels.showEggs = layers.eggs
+    structures.setYear(year)
+    historyLayer.show(HistoryLayer.planFor(year))
+    labels.year = year
+    dwarfs.mesh.visible = layers.dwarfs && year >= SINCE.dwarfs
+    for (const g of PIN_GROUPS) labels.show[g] = layers.markers && layers[g]
   }
 
   // --- napisy i ciekawostki ---
-  const showEgg = (e: Egg) => openPopup({ title: e.title, text: e.text, sub: t('sub.trivia') })
-  const labels = new Labels(document.getElementById('pins')!, LANDMARKS, LANDMARK_RANK, (l) => openPopup({ title: l.name, sub: l.year, text: l.text }))
-  for (const e of EGGS) labels.addMarker(e, () => showEgg(e))
-  const showTrivia = (tr: Trivia) =>
-    openPopup({ title: tr.title, sub: { miejsce: t('sub.trivia'), uczelnia: t('sub.uni'), kultowe: t('sub.cult') }[tr.category], text: tr.text, link: { href: tr.source, label: t('source') } })
-  for (const t of TRIVIA) {
-    if (t.category === 'uczelnia') labels.addLabel(t.title, t.lat, t.lon, 0.9, () => showTrivia(t), 'uni')
-    else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1950)
-    else labels.addMarker(t, () => showTrivia(t))
-  }
-  // ciekawostki przy neonach (galeria przy Ruskiej jako jeden znacznik)
-  for (const n of NEONS) {
-    if (n.id.startsWith('ns-')) continue
-    const L = lang()
-    labels.addMarker(
-      { id: `neon-${n.id}`, lat: n.lat, lon: n.lon, title: n.title[L], text: n.text[L], trigger: 'click' },
-      () => openPopup({ title: n.title[L], sub: t('layer.neons'), text: n.text[L], img: n.img, credit: n.credit, link: { href: n.source, label: t('source') } }),
-      '?', 'neon', n.from,
-    )
-  }
-  for (const [name, x, y, rank] of meta.places) labels.addPlace(name, x, y, rank)
-  // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
-  const landmarkXY = LANDMARKS.map((l) => toLocal(l.lat, l.lon))
-  const POI_SUB = { mall: t('poi.mall'), culture: t('poi.culture'), church: t('poi.church'), edu: t('poi.edu'), health: t('poi.health'), sport: t('poi.sport'), notable: t('poi.notable') }
-  for (const [name, x, y, kind, rank, wiki] of meta.pois) {
-    if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
-    const [lat, lon] = toLatLon(x, y)
-    // bez daty w OSM: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1945 r.
-    const from = kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1950
-    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind], link: wiki ? { href: wiki, label: wiki.includes('wikipedia') ? 'Wikipedia' : 'Wikidata' } : undefined }), kind === 'church' ? 'poi church' : `poi poi-${kind}`, from)
-  }
-  for (const st of meta.stadiums) {
-    if (!st.n) continue
-    const [lat, lon] = toLatLon(...centroid(st.o))
-    labels.addLabel(st.n, lat, lon, 0.8, () => openPopup({ title: st.n!, sub: t('sub.stadium') }))
-  }
+  const labels = buildLabels(meta, LANDMARKS, LANDMARK_RANK, EGGS, TRIVIA)
 
   // --- czas i pory roku ---
   let timePreset: TimePreset = 'now'
@@ -220,17 +215,13 @@ export async function startApp() {
   }
 
   // --- piksel i rozmiar ---
-  let px = 1.5
+  let px = PIXEL_DEFAULT
   function resize() {
     const W = innerWidth, H = innerHeight
     const w = Math.ceil(W / px), h = Math.ceil(H / px)
     renderer.setSize(w, h, false)
     pixel.setSize(w, h)
-    camera.left = -W / 2
-    camera.right = W / 2
-    camera.top = H / 2
-    camera.bottom = -H / 2
-    camera.updateProjectionMatrix()
+    view.resize(W, H)
   }
   addEventListener('resize', resize)
 
@@ -240,131 +231,55 @@ export async function startApp() {
     pixel: (v) => { px = v; resize() },
     look: (opt, on) => {
       const u = pixel.material.uniforms
-      ;({ palette: u.uPalette, outline: u.uOutline, dither: u.uDither })[opt].value = on ? 1 : 0
+      const uniform = { palette: u.uPalette, outline: u.uOutline, dither: u.uDither }[opt]
+      uniform.value = on ? 1 : 0
     },
     layer: (l, on) => { layers[l] = on; applyLayers() },
   })
 
-  // --- kamera: start, obrót, link ---
-  const target = controls.target
-  function setView(x: number, y: number, zoom: number, azimuth: number, polar = 0.75) {
-    target.set(x, 0, -y)
-    const d = 3000
-    camera.position.set(x + Math.sin(azimuth) * Math.sin(polar) * d, Math.cos(polar) * d, -y + Math.cos(azimuth) * Math.sin(polar) * d)
-    camera.zoom = zoom
-    camera.updateProjectionMatrix()
-    controls.update()
-  }
-  function fly(x: number, y: number) {
-    setView(x, y, Math.max(camera.zoom, 2.5), controls.getAzimuthalAngle(), controls.getPolarAngle())
-  }
-  function rotate(by: number) {
-    setView(target.x, -target.z, camera.zoom, controls.getAzimuthalAngle() + by, controls.getPolarAngle())
-  }
-  document.getElementById('btn-rot-l')!.onclick = () => rotate(-Math.PI / 4)
-  document.getElementById('btn-rot-r')!.onclick = () => rotate(Math.PI / 4)
+  // --- kamera: obrót, kompas, link ---
+  byId('btn-rot-l').onclick = () => view.rotate(-1)
+  byId('btn-rot-r').onclick = () => view.rotate(1)
   // kompas przywraca domyślny widok: północ u góry i standardowe nachylenie
-  document.getElementById('compass')!.onclick = () => setView(target.x, -target.z, camera.zoom, 0, DEFAULT_TILT)
+  byId('compass').onclick = () => view.resetNorth()
 
   function saveHash() {
-    const p = new URLSearchParams({
-      e: epoch.id,
-      x: target.x.toFixed(0),
-      y: (-target.z).toFixed(0),
-      z: camera.zoom.toFixed(2),
-      r: controls.getAzimuthalAngle().toFixed(2),
-      t: controls.getPolarAngle().toFixed(2),
-    })
+    const p = new URLSearchParams({ e: epoch.id, ...view.hashParams() })
     history.replaceState(null, '', '#' + p)
   }
-  controls.addEventListener('end', saveHash)
-  document.getElementById('btn-link')!.onclick = async () => {
+  view.controls.addEventListener('end', saveHash)
+  byId('btn-link').onclick = async () => {
     saveHash()
-    try { await navigator.clipboard.writeText(location.href); toast(t('toast.linkCopied')) } catch { toast(location.href, 5000) }
+    try {
+      await navigator.clipboard.writeText(location.href)
+      toast(t('toast.linkCopied'))
+    } catch {
+      toast(location.href, 5000)
+    }
   }
 
   // --- kliknięcia: krasnale i budynki ---
-  const ray = new THREE.Raycaster()
-  const ndc = new THREE.Vector2()
-  const pointer = (ev: PointerEvent) => {
-    const r = canvas.getBoundingClientRect()
-    ndc.set(((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1)
-    ray.setFromCamera(ndc, camera)
-  }
-  let downAt = [0, 0]
-  canvas.addEventListener('pointerdown', (ev) => (downAt = [ev.clientX, ev.clientY]))
-  canvas.addEventListener('pointerup', (ev) => {
-    if (Math.hypot(ev.clientX - downAt[0], ev.clientY - downAt[1]) > 5) return
-    pointer(ev)
-    if (dwarfs.mesh.visible) {
-      const hit = ray.intersectObject(dwarfs.mesh)[0]
-      if (hit?.instanceId != null) return clickDwarf(hit.instanceId)
-    }
-    if (timetable?.mesh.visible) {
-      const tram = ray.intersectObject(timetable.mesh)[0]
-      const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
-      if (info) return openPopup({ title: t('tram.title', { line: info.line }), sub: t('tram.sub', { head: info.head }), text: t('tram.text', { dep: info.dep, arr: info.arr }) })
-    }
-    const neon = neons.group.visible ? neons.hit(ray) : null
-    if (neon) return openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link: neon.source ? { href: neon.source, label: t('source') } : undefined })
-    const sc = scenes?.hit(ray)
-    if (sc) return openPopup({ title: sc.title, sub: t('sub.trivia'), text: sc.text })
-    if (speedway?.hit(ray)) {
-      return openPopup({
-        title: t('speedway.title'),
-        sub: t('sub.trivia'),
-        text: t('speedway.text'),
-      })
-    }
-    const b = tiles.pick(ray)
-    {
-      if (b?.n) openPopup({ title: b.n, sub: [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ') })
-    }
-  })
-  let hoverTick = 0
-  canvas.addEventListener('pointermove', (ev) => {
-    if (!dwarfs.mesh.visible || performance.now() - hoverTick < 60) return
-    hoverTick = performance.now()
-    pointer(ev)
-    const hit = ray.intersectObject(dwarfs.mesh)[0]
-    dwarfs.setHover(hit?.instanceId ?? -1)
-    canvas.style.cursor = hit ? 'pointer' : ''
-  })
-
   function clickDwarf(i: number) {
     const { dwarf, isNew } = dwarfs.collect(i)
     updateDwarfCount()
-    const sub = [dwarf.a && t('dwarf.author', { a: dwarf.a }), dwarf.d && t('dwarf.since', { d: dwarf.d })].filter(Boolean).join(' · ')
-    const fact = DWARF_FACTS[Math.floor(Math.random() * DWARF_FACTS.length)]
-    openPopup({
-      title: dwarf.n,
-      sub,
-      img: dwarf.img,
-      text: dwarf.i ? t('dwarf.quote', { s: dwarf.i }) : fact,
-      link: { href: `https://www.openstreetmap.org/node/${dwarf.id}`, label: t('dwarf.osm') },
-    })
+    showDwarf(dwarf, DWARF_FACTS)
     if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
     if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
+  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, speedway, tiles, scenes: () => scenes, onDwarf: clickDwarf })
 
-  // --- easter eggi z klawiatury ---
-  let keys: string[] = []
-  addEventListener('keydown', (ev) => {
-    if ((ev.target as HTMLElement).tagName === 'INPUT') return
-    keys = [...keys, ev.key].slice(-KONAMI.length)
-    if (keys.join() === KONAMI.join()) {
+  // --- skróty i easter eggi z klawiatury ---
+  initKeys({
+    rotate: (dir) => view.rotate(dir),
+    konami: () => {
       const egg = EGGS.find((e) => e.trigger === 'konami')
       if (egg) showEgg(egg)
       dwarfs.startParty()
-      keys = []
-    }
-    if (ev.key === 'h' || ev.key === 'H') document.body.classList.toggle('hide-ui')
-    if (ev.key === 'q') rotate(-Math.PI / 4)
-    if (ev.key === 'e') rotate(Math.PI / 4)
+    },
   })
 
   // --- zrzut ekranu ---
-  document.getElementById('btn-photo')!.onclick = () => {
+  byId('btn-photo').onclick = () => {
     pixel.render(scene, camera)
     const a = document.createElement('a')
     a.href = canvas.toDataURL('image/png')
@@ -373,32 +288,18 @@ export async function startApp() {
   }
 
   // --- wyszukiwarka ---
-  const items: SearchItem[] = [
-    ...LANDMARKS.map((l) => {
-      const [x, y] = toLocal(l.lat, l.lon)
-      return { name: l.name, kind: t('kind.zabytek'), x, y, onPick: () => openPopup({ title: l.name, sub: l.year, text: l.text }) }
-    }),
-    ...TRIVIA.map((tr) => {
-      const [x, y] = toLocal(tr.lat, tr.lon)
-      return { name: tr.title, kind: t(`kind.${tr.category === 'miejsce' ? 'ciekawostka' : tr.category}`), x, y, onPick: () => showTrivia(tr) }
-    }),
-    ...dwarfs.list.map((d, i) => ({ name: d.n, kind: t('kind.krasnal'), x: d.x, y: d.y, onPick: () => clickDwarf(i) })),
-    ...world.named.map(([name, x, y, kind]) => ({ name, kind: t(`kind.${kind}`), x, y })),
-  ]
-  initSearch(items, fly)
+  initSearch(searchItems(LANDMARKS, TRIVIA, dwarfs.list, world, clickDwarf), (x, y) => view.fly(x, y))
 
   // --- start ---
   const h = new URLSearchParams(location.hash.slice(1))
-  const start = toLocal(51.1099, 17.0326)
   setEpoch(EPOCHS.find((e) => e.id === h.get('e')) ?? epoch)
   setSeason(season)
   resize()
-  const sx = +(h.get('x') ?? start[0]), sy = +(h.get('y') ?? start[1])
-  setView(sx, sy, +(h.get('z') ?? 1.6), +(h.get('r') ?? 0), Math.min(+(h.get('t') ?? DEFAULT_TILT), 1.0))
-  const progress = document.getElementById('progress')!
+  const [sx, sy] = view.restore(h, toLocal(START.lat, START.lon))
+  const progress = byId('progress')
   tiles
     .load(sx, sy, (done, total) => {
-      document.getElementById('loading')!.classList.add('done')
+      byId('loading').classList.add('done')
       progress.hidden = done === total
       progress.textContent = t('progress', { done, total })
     })
@@ -406,7 +307,7 @@ export async function startApp() {
       life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
       scene.add(life.group)
       // smaczki (jarmark, fajerwerki, statki, latarnik) potrzebują wczytanego miasta
-      fetch(`${import.meta.env.BASE_URL}data/scenes.json`)
+      fetch(dataUrl('scenes.json'))
         .then((r) => (r.ok ? r.json() : undefined))
         .catch(() => undefined)
         .then((data) => {
@@ -420,85 +321,98 @@ export async function startApp() {
       setSeason(season)
     })
 
-  // Tryb oszczędny: gdy przez kilka sekund jest < 24 kl./s, zwiększ piksel, potem wyłącz cienie.
-  const lowDetailHidesLife = true
-  let fpsAcc = 0, fpsFrames = 0, saverStep = 0
-  const governor = (dt: number) => {
-    fpsAcc += dt
-    fpsFrames++
-    if (fpsAcc < 4) return
-    const fps = fpsFrames / fpsAcc
-    fpsAcc = fpsFrames = 0
-    if (fps >= 24 || document.hidden) return
-    if (saverStep === 0 && px < 3) { px = Math.min(3, px + 0.5); resize(); toast(t('saver.pixel')) }
-    else if (saverStep === 1) { renderer.shadowMap.enabled = false; scene.traverse((o) => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true }); toast(t('saver.shadows')) }
-    else return
-    saverStep++
-  }
+  // Tryb oszczędny: najpierw większy piksel, potem bez cieni.
+  const saver = new PowerSaver([
+    () => {
+      if (px >= PIXEL_SAVER_MAX) return false
+      px = Math.min(PIXEL_SAVER_MAX, px + PIXEL_SAVER_STEP)
+      resize()
+      toast(t('saver.pixel'))
+      return true
+    },
+    () => {
+      renderer.shadowMap.enabled = false
+      // materiały trzeba przekompilować bez cieni
+      scene.traverse((o) => {
+        const material = (o as Partial<THREE.Mesh>).material as THREE.Material | undefined
+        if (material) material.needsUpdate = true
+      })
+      toast(t('saver.shadows'))
+      return true
+    },
+  ])
 
   const clock = new THREE.Clock()
   let lastSig = '', sinceShadow = 1, sinceLabels = 1
   let lastClock = 0
-  const [bx0, by0, bx1, by1] = world.bounds
   renderer.setAnimationLoop(() => {
-    const dt = Math.min(clock.getDelta(), 0.1)
-    controls.update()
-    // nie pozwól odjechać poza mapę: przesuwamy cel i kamerę razem
-    // (sam cel zmieniałby odległość kamery i dalsza część miasta wypadała poza zasięg widzenia)
-    // brzeg widoku może wyjść najwyżej ~350 m za koniec danych (pas chmur), dalej kamera nie jedzie
-    const hw = innerWidth / 2 / camera.zoom, hh = innerHeight / 2 / camera.zoom / Math.max(0.5, Math.cos(controls.getPolarAngle()))
-    const lim = (lo: number, hi: number, half: number, v: number) => {
-      const a = lo + half - 350, b = hi - half + 350
-      return a > b ? (lo + hi) / 2 : THREE.MathUtils.clamp(v, a, b)
-    }
-    const cx = lim(bx0, bx1, Math.min(hw, hh * 4), target.x) - target.x
-    const cz = -lim(by0, by1, Math.min(hh, hw * 4), -target.z) - target.z
-    if (cx || cz) {
-      target.x += cx
-      target.z += cz
-      camera.position.x += cx
-      camera.position.z += cz
-    }
+    const dt = Math.min(clock.getDelta(), MAX_FRAME_DT)
+    view.controls.update()
+    view.keepInside(world.bounds)
 
     const now = clockFor(timePreset)
     const extent = Math.max(innerWidth, innerHeight) / camera.zoom
-    sun.set(now, target, Math.min(extent * 0.9, 2600))
+    sun.set(now, view.target, Math.min(extent * 0.9, SHADOW_EXTENT_MAX))
     uniforms.uNight.value = sun.night
     pixel.material.uniforms.uNight.value = sun.night
     uTime.value += dt
     // metry na piksel renderu (do progu konturów)
     pixel.material.uniforms.uMpp.value = px / camera.zoom
-    if (performance.now() - lastClock > 1000) { setClock(now); lastClock = performance.now() }
+    if (performance.now() - lastClock > CLOCK_REFRESH_MS) { setClock(now); lastClock = performance.now() }
 
-    // daleko: ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy
-    const far = camera.zoom < 0.55
-    if (life) { life.group.visible = !far || !lowDetailHidesLife; if (life.group.visible) life.update(dt) }
-    tiles.setTreesVisible(layers.trees && camera.zoom > 0.35)
+    const far = camera.zoom < FAR_ZOOM
+    if (life) {
+      life.group.visible = !far
+      if (life.group.visible) life.update(dt)
+    }
+    tiles.setTreesVisible(layers.trees && camera.zoom > TREES_MIN_ZOOM)
     tiles.setZoom(camera.zoom)
-    governor(dt)
+    saver.tick(dt)
     if (timetable) {
-      timetable.mesh.visible = layers.trams && epoch.year >= 1877
+      timetable.mesh.visible = layers.trams && epoch.year >= SINCE.trams
       if (timetable.mesh.visible) timetable.update(now)
     }
     dwarfs.setZoom(px / camera.zoom)
     dwarfs.update(dt)
     epochState?.update(dt)
     structures.update(dt)
-    // neony liczą rozmiar dla piksela ok. 2 — przeliczamy powiększenie na bieżący piksel
+    if (monuments) {
+      monuments.group.visible = layers.monuments && camera.zoom > MONUMENTS_MIN_ZOOM
+      if (monuments.group.visible) monuments.update(dt, epoch.year)
+    }
     neons.group.visible = layers.neons
-    if (neons.group.visible) neons.update(dt, sun.night, epoch.year, (camera.zoom * 2) / px)
-    if (speedway) speedway.group.visible = epoch.year >= 1988 && layers.eggs
-    if (speedway?.group.visible) speedway.update(dt)
+    if (neons.group.visible) neons.update(dt, sun.night, epoch.year, (camera.zoom * NEON_PIXEL) / px)
+    if (speedway) {
+      speedway.group.visible = epoch.year >= SINCE.speedway && layers.eggs
+      if (speedway.group.visible) speedway.update(dt)
+    }
     scenes?.update(dt, now, epoch.year, sun.night)
     pixel.render(scene, camera)
+
     // napisy i cienie przeliczamy, gdy widok się zmienił (albo co jakiś czas dla ruchomych obiektów)
-    const sig = `${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)},${camera.zoom.toFixed(3)},${innerWidth},${innerHeight},${epoch.year},${layers.labels},${layers.eggs}`
+    const p = camera.position
+    const sig = [
+      p.x.toFixed(1), p.y.toFixed(1), p.z.toFixed(1), camera.zoom.toFixed(3),
+      innerWidth, innerHeight, epoch.year, ...PIN_GROUPS.map((g) => labels.show[g]),
+    ].join()
     const moved = sig !== lastSig
     lastSig = sig
     sinceShadow += dt
     sinceLabels += dt
-    if (moved || sinceShadow > 0.15) { renderer.shadowMap.needsUpdate = true; sinceShadow = 0 }
-    if (moved || sinceLabels > 0.5) { labels.update(camera, innerWidth, innerHeight); sinceLabels = 0 }
-    setCompass(controls.getAzimuthalAngle())
+    if (moved || sinceShadow > SHADOW_REFRESH_S) { renderer.shadowMap.needsUpdate = true; sinceShadow = 0 }
+    if (moved || sinceLabels > LABELS_REFRESH_S) { labels.update(camera, innerWidth, innerHeight); sinceLabels = 0 }
+    setCompass(view.azimuth)
   })
+}
+
+// Poza obszarem danych: płaska, nieoświetlona płaszczyzna w kolorze tła (pod wałem chmur).
+function outsidePlane([bx0, by0, bx1, by1]: WorldMeta['bounds']) {
+  const margin = 30000
+  const plane = new THREE.Mesh(
+    new THREE.PlaneGeometry(bx1 - bx0 + margin, by1 - by0 + margin),
+    new THREE.MeshBasicMaterial({ color: FOG_COLOR }),
+  )
+  plane.rotation.x = -Math.PI / 2
+  plane.position.set((bx0 + bx1) / 2, -0.3, -(by0 + by1) / 2)
+  return plane
 }
