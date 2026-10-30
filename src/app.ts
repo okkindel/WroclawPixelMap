@@ -196,12 +196,12 @@ export async function startApp() {
   // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
   const landmarkXY = LANDMARKS.map((l) => toLocal(l.lat, l.lon))
   const POI_SUB = { mall: t('poi.mall'), culture: t('poi.culture'), church: t('poi.church'), edu: t('poi.edu'), health: t('poi.health'), sport: t('poi.sport'), notable: t('poi.notable') }
-  for (const [name, x, y, kind, rank] of meta.pois) {
+  for (const [name, x, y, kind, rank, wiki] of meta.pois) {
     if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
     const [lat, lon] = toLatLon(x, y)
     // bez daty w OSM: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1945 r.
     const from = kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1945
-    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind] }), kind === 'church' ? 'poi church' : `poi poi-${kind}`, from)
+    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind], link: wiki ? { href: wiki, label: wiki.includes('wikipedia') ? 'Wikipedia' : 'Wikidata' } : undefined }), kind === 'church' ? 'poi church' : `poi poi-${kind}`, from)
   }
   for (const st of meta.stadiums) {
     if (!st.n) continue
@@ -445,8 +445,14 @@ export async function startApp() {
     controls.update()
     // nie pozwól odjechać poza mapę: przesuwamy cel i kamerę razem
     // (sam cel zmieniałby odległość kamery i dalsza część miasta wypadała poza zasięg widzenia)
-    const cx = THREE.MathUtils.clamp(target.x, bx0, bx1) - target.x
-    const cz = THREE.MathUtils.clamp(target.z, -by1, -by0) - target.z
+    // brzeg widoku może wyjść najwyżej ~350 m za koniec danych (pas chmur), dalej kamera nie jedzie
+    const hw = innerWidth / 2 / camera.zoom, hh = innerHeight / 2 / camera.zoom / Math.max(0.5, Math.cos(controls.getPolarAngle()))
+    const lim = (lo: number, hi: number, half: number, v: number) => {
+      const a = lo + half - 350, b = hi - half + 350
+      return a > b ? (lo + hi) / 2 : THREE.MathUtils.clamp(v, a, b)
+    }
+    const cx = lim(bx0, bx1, Math.min(hw, hh * 4), target.x) - target.x
+    const cz = -lim(by0, by1, Math.min(hh, hw * 4), -target.z) - target.z
     if (cx || cz) {
       target.x += cx
       target.z += cz

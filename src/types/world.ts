@@ -84,7 +84,8 @@ export interface Aerialway { p: Flat; pylons: [number, number, number][]; n?: st
 
 // Rozpoznawalny obiekt z OSM do napisu: nazwa, położenie, kategoria, ranga (1 = z daleka, 2 = po przybliżeniu)
 export type PoiKind = 'mall' | 'culture' | 'church' | 'edu' | 'health' | 'sport' | 'notable'
-export type Poi = [name: string, x: number, y: number, kind: PoiKind, rank: 1 | 2]
+// wiki: adres hasła w Wikipedii albo Wikidacie (skąd wiadomo, że obiekt jest ciekawy)
+export type Poi = [name: string, x: number, y: number, kind: PoiKind, rank: 1 | 2, wiki?: string]
 
 // Osiedle/dzielnica: nazwa, położenie, ranga (0 = osiedle, 1 = część osiedla, 2 = okolica)
 export type Place = [name: string, x: number, y: number, rank: 0 | 1 | 2]

@@ -217,8 +217,11 @@ function poiKind(t: Record<string, string>): PoiKind | null {
   if (t.wikidata || t.wikipedia) return 'notable'
   return null
 }
+// ogólnikowe nazwy (sama funkcja budynku) nie są warte napisu
+const GENERIC = /^(plebania|kaplica|kościół|cerkiew|dom|budynek|szkoła|przedszkole|garaże?|wieża|pawilon|hala|magazyn|portiernia|biuro|biblioteka|kino|teatr)$/i
+
 function addPoi(el: OsmEl, t: Record<string, string>) {
-  if (!t.name || !el.geometry && !el.members) return
+  if (!t.name || GENERIC.test(t.name.trim()) || (!el.geometry && !el.members)) return
   const k = poiKind(t)
   if (!k) return
   const pts = el.type === 'way' ? wayPts(el.geometry!) : (el.members ?? []).filter((m) => m.role !== 'inner' && m.geometry).flatMap((m) => wayPts(m.geometry!))
@@ -226,7 +229,9 @@ function addPoi(el: OsmEl, t: Record<string, string>) {
   const x = pts.reduce((s2, p) => s2 + p[0], 0) / pts.length, y = pts.reduce((s2, p) => s2 + p[1], 0) / pts.length
   if (!inBox([x, y])) return
   const famous = k === 'mall' || !!t.wikidata || !!t.wikipedia
-  pois.push([t.name, r1(x), r1(y), k, famous ? 1 : 2])
+  const wp = t.wikipedia?.match(/^(\w+):(.+)$/)
+  const wiki = wp ? `https://${wp[1]}.wikipedia.org/wiki/${encodeURIComponent(wp[2].replace(/ /g, '_'))}` : t.wikidata ? `https://www.wikidata.org/wiki/${t.wikidata}` : undefined
+  pois.push(wiki ? [t.name, r1(x), r1(y), k, famous ? 1 : 2, wiki] : [t.name, r1(x), r1(y), k, famous ? 1 : 2])
 }
 const encodePoly = (p: RawPoly): Poly => ({ o: flat(p.outer), h: p.holes.length ? p.holes.map(flat) : undefined })
 
