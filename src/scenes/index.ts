@@ -39,8 +39,13 @@ const TEXT = {
   },
 }
 
+export type SceneName = 'market' | 'fireworks' | 'boats' | 'lamplighter'
+
 export class Scenes {
   group = new THREE.Group()
+  // scenki włączone ręcznie z menu: widoczne niezależnie od daty, pory i epoki
+  forced = new Set<SceneName>()
+  private forcedT = 0
   private market: Market | null = null
   private fireworks: Fireworks
   private boats: Boats | null = null
@@ -83,11 +88,13 @@ export class Scenes {
   update(dt: number, now: Date, epochYear: number, night: number) {
     const m = this.market
     if (m) {
-      m.group.visible = marketOpen(now, epochYear)
+      m.group.visible = this.forced.has('market') || marketOpen(now, epochYear)
       if (m.group.visible) m.update(dt, night)
     }
 
-    const ny = newYearMinutes(now)
+    // wymuszony pokaz kręci się w pętli wokół „północy” (najgęstsze wybuchy)
+    this.forcedT = (this.forcedT + dt / 60) % 10
+    const ny = this.forced.has('fireworks') ? this.forcedT - 5 : newYearMinutes(now)
     this.fireworks.mesh.visible = ny !== null
     if (ny !== null) this.fireworks.update(dt, ny)
     else this.fireworks.clear()
@@ -95,14 +102,17 @@ export class Scenes {
     if (this.boats) {
       const month = now.getMonth()
       const season = month >= 4 && month <= 8 && night < 0.5
-      const show: Record<BoatKind, boolean> = { barge: true, cruise: season && epochYear >= 1900, kayak: season && epochYear >= 1960 }
+      const all = this.forced.has('boats')
+      const show: Record<BoatKind, boolean> = { barge: true, cruise: all || (season && epochYear >= 1900), kayak: all || (season && epochYear >= 1960) }
       this.boats.update(dt, show)
     }
 
     // latarnie gazowe od połowy XIX w. (gazownia miejska od 1847 r.)
     if (this.lamplighter) {
-      this.lamplighter.group.visible = epochYear >= 1850
-      if (this.lamplighter.group.visible) this.lamplighter.update(dt, night)
+      const lamp = this.forced.has('lamplighter')
+      this.lamplighter.group.visible = lamp || epochYear >= 1850
+      // wymuszony latarnik: zmierzch, żeby szedł zapalać latarnie
+      if (this.lamplighter.group.visible) this.lamplighter.update(dt, lamp ? Math.max(night, 0.6) : night)
     }
 
     this.audio.update(dt, now, epochYear, night)

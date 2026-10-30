@@ -10,7 +10,7 @@ import { Tiles } from './world/tiles.ts'
 import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
 import { HistoryLayer } from './world/history.ts'
-import { Scenes } from './scenes/index.ts'
+import { Scenes, type SceneName } from './scenes/index.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
@@ -79,6 +79,12 @@ export async function startApp() {
   // ruch w mieście powstaje dopiero, gdy wczytają się wszystkie kafle (potrzebuje całej sieci ulic)
   let life: Life | null = null
   let scenes: Scenes | null = null
+  const forcedScenes = new Set<SceneName>()
+  document.querySelectorAll<HTMLInputElement>('input[data-scene]').forEach((i) => i.addEventListener('change', () => {
+    const n = i.dataset.scene as SceneName
+    if (i.checked) forcedScenes.add(n)
+    else forcedScenes.delete(n)
+  }))
   let sound = false
   // rozkład tramwajów (GTFS MPK); brak pliku = tramwaje losowo po torach
   // tramwaje z rozkładu startują od razu, bez czekania na kafle
@@ -386,6 +392,7 @@ export async function startApp() {
         .catch(() => undefined)
         .then((data) => {
           scenes = new Scenes(world, data)
+          scenes.forced = forcedScenes
           scene.add(scenes.group)
           scenes.setSound(sound)
         })
