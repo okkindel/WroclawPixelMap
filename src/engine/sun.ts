@@ -9,10 +9,18 @@ export type TimePreset = (typeof TIME_PRESETS)[number]
 export const SEASONS = ['summer', 'spring', 'autumn', 'winter'] as const
 export type Season = (typeof SEASONS)[number]
 
+// wysokość słońca nad horyzontem (rad) w ustawieniu „zmierzch”: ok. 1,5°
+const DUSK_ELEV = 0.025
+
 export function clockFor(preset: TimePreset, now = new Date()): Date {
   const d = new Date(now)
   if (preset === 'day') d.setHours(12, 30, 0)
-  if (preset === 'dusk') d.setHours(d.getMonth() >= 4 && d.getMonth() <= 7 ? 20 : 17, 0, 0)
+  if (preset === 'dusk') {
+    // zmierzch: pierwsza chwila po południu, gdy słońce schodzi poniżej DUSK_ELEV (złota godzina tuż przed zachodem),
+    // zamiast stałej godziny, która jesienią i zimą wypadała już po zachodzie
+    d.setHours(12, 0, 0)
+    for (let i = 0; i < 12 * 12 && sunPosition(d).elev > DUSK_ELEV; i++) d.setMinutes(d.getMinutes() + 5)
+  }
   if (preset === 'night') d.setHours(23, 30, 0)
   return d
 }
@@ -45,7 +53,8 @@ export class Sun {
   set(date: Date, target: THREE.Vector3, extent: number) {
     const { elev, az } = sunPosition(date)
     const e = Math.max(elev, -0.3)
-    const dayK = THREE.MathUtils.smoothstep(e, -0.12, 0.25)
+    // światło dnia gaśnie łagodnie od wysokości 0,25 rad do 0,2 rad pod horyzontem (wcześniej −0,12: zmierzch był prawie nocą)
+    const dayK = THREE.MathUtils.smoothstep(e, -0.2, 0.25)
     this.night = 1 - THREE.MathUtils.smoothstep(e, -0.15, 0.05)
     // księżyc w nocy: słabe niebieskie światło z wysoka
     const h = dayK > 0.02 ? Math.max(e, 0.08) : 0.9
@@ -53,14 +62,17 @@ export class Sun {
     this.light.position.copy(target).addScaledVector(dir, 1500)
     this.light.target.position.copy(target)
     const golden = 1 - THREE.MathUtils.smoothstep(e, 0.05, 0.45)
+    // światło nieba gaśnie dopiero pod koniec zmierzchu (krzywa wypukła): przy nisko stojącym słońcu
+    // dachy i ulice oświetla głównie niebo, a liniowe przejście robiło ze zmierzchu prawie noc
+    const sky = 1 - (1 - dayK) ** 2
     this.light.color
       .set('#fff4e0')
       .lerp(new THREE.Color('#ff9a52'), golden * dayK)
-      .lerp(new THREE.Color('#8fa8ff'), 1 - dayK)
+      .lerp(new THREE.Color('#8fa8ff'), 1 - sky)
     this.light.intensity = 0.4 + dayK * 2.8
-    this.hemi.intensity = 0.3 + dayK * 1.5
-    this.hemi.color.set('#cfe3ff').lerp(new THREE.Color('#2a3a7a'), 1 - dayK)
-    this.hemi.groundColor.set('#8f877d').lerp(new THREE.Color('#1c1c2e'), 1 - dayK)
+    this.hemi.intensity = 0.3 + sky * 1.5
+    this.hemi.color.set('#cfe3ff').lerp(new THREE.Color('#2a3a7a'), 1 - sky)
+    this.hemi.groundColor.set('#8f877d').lerp(new THREE.Color('#1c1c2e'), 1 - sky)
     const cam = this.light.shadow.camera
     cam.left = cam.bottom = -extent
     cam.right = cam.top = extent
