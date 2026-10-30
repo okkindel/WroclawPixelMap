@@ -18,8 +18,8 @@
     "fetch-terrain": "node scripts/fetch-terrain.ts",
     "fetch-gtfs": "node scripts/fetch-gtfs.ts",
     "bake-gtfs": "node scripts/bake-gtfs.ts",
+    "bake-monuments": "node scripts/bake-monuments.ts",
     "lod2": "node scripts/lod2.ts",
-    "deploy": "npm run build && node scripts/deploy.ts"
   },
   "dependencies": {
     "three": "^0.160.0"
