@@ -20,6 +20,8 @@ const POI_MIN_ZOOM = { church: 1.5, famous: 0.3, other: 1.2, unit: 2.2, school: 
 const CULT_FROM = 1950
 // obiekt z OSM bliżej zabytku z listy niż tyle metrów to ten sam obiekt (bez dublowania napisu)
 const POI_DEDUP_RADIUS = 150
+// pierwsze słowo nazwy bez polskich znaków, małymi literami
+const firstWord = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[\s(]/)[0]
 
 // Od kiedy pokazywać obiekt z OSM bez daty: galerie od lat 90., świątynie zawsze,
 // reszta (funkcje współczesne) od 1950 r.
@@ -57,7 +59,8 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
   for (const [name, x, y, placeRank] of meta.places) labels.addPlace(name, x, y, placeRank)
 
   // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
-  const landmarkXY = landmarks.map((l) => toLocal(l.lat, l.lon))
+  // zabytki z listy: pozycja i pierwsze znaczące słowo nazwy (do wykrywania duplikatów z OSM)
+  const landmarkXY = landmarks.map((l) => [...toLocal(l.lat, l.lon), firstWord(l.name)] as const)
   const poiSub: Record<PoiKind, string> = {
     mall: t('poi.mall'),
     culture: t('poi.culture'),
@@ -68,7 +71,8 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     notable: t('poi.notable'),
   }
   for (const [name, x, y, kind, poiRank, wiki] of meta.pois) {
-    if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS)) continue
+    // duplikat = blisko zabytku z listy i ta sama nazwa (np. „Hala Targowa”), a nie tylko sąsiad („Pasaż Grunwaldzki” obok „Plac Grunwaldzki”)
+    if (landmarkXY.some(([lx, ly, w]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && w === firstWord(name))) continue
     const [lat, lon] = toLatLon(x, y)
     const church = kind === 'church'
     // (świątynie pomijamy: „Katedra” to tu kościół, nie katedra uczelni)

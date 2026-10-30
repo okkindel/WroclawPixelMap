@@ -3,7 +3,7 @@
 import { existsSync } from 'node:fs'
 import jpeg from 'jpeg-js'
 import { readFile, readdir, writeFile, mkdir, rm } from 'node:fs/promises'
-import { BBOX, TILE } from './config.ts'
+import { BBOX, ORIGIN as ORIGIN0, TILE } from './config.ts'
 import { loadNid, type NidHit } from './nid.ts'
 import { bbox, centroid } from '../src/engine/geo.ts'
 import { encodeTile } from '../src/world/tilecodec.ts'
@@ -26,7 +26,7 @@ interface OsmEl {
 interface RawPoly { outer: Pt[]; holes: Pt[][] }
 
 const [S, W, N, E] = BBOX
-const ORIGIN: [number, number] = [(S + N) / 2, (W + E) / 2]
+const ORIGIN: [number, number] = [ORIGIN0[0], ORIGIN0[1]]
 const KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
 const KY = 110540
 const r1 = (v: number) => Math.round(v * 10) / 10
@@ -608,6 +608,8 @@ function structures() {
     if (t.aerialway && el.type === 'way') { lines.push({ p: flat(pts), pylons: [], n: t.name, yr: year(t.start_date) ?? undefined }); continue }
     const m = t.man_made
     if (!m || m === 'flagpole') continue
+    // maszt bez wysokości i rodzaju to zwykle słupek (hotspot, lampa) — nie zgadujemy mu 40 m
+    if (m === 'mast' && H == null && !t['tower:type']) continue
     // promień z obrysu (dla linii) albo typowy
     const r = el.type === 'way' ? Math.max(1.5, Math.sqrt(ringArea(openRing(pts)) / Math.PI)) : m === 'water_tower' ? 7 : 2
     const h = H ?? STRUCTURE_H[m] ?? 20

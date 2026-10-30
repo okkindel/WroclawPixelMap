@@ -45,6 +45,8 @@ export function initPanel(h: PanelHandlers) {
   const btn = byId('btn-settings')
   btn.addEventListener('click', () => {
     drawer.hidden = !drawer.hidden
+    // otwarta szuflada zasłania przyciski obrotu — chowamy je na ten czas
+    document.body.classList.toggle('drawer-open', !drawer.hidden)
     btn.setAttribute('aria-expanded', String(!drawer.hidden))
   })
   const attrib = byId('attrib')

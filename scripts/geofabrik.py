@@ -11,7 +11,7 @@ import osmium
 
 PBF = 'data/geofabrik/dolnoslaskie-latest.osm.pbf'
 OUT = 'data/raw/world-geofabrik.json'
-S, W, N, E = 51.075, 16.96, 51.15, 17.14  # jak BBOX w scripts/config.ts
+S, W, N, E = 51.075, 16.917011, 51.15, 17.14  # jak BBOX w scripts/config.ts
 
 
 def way_match(t):

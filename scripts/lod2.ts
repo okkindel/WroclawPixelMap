@@ -13,7 +13,7 @@ import { spawn, execFileSync } from 'node:child_process'
 import { createReadStream } from 'node:fs'
 import { mkdir, readdir, writeFile } from 'node:fs/promises'
 import { ShapeUtils, Vector2 } from 'three'
-import { BBOX } from './config.ts'
+import { BBOX, ORIGIN as ORIGIN0 } from './config.ts'
 
 const DIR = 'data/lod2'
 const SRC_URL = process.env.LOD_URL ?? 'https://opendata.geoportal.gov.pl/InneDane/Budynki3D/LOD1/2024/02/0264.zip'
@@ -45,7 +45,7 @@ export function puwg92ToWgs(e: number, nn: number): [number, number] {
 
 // ---------- metry lokalne projektu (jak w scripts/bake.ts) ----------
 const [S, W, N, E] = BBOX
-const ORIGIN: [number, number] = [(S + N) / 2, (W + E) / 2]
+const ORIGIN: [number, number] = [ORIGIN0[0], ORIGIN0[1]]
 const KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
 const KY = 110540
 const r1 = (v: number) => Math.round(v * 10) / 10
