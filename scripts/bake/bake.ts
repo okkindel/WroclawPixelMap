@@ -30,7 +30,7 @@ applyParts(s, src.parts, nid)
 await applyLod1(s)
 // 5. wyszukiwarka, krasnale, konstrukcje
 out.named = namedPlaces(out)
-out.dwarfs = dwarfs(src.dwarfs)
+out.dwarfs = dwarfs(src.dwarfs, out.buildings)
 const built = structures(src.structures, out)
 // 6. kafle i kolory dachów z ortofotomapy
 const tiles = splitTiles(out)
