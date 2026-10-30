@@ -31,7 +31,7 @@ export class PixelPass {
         uPalCount: { value: PALETTE.length },
         uPalette: { value: 1 },
         uOutline: { value: 1 },
-        uOutlineK: { value: 1 },
+        uMpp: { value: 1 },
         uDither: { value: 1 },
         uDepthRange: { value: 1 },
         uNight: { value: 0 },
@@ -40,7 +40,7 @@ export class PixelPass {
       fragmentShader: `
         uniform sampler2D tColor; uniform sampler2D tDepth; uniform vec2 uRes;
         uniform vec3 uPal[${MAX_COLORS}]; uniform int uPalCount;
-        uniform float uPalette; uniform float uOutline; uniform float uOutlineK; uniform float uDither; uniform float uDepthRange; uniform float uNight;
+        uniform float uPalette; uniform float uOutline; uniform float uMpp; uniform float uDither; uniform float uDepthRange; uniform float uNight;
         varying vec2 vUv;
         float bayer(vec2 p){
           int x = int(mod(p.x, 4.0)), y = int(mod(p.y, 4.0));
@@ -54,7 +54,8 @@ export class PixelPass {
           if (uOutline > 0.5) {
             float dc = d(vec2(0.0));
             float dn = min(min(d(vec2(1.0,0.0)), d(vec2(-1.0,0.0))), min(d(vec2(0.0,1.0)), d(vec2(0.0,-1.0))));
-            if (dc - dn > 2.5) c *= mix(1.0, mix(0.55, 0.8, uNight), uOutlineK);
+            // próg rośnie z metrami na piksel: pochylona ziemia przy oddaleniu nie liczy się jako krawędź
+            if (dc - dn > 2.5 + uMpp * 1.6) c *= mix(0.55, 0.8, uNight);
           }
           if (uDither > 0.5) c += bayer(gl_FragCoord.xy) * 0.06;
           if (uPalette > 0.5) {

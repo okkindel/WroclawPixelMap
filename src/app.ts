@@ -466,7 +466,8 @@ export async function startApp() {
     uniforms.uNight.value = sun.night
     pixel.material.uniforms.uNight.value = sun.night
     uTime.value += dt
-    pixel.material.uniforms.uOutlineK.value = THREE.MathUtils.clamp((camera.zoom - 0.25) / 0.9, 0, 1)
+    // metry na piksel renderu (do progu konturów)
+    pixel.material.uniforms.uMpp.value = px / camera.zoom
     if (performance.now() - lastClock > 1000) { setClock(now); lastClock = performance.now() }
 
     // daleko: ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy
