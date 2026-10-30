@@ -10,6 +10,8 @@ Third-party data is not covered by this notice and remains under its own license
   licensed under the Open Database License (ODbL) 1.0.
 - Roof colours are derived from GUGiK orthophotos, licensed under CC BY 4.0.
 - Building heights are derived from GUGiK LoD1 2024 3D building models, licensed under CC BY 4.0.
+- The c. 1732 city plan tiles (public/data/history) are derived from SLUB Dresden / Deutsche Fotothek,
+  Virtuelles Kartenforum, and are shared under CC BY-SA 4.0.
 - Construction dates are derived from the NID immovable heritage register (dane.gov.pl).
 - Tram timetable data is derived from the MPK Wrocław GTFS feed (Otwarte Dane Wrocław).
 See README.md for details.

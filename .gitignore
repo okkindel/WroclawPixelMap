@@ -1,8 +1,9 @@
 node_modules/
 dist/
-# surowe dane (OSM ~150 MB, ortofotomapa) — odtwarzane przez npm run fetch / fetch-ortho
+# surowe dane (OSM ~150 MB, ortofotomapa, plany historyczne) — odtwarzane przez npm run fetch / fetch-ortho / fetch-history
 data/raw/
 data/ortho/
+data/history/
 data/gtfs/
 data/lod2/
 .vite/

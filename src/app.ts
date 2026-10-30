@@ -9,6 +9,7 @@ import { buildBase } from './world/ground.ts'
 import { Tiles } from './world/tiles.ts'
 import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
+import { HistoryLayer } from './world/history.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
@@ -90,6 +91,8 @@ export async function startApp() {
   scene.add(stands)
   const structures = new Structures(meta.structures, meta.aerialways)
   scene.add(structures.group)
+  const historyLayer = new HistoryLayer(meta)
+  scene.add(historyLayer.group)
   const speedway = meta.speedway ? new Speedway(meta.speedway) : null
   if (speedway) scene.add(speedway.group)
 
@@ -133,6 +136,7 @@ export async function startApp() {
     tiles.setTreesVisible(layers.trees)
     stands.visible = epoch.year >= 1928
     structures.setYear(epoch.year)
+    historyLayer.show(HistoryLayer.planFor(epoch.year))
     labels.year = epoch.year
     // pierwszy krasnal stanął w 2001 r.
     dwarfs.mesh.visible = layers.dwarfs && modern
