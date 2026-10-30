@@ -12,6 +12,15 @@ export type Season = (typeof SEASONS)[number]
 // wysokość słońca nad horyzontem (rad) w ustawieniu „zmierzch”: ok. 1,5°
 const DUSK_ELEV = 0.025
 
+// Data z dzisiejszym dniem i godziną podaną w minutach od północy (suwak pory dnia).
+export function clockAt(minutes: number, now = new Date()): Date {
+  const d = new Date(now)
+  d.setHours(Math.floor(minutes / 60), minutes % 60, 0, 0)
+  return d
+}
+
+export const minutesOf = (d: Date) => d.getHours() * 60 + d.getMinutes()
+
 export function clockFor(preset: TimePreset, now = new Date()): Date {
   const d = new Date(now)
   if (preset === 'day') d.setHours(12, 30, 0)

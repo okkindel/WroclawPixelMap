@@ -31,6 +31,8 @@ export type LookOpt = (typeof LOOK_OPTS)[number]
 
 export interface PanelHandlers {
   time: (v: TimePreset) => void
+  // godzina z suwaka, w minutach od północy
+  hour: (minutes: number) => void
   season: (v: Season) => void
   pixel: (v: number) => void
   look: (opt: LookOpt, on: boolean) => void
@@ -52,6 +54,13 @@ export function initPanel(h: PanelHandlers) {
         if (s) h.season(s)
       }
     })
+  })
+  const hour = byId<HTMLInputElement>('hour')
+  hour.addEventListener('input', () => {
+    // ręczna godzina: żaden skrót (Teraz, Południe…) nie jest już wybrany
+    for (const b of document.querySelectorAll('.seg[data-group="time"] button')) b.classList.remove('on')
+    showHour(+hour.value)
+    h.hour(+hour.value)
   })
   const px = byId<HTMLInputElement>('pixel')
   px.addEventListener('input', () => {
@@ -134,6 +143,12 @@ export function showEpoch(e: Epoch) {
   byId('info-state').textContent = e.state
   byId('info-text').textContent = e.text
   byId('info-flag').className = `flag flag-${e.flag}`
+}
+
+// Suwak pory dnia: położenie i podpis (skróty i „Teraz” przesuwają go same).
+export function showHour(minutes: number) {
+  byId<HTMLInputElement>('hour').value = String(minutes - (minutes % 15))
+  byId('hour-v').textContent = `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`
 }
 
 export function setClock(d: Date) {

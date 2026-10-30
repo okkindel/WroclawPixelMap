@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { setOrigin, toLocal } from './engine/geo.ts'
 import { C } from './engine/palette.ts'
 import { PixelPass } from './engine/pixel.ts'
-import { Sun, clockFor, type Season, type TimePreset } from './engine/sun.ts'
+import { Sun, clockAt, clockFor, minutesOf, type Season } from './engine/sun.ts'
 import { buildBase } from './world/ground.ts'
 import { Tiles } from './world/tiles.ts'
 import { buildStands } from './world/stadiums.ts'
@@ -24,7 +24,7 @@ import { epochScene, type EpochScene } from './history/epochs.ts'
 import { SINCE } from './rules/milestones.ts'
 import { FAR_ZOOM, MONUMENTS_MIN_ZOOM, PIXEL_DEFAULT, PIXEL_SAVER_MAX, PIXEL_SAVER_STEP, TREES_MIN_ZOOM } from './rules/render.ts'
 import { dwarfFacts, eggs, epochs, landmarkRank, landmarks, t, trivia } from './i18n/index.ts'
-import { initPanel, initTimeline, setClock, setCompass, setDwarfCount, showEpoch, type Layer } from './ui/panel.ts'
+import { initPanel, initTimeline, setClock, setCompass, setDwarfCount, showEpoch, showHour, type Layer } from './ui/panel.ts'
 import { toast } from './ui/popup.ts'
 import { initSearch } from './ui/search.ts'
 import { byId, oneOf } from './ui/dom.ts'
@@ -54,6 +54,8 @@ const SHADOW_REFRESH_S = 0.15
 const LABELS_REFRESH_S = 0.5
 const CLOCK_REFRESH_MS = 1000
 const MAX_FRAME_DT = 0.1
+// pora dnia na starcie: 14:00 (słońce wysoko, ale już z cieniami)
+const DEFAULT_HOUR = 14 * 60
 // zasięg mapy cieni rośnie z kadrem, ale nie ponad tyle metrów
 const SHADOW_EXTENT_MAX = 2600
 // neony liczą rozmiar dla piksela ok. 2 — przeliczamy powiększenie na bieżący piksel
@@ -210,7 +212,8 @@ export async function startApp() {
   const labels = buildLabels(meta, LANDMARKS, LANDMARK_RANK, EGGS, TRIVIA)
 
   // --- czas i pory roku ---
-  let timePreset: TimePreset = 'now'
+  // godzina z suwaka (minuty od północy) albo „teraz”: zegar na żywo
+  let hour: number | 'now' = DEFAULT_HOUR
   let season: Season = 'summer'
   const setSeason = (s: Season) => {
     season = s
@@ -234,7 +237,11 @@ export async function startApp() {
 
   initPanel({
     time: (v) => {
-      timePreset = v
+      hour = v === 'now' ? 'now' : minutesOf(clockFor(v))
+      showHour(hour === 'now' ? minutesOf(new Date()) : hour)
+    },
+    hour: (m) => {
+      hour = m
     },
     season: (v) => setSeason(v),
     pixel: (v) => {
@@ -372,7 +379,7 @@ export async function startApp() {
     view.controls.update()
     view.keepInside(world.bounds)
 
-    const now = clockFor(timePreset)
+    const now = hour === 'now' ? new Date() : clockAt(hour)
     const extent = Math.max(innerWidth, innerHeight) / camera.zoom
     sun.set(now, view.target, Math.min(extent * 0.9, SHADOW_EXTENT_MAX))
     uniforms.uNight.value = sun.night
@@ -382,6 +389,7 @@ export async function startApp() {
     pixel.material.uniforms.uMpp.value = px / camera.zoom
     if (performance.now() - lastClock > CLOCK_REFRESH_MS) {
       setClock(now)
+      if (hour === 'now') showHour(minutesOf(now))
       lastClock = performance.now()
     }
 
