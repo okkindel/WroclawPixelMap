@@ -52,7 +52,7 @@ export const POI_DEDUP_RADIUS = 150
 export const firstWord = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[\s(]/)[0]
 
 // Od kiedy pokazywać obiekt z OSM bez daty: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1950 r.
-export const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1950)
+export const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 2000 : kind === 'church' ? undefined : 1950)
 
 // Jednostki uczelni i podobne obiekty (wydziały, instytuty, kampusy…): tłok napisów na kampusach.
 const UNIT = /Wydział|Instytut|Katedra|Zakład|Pracownia|Laboratorium|Biblioteka Główna|Centrum Kształcenia|Kampus/i

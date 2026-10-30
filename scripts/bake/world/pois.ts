@@ -1,7 +1,7 @@
 // Napisy obiektów z OSM (POI): nazwane budynki/obszary o znanej funkcji albo z Wikipedią.
 import type { Poi } from '../../../src/types/world.ts'
 import { r1 } from '../../lib/geo.ts'
-import type { OsmEl, Tags } from '../../lib/osm.ts'
+import { type OsmEl, type Tags, year } from '../../lib/osm.ts'
 import { GENERIC, poiKind, poiRank } from '../../lib/rules.ts'
 import { inBox, meanPt, wayPts } from './geometry.ts'
 
@@ -25,7 +25,11 @@ export function addPoi(pois: Poi[], el: OsmEl, t: Tags) {
   if (!inBox([x, y])) return
   const wiki = wikiUrl(t)
   const rank = poiRank(k, t)
-  pois.push(wiki ? [t.name, r1(x), r1(y), k, rank, wiki] : [t.name, r1(x), r1(y), k, rank])
+  // rok powstania (start_date z OSM): napis chowany we wcześniejszych epokach
+  const from = year(t.start_date) ?? undefined
+  pois.push(
+    from ? [t.name, r1(x), r1(y), k, rank, wiki, from] : wiki ? [t.name, r1(x), r1(y), k, rank, wiki] : [t.name, r1(x), r1(y), k, rank],
+  )
 }
 
 // Szkoły-punkty: addPoi potrzebuje geometrii, więc punkt zamieniamy na jednopunktową linię.

@@ -44,7 +44,7 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     sport: t('poi.sport'),
     notable: t('poi.notable'),
   }
-  for (const [name, x, y, kind, poiRank, wiki] of meta.pois) {
+  for (const [name, x, y, kind, poiRank, wiki, from] of meta.pois) {
     // duplikat zabytku z listy (src/rules/labels.ts)
     if (landmarkXY.some(([lx, ly, w]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && w === firstWord(name))) continue
     const [lat, lon] = toLatLon(x, y)
@@ -52,10 +52,10 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     const { minZoom, university, school } = poiLabelRule(name, kind, poiRank)
     const sub = school ? t('poi.school') : poiSub[kind]
     // opis i zdjęcie z Wikipedii (public/data/wiki.json), jeśli są; wczytywane leniwie przy pierwszym kliknięciu
-    const onClick = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki)) })
+    const onClick = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki ?? undefined)) })
     // uczelnie i szkoły jak napisy uczelni z ciekawostek (niebieskie, z czapką)
     const cls = church ? 'poi church' : kind === 'edu' ? 'uni' : `poi poi-${kind}`
-    labels.addLabel(name, lat, lon, minZoom, onClick, cls, poiFrom(kind), university ? 'unis' : 'pois')
+    labels.addLabel(name, lat, lon, minZoom, onClick, cls, from ?? poiFrom(kind), university ? 'unis' : 'pois')
   }
 
   for (const st of meta.stadiums) {

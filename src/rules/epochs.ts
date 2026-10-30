@@ -36,7 +36,7 @@ export function looksPostwar(b: Building) {
 export function looksLaterThan(b: Building, Y: number) {
   if (Y >= SINCE.today) return false
   if (b.H > 100 && b.k !== 'chimney') return Y < 2010
-  if (Y >= 1995) return false
+  if (Y >= 2000) return false
   const glass = b.bm === 'glass' || b.bm === 'mirror'
   const area = Math.abs(signedArea(b.o))
   return glass || (b.k === 'com' && (b.H > 20 || area > 4000))

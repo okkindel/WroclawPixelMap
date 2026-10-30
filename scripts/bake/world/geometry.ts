@@ -108,9 +108,11 @@ export function polygons(el: OsmEl): RawPoly[] {
     const r = clipRing(openRing(wayPts(el.geometry)))
     return r ? [{ outer: r, holes: [] }] : []
   }
-  const members = el.members || []
+  // multipolygon: outer/inner. W relacji type=building obrys („outline”) jest osobnym budynkiem-linią,
+  // a części („part”) rysuje etap parts — inaczej powstałyby bezimienne kopie bez roku budowy.
+  const members = (el.members || []).filter((m) => m.type === 'way' && m.geometry && m.role !== 'part' && m.role !== 'outline')
   const ring = (inner: boolean) =>
-    joinRings(members.flatMap((m) => (m.type === 'way' && (m.role === 'inner') === inner && m.geometry ? [wayPts(m.geometry)] : [])))
+    joinRings(members.flatMap((m) => ((m.role === 'inner') === inner && m.geometry ? [wayPts(m.geometry)] : [])))
   const outers = ring(false)
   const inners = ring(true)
   const polys: RawPoly[] = outers.map((o) => ({ outer: openRing(o), holes: [] }))
