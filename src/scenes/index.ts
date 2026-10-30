@@ -3,7 +3,6 @@
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Flat, World } from '../types/world.ts'
-import { CityAudio } from './audio.ts'
 import { Boats, type BoatKind } from './boats.ts'
 import { Fireworks, newYearMinutes } from './fireworks.ts'
 import { Lamplighter } from './lamplighter.ts'
@@ -52,7 +51,6 @@ export class Scenes {
   private fireworks: Fireworks
   private boats: Boats | null = null
   private lamplighter: Lamplighter | null = null
-  private audio = new CityAudio()
 
   constructor(world: World, data?: ScenesData) {
     if (data?.rynek.stalls.length) {
@@ -66,7 +64,6 @@ export class Scenes {
       ? bboxOf(sq, 30)
       : [rx - 60, ry - 50, rx + 60, ry + 50]
     this.fireworks = new Fireworks(area)
-    this.fireworks.onBang = () => this.audio.bang()
     this.group.add(this.fireworks.mesh)
 
     if (data?.rivers.length) {
@@ -117,13 +114,8 @@ export class Scenes {
       if (this.lamplighter.group.visible) this.lamplighter.update(dt, lamp ? Math.max(night, 0.6) : night)
     }
 
-    this.audio.update(dt, now, epochYear, night)
   }
 
-  // Wywoływać z obsługi kliknięcia (przeglądarka pozwala uruchomić dźwięk tylko po geście użytkownika).
-  setSound(on: boolean) {
-    this.audio.setOn(on)
-  }
 
   hit(ray: THREE.Raycaster): { title: string; text: string } | null {
     if (this.lamplighter?.group.visible && this.lamplighter.hit(ray)) return TEXT.lamplighter

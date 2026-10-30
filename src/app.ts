@@ -10,6 +10,7 @@ import { Tiles } from './world/tiles.ts'
 import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
 import { HistoryLayer } from './world/history.ts'
+import { FOG_COLOR, buildCloudEdge } from './world/edge.ts'
 import { Scenes, type SceneName } from './scenes/index.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
@@ -48,7 +49,9 @@ export async function startApp() {
   const pixel = new PixelPass(renderer)
 
   const scene = new THREE.Scene()
-  scene.background = new THREE.Color(C.groundOut as string)
+  // za brzegiem mapy: mgła i pas chmur zamiast szarego tła
+  scene.background = new THREE.Color(FOG_COLOR)
+  scene.add(buildCloudEdge(meta.bounds))
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 20000)
   const controls = new MapControls(camera, canvas)
   controls.enableDamping = true
@@ -86,7 +89,6 @@ export async function startApp() {
     if (i.checked) forcedScenes.add(n)
     else forcedScenes.delete(n)
   }))
-  let sound = false
   // rozkład tramwajów (GTFS MPK); brak pliku = tramwaje losowo po torach
   // tramwaje z rozkładu startują od razu, bez czekania na kafle
   let timetable: Timetable | null = null
@@ -342,15 +344,6 @@ export async function startApp() {
   })
 
   // --- zrzut ekranu ---
-  // dźwięki miasta: domyślnie wyłączone, AudioContext powstaje dopiero po kliknięciu
-  document.getElementById('btn-sound')!.onclick = (ev) => {
-    sound = !sound
-    scenes?.setSound(sound)
-    const b = ev.currentTarget as HTMLElement
-    b.classList.toggle('on', sound)
-    b.setAttribute('aria-pressed', String(sound))
-  }
-
   document.getElementById('btn-photo')!.onclick = () => {
     pixel.render(scene, camera)
     const a = document.createElement('a')
@@ -392,7 +385,7 @@ export async function startApp() {
     .then(() => {
       life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
       scene.add(life.group)
-      // smaczki (jarmark, fajerwerki, statki, latarnik, dźwięki) potrzebują wczytanego miasta
+      // smaczki (jarmark, fajerwerki, statki, latarnik) potrzebują wczytanego miasta
       fetch(`${import.meta.env.BASE_URL}data/scenes.json`)
         .then((r) => (r.ok ? r.json() : undefined))
         .catch(() => undefined)
@@ -401,7 +394,6 @@ export async function startApp() {
           scenes.forced = forcedScenes
           scenes.boatsOn = layers.boats
           scene.add(scenes.group)
-          scenes.setSound(sound)
         })
       // przebuduj epokę na pełnych danych (powódź, dym, pas startowy potrzebują całego miasta)
       setEpoch(epoch)

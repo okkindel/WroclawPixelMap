@@ -63,7 +63,7 @@ export const NEONS: NeonSpec[] = [
     // wolnostojące litery wzdłuż długiej elewacji bloku KDM od strony ul. Świdnickiej (naprzeciw Renomy),
     // tuż przed licem elewacji, dolna krawędź nad okapem (ok. 12 m; kalenica 17.5 m)
     id: 'pzu', lines: ['Ubezpiecz mieszkanie w PZU'], color: '#5f8fe8', accent: ['PZU', '#eef6ff'], day: '#3a6fc4', thief: true, free: true, kind: 'roof',
-    lat: 51.103682, lon: 17.030285, h: 13, az: 106.6, letter: 3, span: 43, from: 1975, flicker: 1,
+    lat: 51.10356, lon: 17.02986, h: 13, az: 196.5, letter: 3, span: 44, from: 1975, flicker: 1,
     title: { pl: 'Złodziej z PZU', en: 'The PZU burglar' },
     text: {
       pl: '„Ubezpiecz mieszkanie w PZU” na dachu bloku KDM przy pl. Kościuszki (1975, proj. Jerzy Werszler): złodziej skrada się w czterech krokach, zapala się czerwone „PZU” i rabuś ucieka. Odnowiony w 2008 i 2020 r.',

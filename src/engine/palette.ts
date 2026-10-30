@@ -19,7 +19,7 @@ export const C: {
   wallMaterial: Record<string, string>; roofMaterial: Record<string, string>
 } = {
   ground: '#b3a99a',
-  groundOut: '#8f877d',
+  groundOut: '#d6d8e2',
   asphalt: '#565a75',
   asphaltLight: '#6b6560',
   paving: '#d6ccb8',
