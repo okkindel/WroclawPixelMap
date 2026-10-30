@@ -34,7 +34,7 @@ const [MAXX, MAXY] = proj(N, E)
 // Surowe dane są w kawałkach (world-R-C.json), które na brzegach się nakładają: usuwamy duplikaty.
 const raw: OsmEl[] = []
 const seen = new Set<string>()
-for (const f of (await readdir('data/raw')).filter((f) => /^(world-[\d-]+|landcover)\.json$/.test(f)).sort()) {
+for (const f of (await readdir('data/raw')).filter((f) => /^(world-[\w-]+|landcover)\.json$/.test(f)).sort()) {
   for (const el of JSON.parse(await readFile(`data/raw/${f}`, 'utf8')).elements as OsmEl[]) {
     const id = el.type + el.id
     if (!seen.has(id)) { seen.add(id); raw.push(el) }
