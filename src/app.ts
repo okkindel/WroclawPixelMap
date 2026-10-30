@@ -10,6 +10,7 @@ import { Tiles } from './world/tiles.ts'
 import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
 import { HistoryLayer } from './world/history.ts'
+import { Scenes } from './scenes/index.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
@@ -75,6 +76,8 @@ export async function startApp() {
 
   // ruch w mieście powstaje dopiero, gdy wczytają się wszystkie kafle (potrzebuje całej sieci ulic)
   let life: Life | null = null
+  let scenes: Scenes | null = null
+  let sound = false
   // rozkład tramwajów (GTFS MPK); brak pliku = tramwaje losowo po torach
   // tramwaje z rozkładu startują od razu, bez czekania na kafle
   let timetable: Timetable | null = null
@@ -268,6 +271,8 @@ export async function startApp() {
       const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
       if (info) return openPopup({ title: t('tram.title', { line: info.line }), sub: t('tram.sub', { head: info.head }), text: t('tram.text', { dep: info.dep, arr: info.arr }) })
     }
+    const sc = scenes?.hit(ray)
+    if (sc) return openPopup({ title: sc.title, sub: t('sub.trivia'), text: sc.text })
     if (speedway?.hit(ray)) {
       return openPopup({
         title: t('speedway.title'),
@@ -323,6 +328,15 @@ export async function startApp() {
   })
 
   // --- zrzut ekranu ---
+  // dźwięki miasta: domyślnie wyłączone, AudioContext powstaje dopiero po kliknięciu
+  document.getElementById('btn-sound')!.onclick = (ev) => {
+    sound = !sound
+    scenes?.setSound(sound)
+    const b = ev.currentTarget as HTMLElement
+    b.classList.toggle('on', sound)
+    b.setAttribute('aria-pressed', String(sound))
+  }
+
   document.getElementById('btn-photo')!.onclick = () => {
     pixel.render(scene, camera)
     const a = document.createElement('a')
@@ -364,6 +378,15 @@ export async function startApp() {
     .then(() => {
       life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
       scene.add(life.group)
+      // smaczki (jarmark, fajerwerki, statki, latarnik, dźwięki) potrzebują wczytanego miasta
+      fetch(`${import.meta.env.BASE_URL}data/scenes.json`)
+        .then((r) => (r.ok ? r.json() : undefined))
+        .catch(() => undefined)
+        .then((data) => {
+          scenes = new Scenes(world, data)
+          scene.add(scenes.group)
+          scenes.setSound(sound)
+        })
       // przebuduj epokę na pełnych danych (powódź, dym, pas startowy potrzebują całego miasta)
       setEpoch(epoch)
       setSeason(season)
@@ -425,6 +448,7 @@ export async function startApp() {
     structures.update(dt)
     if (speedway) speedway.group.visible = epoch.year >= 1988 && layers.eggs
     if (speedway?.group.visible) speedway.update(dt)
+    scenes?.update(dt, now, epoch.year, sun.night)
     pixel.render(scene, camera)
     labels.update(camera, innerWidth, innerHeight)
     setCompass(controls.getAzimuthalAngle())

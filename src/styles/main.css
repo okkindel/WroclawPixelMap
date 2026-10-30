@@ -41,7 +41,7 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 .dwarf-badge.pop { animation: pop 0.5s; }
 @keyframes pop { 40% { transform: scale(1.25) rotate(-4deg); } }
 .icon { width: 42px; height: 42px; background: var(--paper); border: 0; box-shadow: var(--shadow); font-size: 20px; line-height: 1; }
-.icon:hover, #btn-settings[aria-expanded='true'] { background: var(--gold); }
+.icon:hover, #btn-settings[aria-expanded='true'], #btn-sound.on { background: var(--gold); }
 /* przełącznik języka: link wyglądający jak przycisk */
 a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text-decoration: none; font: 21px/1 var(--head); }
 
