@@ -58,6 +58,7 @@ Surowe dane trafiają do `data/` (poza repozytorium). Kolejność:
 
 ```bash
 npm run fetch           # sieć: OSM z Overpass → data/raw (w kawałkach, pomija pobrane; --force od nowa)
+npm run fetch-nid       # sieć: rejestr zabytków NID z dane.gov.pl → data/nid/zrn-utf8.csv (daty budowy)
 npm run bake            # → public/data: kafle + meta.json
 npm run fetch-ortho     # sieć: ortofotomapa GUGiK → data/ortho (kolory dachów; potrzebuje meta.json)
 npm run lod2            # sieć (gdy brak paczki w data/lod2): modele LoD1 GUGiK → data/lod2 (wysokości)
@@ -72,7 +73,7 @@ npm run bake-history    # → public/data/history (tylko plan z ok. 1732 na otwa
 ```
 
 Opcjonalnie: `npm run fetch-terrain` (sieć, model terenu GUGiK) i `npm run test-tilecodec` (test formatu kafli).
-Rejestr zabytków NID (daty budowy) czyta się z `data/nid/zrn-utf8.csv` pobranego z dane.gov.pl; bez niego `bake` pomija ten krok.
+Bez `data/nid/zrn-utf8.csv` `bake` pomija daty budowy z rejestru zabytków.
 
 Gdy Overpass jest przeciążony, dane świata można wyciąć z pliku województwa z Geofabrik:
 `python3 scripts/fetch/geofabrik.py` (wymaga `pip install osmium`, instrukcja w nagłówku skryptu).

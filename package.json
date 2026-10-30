@@ -17,6 +17,7 @@
     "fetch-history": "node scripts/fetch/fetch-history.ts",
     "fetch-terrain": "node scripts/fetch/fetch-terrain.ts",
     "fetch-gtfs": "node scripts/fetch/fetch-gtfs.ts",
+    "fetch-nid": "node scripts/fetch/fetch-nid.ts",
     "bake-gtfs": "node scripts/bake/bake-gtfs.ts",
     "bake-monuments": "node scripts/bake/bake-monuments.ts",
     "bake-wiki": "node scripts/bake/bake-wiki.ts",

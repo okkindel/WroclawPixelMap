@@ -110,6 +110,33 @@ if (!done('parts'))
 (way["building:part"]; relation["building:part"];);
 out geom;`,
   )
+// Szkoły i uczelnie: zwykle obszar albo punkt, nie budynek (napisy szkół i uczelni).
+if (!done('schools'))
+  await overpass(
+    'schools',
+    `[out:json][timeout:90][bbox:${BBOX.join(',')}];
+nwr["amenity"~"^(school|college|university)$"]["name"];
+out geom;`,
+  )
+// Konstrukcje spoza budynków: wieże, maszty, jupitery, wieże ciśnień, koleje linowe (Polinka).
+if (!done('structures'))
+  await overpass(
+    'structures',
+    `[out:json][timeout:120][bbox:${BBOX.join(',')}];
+(way["aerialway"];node["aerialway"="pylon"];
+nwr["man_made"~"^(tower|mast|obelisk|communications_tower|lighthouse|water_tower|flagpole)$"];);
+out geom;`,
+  )
+// Pokrycie terenu poza światem: fontanny, pergole, pola, łąki, sady, mokradła, nieużytki.
+if (!done('landcover'))
+  await overpass(
+    'landcover',
+    `[out:json][timeout:180][bbox:${BBOX.join(',')}];
+(nwr["amenity"="fountain"];way["man_made"="pergola"];
+way["landuse"~"^(farmland|meadow|orchard|vineyard|plant_nursery|greenhouse_horticulture)$"];
+relation["landuse"~"^(farmland|meadow)$"];way["natural"~"^(wetland|heath)$"];way["landuse"="brownfield"];);
+out geom;`,
+  )
 if (!done('extras'))
   await overpass(
     'extras',
