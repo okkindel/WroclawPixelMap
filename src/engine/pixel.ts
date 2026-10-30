@@ -12,6 +12,9 @@ export class PixelPass {
   quad: THREE.Mesh
   scene: THREE.Scene
   cam: THREE.OrthographicCamera
+  // obiekty podświetlone pod kursorem: rysowane do maski, filtr maluje złoty obrys wokół ich sylwetki
+  highlight = new THREE.Scene()
+  mask = new THREE.WebGLRenderTarget(1, 1, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter })
 
   constructor(renderer: THREE.WebGLRenderer) {
     this.renderer = renderer
@@ -35,13 +38,17 @@ export class PixelPass {
         uDither: { value: 1 },
         uDepthRange: { value: 1 },
         uNight: { value: 0 },
+        tMask: { value: null as THREE.Texture | null },
+        uHighlight: { value: 0 },
       },
       vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
       fragmentShader: `
         uniform sampler2D tColor; uniform sampler2D tDepth; uniform vec2 uRes;
         uniform vec3 uPal[${MAX_COLORS}]; uniform int uPalCount;
         uniform float uPalette; uniform float uOutline; uniform float uMpp; uniform float uDither; uniform float uDepthRange; uniform float uNight;
+        uniform sampler2D tMask; uniform float uHighlight;
         varying vec2 vUv;
+        float mk(vec2 o){ return texture2D(tMask, vUv + o / uRes).r; }
         float bayer(vec2 p){
           int x = int(mod(p.x, 4.0)), y = int(mod(p.y, 4.0));
           int i = x + y * 4;
@@ -68,6 +75,14 @@ export class PixelPass {
             }
             c = best;
           }
+          // obrys podświetlenia: piksel poza sylwetką, ale z sylwetką w promieniu 2 pikseli
+          if (uHighlight > 0.5 && mk(vec2(0.0)) < 0.5) {
+            float n = 0.0;
+            for (int dx = -2; dx <= 2; dx++) for (int dy = -2; dy <= 2; dy++) {
+              if (abs(float(dx)) + abs(float(dy)) <= 2.0) n = max(n, mk(vec2(float(dx), float(dy))));
+            }
+            if (n > 0.5) c = vec3(0.89, 0.70, 0.25);
+          }
           gl_FragColor = vec4(c, 1.0);
         }`,
       depthTest: false,
@@ -83,6 +98,7 @@ export class PixelPass {
 
   setSize(w: number, h: number) {
     this.target.setSize(w, h)
+    this.mask.setSize(w, h)
     this.material.uniforms.uRes.value.set(w, h)
   }
 
@@ -91,6 +107,15 @@ export class PixelPass {
     this.material.uniforms.uDepthRange.value = camera.far - camera.near
     this.renderer.setRenderTarget(this.target)
     this.renderer.render(scene, camera)
+    const hi = this.highlight.children.length > 0
+    this.material.uniforms.uHighlight.value = hi ? 1 : 0
+    if (hi) {
+      this.renderer.setRenderTarget(this.mask)
+      this.renderer.setClearColor(0x000000, 1)
+      this.renderer.clear()
+      this.renderer.render(this.highlight, camera)
+      this.material.uniforms.tMask.value = this.mask.texture
+    }
     this.renderer.setRenderTarget(null)
     this.renderer.render(this.scene, this.cam)
   }
