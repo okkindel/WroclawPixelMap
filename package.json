@@ -1,0 +1,27 @@
+{
+  "name": "wroclaw-pixel-map",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Interaktywna pikselowa mapa 3D Wrocławia z osią czasu, krasnalami i ciekawostkami",
+  "repository": "github:okkindel/WroclawPixelMap",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "fetch": "node scripts/fetch-osm.ts",
+    "bake": "node scripts/bake.ts",
+    "fetch-ortho": "node scripts/fetch-ortho.ts"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/three": "^0.160.0",
+    "jpeg-js": "^0.4.4",
+    "typescript": "^5.9.3",
+    "vite": "^5.4.21"
+  }
+}

@@ -1,0 +1,261 @@
+// Epoki: które budynki pokazać, jak je zmienić i co dobudować (mury, bastiony, pas startowy, powódź).
+// Rekonstrukcje są przybliżone: OSM zna rok budowy tylko części budynków.
+import * as THREE from 'three'
+import { distToPolyline, hash, pointInRing, signedArea, toLocal } from '../engine/geo.ts'
+import type { BuildOpts } from '../world/buildings.ts'
+import type { Building, Flat, World } from '../types/world.ts'
+import type { Epoch, Walls } from './content.ts'
+
+export interface EpochScene {
+  opts: BuildOpts
+  extras: THREE.Group
+  update: (dt: number) => void
+  life: { trams: boolean; cars: boolean }
+}
+
+const lambert = (color: string, extra: THREE.MeshLambertMaterialParameters = {}) => new THREE.MeshLambertMaterial({ color, ...extra })
+const toFlat = (pts: [number, number][]) => pts.flatMap(([lat, lon]) => toLocal(lat, lon))
+const center = (b: Building) => [b.o[0], b.o[1]] as const
+
+// Pas muru wzdłuż polilinii: prostopadłościany na każdym odcinku + baszty co `every` metrów.
+function wallAlong(p: Flat, width: number, height: number, color: string, every = 0, towerColor = color) {
+  const g = new THREE.Group()
+  const mat = lambert(color)
+  const tmat = lambert(towerColor)
+  let acc = 0
+  for (let i = 0; i + 3 < p.length; i += 2) {
+    const ax = p[i], ay = p[i + 1], bx = p[i + 2], by = p[i + 3]
+    const L = Math.hypot(bx - ax, by - ay)
+    if (L < 0.5) continue
+    const m = new THREE.Mesh(new THREE.BoxGeometry(L + width * 0.5, height, width), mat)
+    m.position.set((ax + bx) / 2, height / 2, -(ay + by) / 2)
+    m.rotation.y = Math.atan2(by - ay, bx - ax)
+    m.castShadow = m.receiveShadow = true
+    g.add(m)
+    if (every > 0) {
+      for (acc += L; acc >= every; acc -= every) {
+        const t = 1 - (acc - every) / L
+        const tw = new THREE.Mesh(new THREE.BoxGeometry(width * 2.2, height * 1.5, width * 2.2), tmat)
+        tw.position.set(ax + (bx - ax) * t, height * 0.75, -(ay + (by - ay) * t))
+        tw.rotation.y = m.rotation.y
+        tw.castShadow = true
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(width * 1.7, height * 0.8, 4), lambert('#b5523a'))
+        roof.position.y = height * 1.15
+        roof.rotation.y = Math.PI / 4
+        tw.add(roof)
+        g.add(tw)
+      }
+    }
+  }
+  return g
+}
+
+function bastion(x: number, y: number, towardX: number, towardY: number) {
+  // Pięcioboczny bastion skierowany na zewnątrz (od środka miasta).
+  const ang = Math.atan2(y - towardY, x - towardX)
+  const shape = new THREE.Shape()
+  const pts = [[-30, -35], [15, -40], [55, 0], [15, 40], [-30, 35]]
+  pts.forEach(([a, b], i) => {
+    const px = a * Math.cos(ang) - b * Math.sin(ang), py = a * Math.sin(ang) + b * Math.cos(ang)
+    i ? shape.lineTo(px, py) : shape.moveTo(px, py)
+  })
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: 9, bevelEnabled: false })
+  geo.rotateX(-Math.PI / 2)
+  const m = new THREE.Mesh(geo, lambert('#7cb35a'))
+  m.position.set(x, 0, -y)
+  m.castShadow = m.receiveShadow = true
+  return m
+}
+
+function closedRing(p: Flat): Flat {
+  return p.length ? p.concat([p[0], p[1]]) : p
+}
+
+// Powódź 1997: komórki siatki w zasięgu ~170 m od wody (BFS po siatce), z poszarpanym brzegiem.
+function floodMesh(world: World) {
+  const cell = 15
+  const [x0, y0, x1, y1] = world.bounds
+  const nx = Math.ceil((x1 - x0) / cell), ny = Math.ceil((y1 - y0) / cell)
+  const dist = new Int16Array(nx * ny).fill(-1)
+  const queue: number[] = []
+  const polys = world.water.map((w) => {
+    let a = Infinity, b = Infinity, c = -Infinity, d = -Infinity
+    for (let i = 0; i < w.o.length; i += 2) { a = Math.min(a, w.o[i]); c = Math.max(c, w.o[i]); b = Math.min(b, w.o[i + 1]); d = Math.max(d, w.o[i + 1]) }
+    return { ring: w.o, box: [a, b, c, d] }
+  })
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const x = x0 + (i + 0.5) * cell, y = y0 + (j + 0.5) * cell
+    if (polys.some((p) => x >= p.box[0] && x <= p.box[2] && y >= p.box[1] && y <= p.box[3] && pointInRing(x, y, p.ring))) {
+      dist[j * nx + i] = 0
+      queue.push(j * nx + i)
+    }
+  }
+  for (let q = 0; q < queue.length; q++) {
+    const id = queue[q], i = id % nx, j = (id / nx) | 0, d = dist[id]
+    if (d >= 13) continue
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const a = i + di, b = j + dj
+      if (a < 0 || b < 0 || a >= nx || b >= ny || dist[b * nx + a] >= 0) continue
+      dist[b * nx + a] = d + 1
+      queue.push(b * nx + a)
+    }
+  }
+  const pos: number[] = []
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const d = dist[j * nx + i]
+    if (d <= 0 || d > 6 + hash(i >> 2, j >> 2) * 7) continue
+    const ax = x0 + i * cell, ay = y0 + j * cell, bx = ax + cell, by = ay + cell
+    pos.push(ax, 0, -ay, bx, 0, -ay, bx, 0, -by, ax, 0, -ay, bx, 0, -by, ax, 0, -by)
+  }
+  const g = new THREE.BufferGeometry()
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
+  g.computeVertexNormals()
+  const m = new THREE.Mesh(g, lambert('#4b8bbf', { transparent: true, opacity: 0.82 }))
+  m.position.y = 1.4
+  m.receiveShadow = true
+  return m
+}
+
+// Dym nad ruinami: instancje sześcianów unoszących się i rosnących.
+function smoke(world: World, count: number) {
+  const ruins = world.buildings.filter((_, i) => hash(i, 41) < 0.03)
+  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), lambert('#3d3f58', { transparent: true, opacity: 0.75 }), count)
+  mesh.frustumCulled = false
+  const seeds = Array.from({ length: count }, (_, i) => ({ b: ruins[i % ruins.length], t: hash(i, 3) * 20 }))
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3()
+  const update = (dt: number) => {
+    seeds.forEach((sd, i) => {
+      sd.t = (sd.t + dt) % 20
+      const [x, y] = center(sd.b)
+      const k = sd.t / 20
+      v.set(x + Math.sin(sd.t + i) * 3 + k * 60, 8 + k * 140, -y - k * 20)
+      s.setScalar(4 + k * 22)
+      m.compose(v, q, s)
+      mesh.setMatrixAt(i, m)
+    })
+    mesh.instanceMatrix.needsUpdate = true
+  }
+  update(0)
+  return { mesh, update }
+}
+
+export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene {
+  const Y = epoch.year
+  const extras = new THREE.Group()
+  let update = (_dt: number) => {}
+  const notLater = (b: Building) => !b.y || b.y <= Y
+  const life = { trams: Y >= 1877, cars: Y >= 1925 }
+
+  const outer = closedRing(toFlat(walls.outer))
+  const inner = closedRing(toFlat(walls.inner))
+  const cityCenter = toLocal(51.1099, 17.0326) // Rynek
+  const inside = (ring: Flat, b: Building) => ring.length > 6 && pointInRing(b.o[0], b.o[1], ring)
+
+  if (epoch.mode === 'walls' || epoch.mode === 'medieval') {
+    const medieval = epoch.mode === 'medieval'
+    const early = Y < 1242
+    const cathedral = toLocal(51.1142, 17.0464)
+    const opts: BuildOpts = {
+      keep: (b) => {
+        if (b.y && b.y > Y) return false
+        // w grodzie: tylko miejsca pierwszych świątyń (katedra, św. Marcin), reszta przyszła później
+        if (early) return /Archikatedra|Marcina/.test(b.n ?? '')
+        const town = inside(medieval ? inner : outer, b)
+        if (town) return b.k === 'church' || b.H < (medieval ? 18 : 24)
+        return !!b.y || (b.k === 'church' && Math.hypot(b.o[0] - cathedral[0], b.o[1] - cathedral[1]) < 900)
+      },
+      mod: (b) => (b.y ? undefined : { roof: b.k === 'church' ? undefined : '#b5523a' }),
+    }
+    if (early) {
+      // Drewniana palisada grodu przy kościele św. Marcina (zachodni cypel Ostrowa Tumskiego).
+      // Kształt przybliżony: elipsa, której punkty cofamy z wody na ląd.
+      const grod = toLocal(51.1155, 17.0429)
+      const onWater = (x: number, y: number) => world.water.some((w) => pointInRing(x, y, w.o))
+      const ring: Flat = []
+      for (let a = 0; a <= 32; a++) {
+        const ang = (a / 32) * 6.283
+        let r = 1
+        let x = 0, y = 0
+        for (; r > 0.2; r -= 0.05) {
+          x = grod[0] + Math.cos(ang) * 130 * r
+          y = grod[1] + Math.sin(ang) * 90 * r
+          if (!onWater(x, y)) break
+        }
+        ring.push(x, y)
+      }
+      extras.add(wallAlong(ring, 2, 5, '#8a3b2a', 70, '#5a2e22'))
+    } else {
+      extras.add(wallAlong(inner.slice(0, -2), 2.5, 10, '#8a3b2a', 55, '#8a3b2a'))
+      if (!medieval) {
+        extras.add(wallAlong(outer.slice(0, -2), 14, 7, '#6aa64f'))
+        for (const bs of walls.bastions) {
+          const [x, y] = toLocal(bs.lat, bs.lon)
+          extras.add(bastion(x, y, cityCenter[0], cityCenter[1]))
+        }
+      }
+    }
+    return { opts, extras, update, life }
+  }
+
+  if (epoch.mode === 'festung') {
+    const runway = world.runway ?? []
+    const nearRunway = (b: Building) => runway.some((p) => distToPolyline(b.o[0], b.o[1], p) < 70)
+    for (const p of runway) {
+      const g = wallAlong(p, 70, 0.3, '#a4a9bd')
+      extras.add(g)
+    }
+    const s = smoke(world, 120)
+    extras.add(s.mesh)
+    update = s.update
+    const opts: BuildOpts = {
+      keep: (b) => notLater(b) && !nearRunway(b) && (!!b.y || !looksPostwar(b)),
+      mod: (b, i) => {
+        if (hash(i, 17) > 0.62) return undefined
+        return { H: Math.max(2, b.H * (0.12 + hash(i, 19) * 0.35)), wall: hash(i, 23) > 0.5 ? '#6b6560' : '#4a4744', roof: '#3d3f58', flat: true }
+      },
+    }
+    return { opts, extras, update, life: { trams: false, cars: false } }
+  }
+
+  if (epoch.mode === 'flood') extras.add(floodMesh(world))
+
+  if (Y < 1945) {
+    // Przed wojną: przybliżony zasięg zabudowy (odległość od Rynku) i bez brył wyglądających na powojenne.
+    // Budynki z datą budowy w OSM rozstrzygają same za siebie.
+    const radius = Y < 1850 ? 0 : Y < 1905 ? 2600 : 3200
+    const keep = (b: Building) => {
+      if (b.y) return b.y <= Y
+      // na Starym Mieście kamienice często nie mają tagu dachu: chowamy tylko wyraźnie wysokie bryły
+      if (inside(outer, b)) return b.H < 28 || b.k === 'church' || b.k === 'pub'
+      if (looksPostwar(b)) return false
+      return near(b, cityCenter, Y < 1850 ? 1300 : radius)
+    }
+    return { opts: { keep }, extras, update, life }
+  }
+
+  // Po wojnie: bez daty w OSM chowamy bryły typowe dla późniejszych lat (biurowce, galerie, szkło).
+  return { opts: { keep: (b) => (b.y ? b.y <= Y : !looksLaterThan(b, Y)) }, extras, update, life }
+}
+
+// Ogólna reguła dla budynków bez daty: szkło i lustra, biurowce i duże galerie handlowe
+// to w Polsce głównie lata 90. i później; ponad 100 m — dopiero XXI w. (Sky Tower 2012).
+function looksLaterThan(b: Building, Y: number) {
+  if (Y >= 2020) return false
+  if (b.H > 100 && b.k !== 'chimney') return Y < 2010
+  if (Y >= 1995) return false
+  const glass = b.bm === 'glass' || b.bm === 'mirror'
+  const area = Math.abs(signedArea(b.o))
+  return glass || (b.k === 'com' && (b.H > 20 || area > 4000))
+}
+
+const near = (b: Building, [x, y]: [number, number], r: number) => Math.hypot(b.o[0] - x, b.o[1] - y) < r
+
+// Bez daty w OSM zgadujemy: płaski dach i wysokość jak blok/biurowiec, albo szkło i handel = po 1945.
+const OLD_ROOFS = new Set(['gabled', 'hipped', 'half-hipped', 'mansard', 'gambrel', 'pyramidal', 'dome', 'onion'])
+function looksPostwar(b: Building) {
+  if (b.k === 'church') return false
+  // przedwojenny Wrocław nie miał wysokościowców (poza wieżami kościołów)
+  if (b.H > 35) return true
+  if (b.rs && OLD_ROOFS.has(b.rs)) return false
+  return b.H > 17 || b.k === 'com' || (b.k === 'res' && b.H > 12)
+}

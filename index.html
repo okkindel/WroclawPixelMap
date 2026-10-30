@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wrocław w pikselach</title>
+    <meta name="description" content="Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś, z krasnalami." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <canvas id="map"></canvas>
+    <div id="pins"></div>
+
+    <header id="topbar">
+      <a class="logo" href="./" title="Wrocław w pikselach">
+        <img src="/favicon.svg" alt="" width="32" height="32" />
+        <span>Wrocław<small>w pikselach</small></span>
+      </a>
+      <div id="search">
+        <input id="search-input" type="search" placeholder="Ulica, zabytek albo krasnal…" autocomplete="off" />
+        <ul id="search-results"></ul>
+      </div>
+      <div class="dwarf-badge" title="Znalezione krasnale: kliknij krasnala na mapie">
+        <img src="/favicon.svg" alt="" width="20" height="20" /><b id="dwarf-found">0</b><span>/<span id="dwarf-total">0</span></span>
+      </div>
+      <button id="btn-settings" class="icon" title="Ustawienia" aria-expanded="false">☰</button>
+    </header>
+
+    <section id="info" class="postcard">
+      <div class="stamp"><span id="info-flag" class="flag"></span><span id="info-year">2026</span></div>
+      <div class="postmark"><span id="info-city">Wrocław</span><span id="info-clock">--:--</span></div>
+      <h1 id="info-label">Dziś</h1>
+      <div class="state" id="info-state"></div>
+      <p id="info-text"></p>
+      <button class="fold" title="Zwiń">–</button>
+    </section>
+
+    <aside id="drawer" hidden>
+      <h2>Pora</h2>
+      <div class="seg" data-group="time">
+        <button data-v="now" class="on">Teraz</button><button data-v="day">Południe</button><button data-v="dusk">Zmierzch</button><button data-v="night">Noc</button>
+      </div>
+      <div class="seg" data-group="season">
+        <button data-v="summer" class="on">Lato</button><button data-v="autumn">Jesień</button><button data-v="winter">Zima</button>
+      </div>
+      <h2>Wygląd</h2>
+      <label class="slider">Wielkość piksela <input id="pixel" type="range" min="1" max="4" step="1" value="2" /><output id="pixel-v">2</output></label>
+      <div class="toggles">
+        <label><input type="checkbox" data-opt="palette" checked /><span>Paleta</span></label>
+        <label><input type="checkbox" data-opt="outline" checked /><span>Kontury</span></label>
+        <label><input type="checkbox" data-opt="dither" checked /><span>Dithering</span></label>
+      </div>
+      <h2>Na mapie</h2>
+      <div class="toggles">
+        <label><input type="checkbox" data-layer="dwarfs" checked /><span>Krasnale</span></label>
+        <label><input type="checkbox" data-layer="trams" checked /><span>Tramwaje</span></label>
+        <label><input type="checkbox" data-layer="trains" checked /><span>Pociągi</span></label>
+        <label><input type="checkbox" data-layer="cars" checked /><span>Auta</span></label>
+        <label><input type="checkbox" data-layer="people" checked /><span>Ludzie</span></label>
+        <label><input type="checkbox" data-layer="birds" checked /><span>Ptaki</span></label>
+        <label><input type="checkbox" data-layer="clouds" checked /><span>Chmury</span></label>
+        <label><input type="checkbox" data-layer="trees" checked /><span>Drzewa</span></label>
+        <label><input type="checkbox" data-layer="labels" checked /><span>Napisy</span></label>
+        <label><input type="checkbox" data-layer="eggs" checked /><span>Ciekawostki</span></label>
+      </div>
+      <div class="actions">
+        <button id="btn-link">Kopiuj link</button>
+        <button id="btn-photo">Zrób zdjęcie</button>
+      </div>
+      <p class="hint">Przeciągnij, żeby przesunąć · prawy przycisk obraca i pochyla · kompas wraca do widoku z góry · <kbd>Q</kbd>/<kbd>E</kbd> obrót · <kbd>H</kbd> chowa interfejs</p>
+      <p class="credits">Dane © współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · ortofotomapa © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)</p>
+    </aside>
+
+    <div id="tools">
+      <button id="btn-rot-l" class="icon" title="Obróć w lewo (Q)">↺</button>
+      <button id="compass" title="Domyślny widok: północ u góry"><i></i><span>N</span></button>
+      <button id="btn-rot-r" class="icon" title="Obróć w prawo (E)">↻</button>
+    </div>
+
+    <nav id="timeline" aria-label="Oś czasu"></nav>
+
+    <div id="popup" hidden>
+      <button class="close" aria-label="Zamknij">×</button>
+      <div id="popup-body"></div>
+    </div>
+    <div id="toast" hidden></div>
+    <div id="loading"><img src="/favicon.svg" alt="" width="64" height="64" />Wczytuję Wrocław…</div>
+    <div id="progress" hidden></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
