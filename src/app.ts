@@ -194,7 +194,7 @@ export async function startApp() {
   }
 
   // --- piksel i rozmiar ---
-  let px = 2
+  let px = 1.5
   function resize() {
     const W = innerWidth, H = innerHeight
     const w = Math.ceil(W / px), h = Math.ceil(H / px)
@@ -411,7 +411,7 @@ export async function startApp() {
     const fps = fpsFrames / fpsAcc
     fpsAcc = fpsFrames = 0
     if (fps >= 24 || document.hidden) return
-    if (saverStep === 0 && px < 4) { px++; resize(); toast(t('saver.pixel')) }
+    if (saverStep === 0 && px < 3) { px = Math.min(3, px + 0.5); resize(); toast(t('saver.pixel')) }
     else if (saverStep === 1) { renderer.shadowMap.enabled = false; scene.traverse((o) => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true }); toast(t('saver.shadows')) }
     else return
     saverStep++

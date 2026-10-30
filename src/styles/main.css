@@ -74,7 +74,7 @@ a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text
 .seg button.on { background: var(--ink); color: var(--paper); }
 .slider { display: flex; gap: 8px; align-items: center; font-size: 13px; }
 .slider input { flex: 1; accent-color: var(--red); }
-.slider output { font: 19px var(--head); width: 14px; }
+.slider output { font: 19px var(--head); width: 28px; text-align: right; }
 .toggles { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
 .toggles label { cursor: pointer; }
 .toggles input { position: absolute; opacity: 0; }
