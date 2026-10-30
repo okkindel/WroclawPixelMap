@@ -469,7 +469,13 @@ for (const el of raw) {
   }
   const replaced = new Set([...covered].filter(([i, a]) => a >= 0.7 * ringArea(flatRing(out.buildings[i].o)) || out.buildings[i].H < 1).map(([i]) => i))
   // obrys, który zostaje obok części: lekko niżej, żeby dachy na tej samej wysokości nie migotały (z-fighting)
-  for (const i of covered.keys()) if (!replaced.has(i)) out.buildings[i].H = r1(Math.max(out.buildings[i].H - 0.4, (out.buildings[i].m ?? 0) + 0.5))
+  for (const i of covered.keys()) {
+    if (replaced.has(i)) continue
+    const b = out.buildings[i]
+    b.H = r1(Math.max(b.H - 0.4, (b.m ?? 0) + 0.5))
+    // wspólne ściany obrysu i części migotałyby (z-fighting): obrys zwężamy o 15 cm do środka
+    b.o = shrink(b.o, 0.15)
+  }
   out.buildings = out.buildings.filter((_, i) => !replaced.has(i)).concat(added)
   console.log(`części budynków: ${added.length}, zastąpione obrysy: ${replaced.size}`)
 }
@@ -550,6 +556,23 @@ function speedway(): Flat | null {
     .filter((p) => p.length > 8 && same(p[0], p[p.length - 1]))
     .sort((a, b) => ringArea(b) - ringArea(a))
   return rings.length ? flat(openRing(rings[0])) : null
+}
+
+// Odsunięcie wierzchołków pierścienia o d do środka (wzdłuż dwusiecznej; wystarczające dla małych d).
+function shrink(o: Flat, d: number): Flat {
+  const n = o.length / 2
+  const ring: Pt[] = []
+  for (let i = 0; i < n; i++) ring.push([o[i * 2], o[i * 2 + 1]])
+  const sign = (() => { let a = 0; for (let i = 0, j = n - 1; i < n; j = i++) a += (ring[j][0] + ring[i][0]) * (ring[j][1] - ring[i][1]); return a < 0 ? 1 : -1 })()
+  const out: Flat = []
+  for (let i = 0; i < n; i++) {
+    const [px, py] = ring[(i + n - 1) % n], [x, y] = ring[i], [qx, qy] = ring[(i + 1) % n]
+    const l1 = Math.hypot(x - px, y - py) || 1, l2 = Math.hypot(qx - x, qy - y) || 1
+    const nx = (-(y - py) / l1 - (qy - y) / l2) * sign, ny = ((x - px) / l1 + (qx - x) / l2) * sign
+    const L = Math.hypot(nx, ny) || 1
+    out.push(r1(x + (nx / L) * d * 1.0) , r1(y + (ny / L) * d))
+  }
+  return out
 }
 
 // ---------- konstrukcje i koleje linowe ----------

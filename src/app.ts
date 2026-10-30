@@ -41,6 +41,8 @@ export async function startApp() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false })
   renderer.setPixelRatio(1)
   renderer.shadowMap.enabled = true
+  // mapa cieni liczona tylko po zmianie widoku albo kilka razy na sekundę (auta i tramwaje) — zamiast co klatkę
+  renderer.shadowMap.autoUpdate = false
   renderer.shadowMap.type = THREE.PCFShadowMap
   const pixel = new PixelPass(renderer)
 
@@ -409,6 +411,7 @@ export async function startApp() {
   }
 
   const clock = new THREE.Clock()
+  let lastSig = '', sinceShadow = 1, sinceLabels = 1
   let lastClock = 0
   const [bx0, by0, bx1, by1] = world.bounds
   renderer.setAnimationLoop(() => {
@@ -450,7 +453,14 @@ export async function startApp() {
     if (speedway?.group.visible) speedway.update(dt)
     scenes?.update(dt, now, epoch.year, sun.night)
     pixel.render(scene, camera)
-    labels.update(camera, innerWidth, innerHeight)
+    // napisy i cienie przeliczamy, gdy widok się zmienił (albo co jakiś czas dla ruchomych obiektów)
+    const sig = `${camera.position.x.toFixed(1)},${camera.position.y.toFixed(1)},${camera.position.z.toFixed(1)},${camera.zoom.toFixed(3)},${innerWidth},${innerHeight},${epoch.year},${layers.labels},${layers.eggs}`
+    const moved = sig !== lastSig
+    lastSig = sig
+    sinceShadow += dt
+    sinceLabels += dt
+    if (moved || sinceShadow > 0.15) { renderer.shadowMap.needsUpdate = true; sinceShadow = 0 }
+    if (moved || sinceLabels > 0.5) { labels.update(camera, innerWidth, innerHeight); sinceLabels = 0 }
     setCompass(controls.getAzimuthalAngle())
   })
 }
