@@ -3,6 +3,7 @@ dist/
 # surowe dane (OSM ~150 MB, ortofotomapa) — odtwarzane przez npm run fetch / fetch-ortho
 data/raw/
 data/ortho/
+data/gtfs/
 .vite/
 *.log
 .DS_Store

@@ -12,7 +12,9 @@
     "preview": "vite preview",
     "fetch": "node scripts/fetch-osm.ts",
     "bake": "node scripts/bake.ts",
-    "fetch-ortho": "node scripts/fetch-ortho.ts"
+    "fetch-ortho": "node scripts/fetch-ortho.ts",
+    "fetch-gtfs": "node scripts/fetch-gtfs.ts",
+    "bake-gtfs": "node scripts/bake-gtfs.ts"
   },
   "dependencies": {
     "three": "^0.160.0"

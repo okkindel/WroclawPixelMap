@@ -505,21 +505,26 @@ for (const [k, t] of tiles) {
     }
     const step = Math.max(1, Math.floor(Math.sqrt(((c - a) * (e - d)) / 400)))
     const px: [number, number, number, number][] = []
+    let total = 0
     for (let y = Math.max(0, Math.floor(d)); y < Math.min(img.height, e); y += step)
       for (let x = Math.max(0, Math.floor(a)); x < Math.min(img.width, c); x += step) {
         if (!pointInRing([x + 0.5, y + 0.5], ring)) continue
         const o = (y * img.width + x) * 4
+        total++
         const r = img.data[o], g = img.data[o + 1], bl = img.data[o + 2]
         // pomijamy korony drzew zasłaniające dach (zieleń wyraźnie dominuje)
         if (g > r + 8 && g > bl + 4) continue
         px.push([r, g, bl, r * 0.3 + g * 0.59 + bl * 0.11])
       }
-    if (px.length < 4) continue
+    // większość obrysu pod koronami drzew: zdjęcie nie pokazuje dachu
+    if (px.length < 4 || px.length < total * 0.4) continue
     px.sort((u, v) => u[3] - v[3])
     const mid = px.slice(Math.floor(px.length / 4), Math.ceil((px.length * 3) / 4))
     let avg = [0, 1, 2].map((ch) => Math.round(mid.reduce((s2, p) => s2 + p[ch], 0) / mid.length))
     // prawie szary (papa, blacha, beton) = neutralna szarość: lekki odcień zdjęcia (mech, korekta barwna)
     // paleta zamieniałaby na zieleń/morski; nasycone kolory (dachówka, miedź) zostają
+    // zielonkawy wynik to resztki drzew albo cień; miedzianą patynę dopuszczamy tylko na kościołach
+    if (avg[1] > avg[0] && avg[1] >= avg[2] && b.k !== 'church') continue
     if (Math.max(...avg) - Math.min(...avg) < 28) {
       const l = Math.round(avg[0] * 0.3 + avg[1] * 0.59 + avg[2] * 0.11)
       avg = [l + 3, l, l - 3]

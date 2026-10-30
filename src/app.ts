@@ -11,7 +11,8 @@ import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
-import { Life } from './life/life.ts'
+import { Life, tramGeometry } from './life/life.ts'
+import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
 import { Labels } from './layers/labels.ts'
 import { Speedway } from './layers/speedway.ts'
@@ -70,6 +71,16 @@ export async function startApp() {
 
   // ruch w mieście powstaje dopiero, gdy wczytają się wszystkie kafle (potrzebuje całej sieci ulic)
   let life: Life | null = null
+  // rozkład tramwajów (GTFS MPK); brak pliku = tramwaje losowo po torach
+  // tramwaje z rozkładu startują od razu, bez czekania na kafle
+  let timetable: Timetable | null = null
+  try {
+    const r = await fetch(`${import.meta.env.BASE_URL}data/trams.json`)
+    if (r.ok) {
+      timetable = new Timetable(await r.json(), tramGeometry())
+      scene.add(timetable.mesh)
+    }
+  } catch { /* brak rozkładu */ }
 
   // trybuny (i żużel) dopiero od otwarcia Stadionu Olimpijskiego w 1928 r.
   const stands = buildStands(meta.stadiums)
@@ -241,6 +252,11 @@ export async function startApp() {
       const hit = ray.intersectObject(dwarfs.mesh)[0]
       if (hit?.instanceId != null) return clickDwarf(hit.instanceId)
     }
+    if (timetable?.mesh.visible) {
+      const tram = ray.intersectObject(timetable.mesh)[0]
+      const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
+      if (info) return openPopup({ title: `Tramwaj linii ${info.line}`, sub: `kierunek: ${info.head}`, text: `Kurs ${info.dep}–${info.arr} według rozkładu MPK Wrocław.` })
+    }
     if (speedway?.hit(ray)) {
       return openPopup({
         title: 'Żużel na Olimpijskim',
@@ -335,7 +351,7 @@ export async function startApp() {
       progress.textContent = `Wczytuję dzielnice… ${done}/${total}`
     })
     .then(() => {
-      life = new Life(world.roads, world.trams, world.rails, world.bounds)
+      life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
       scene.add(life.group)
       // przebuduj epokę na pełnych danych (powódź, dym, pas startowy potrzebują całego miasta)
       setEpoch(epoch)
@@ -368,6 +384,10 @@ export async function startApp() {
     if (performance.now() - lastClock > 1000) { setClock(now); lastClock = performance.now() }
 
     life?.update(dt)
+    if (timetable) {
+      timetable.mesh.visible = layers.trams && epoch.year >= 1877
+      if (timetable.mesh.visible) timetable.update(now)
+    }
     dwarfs.setZoom(px / camera.zoom)
     dwarfs.update(dt)
     epochState?.update(dt)

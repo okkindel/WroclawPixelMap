@@ -9,6 +9,8 @@ export class Movers {
   graph: Graph
   agents: Agent[] = []
   mesh: THREE.InstancedMesh
+  // druga bryła o stałym kolorze, poruszana razem z pierwszą (np. głowy ludzi)
+  extra: THREE.InstancedMesh | null = null
   segments: number
   gap: number
   offset: number
@@ -19,7 +21,7 @@ export class Movers {
   private sc = new THREE.Vector3(1, 1, 1)
   private up = new THREE.Vector3(0, 1, 0)
 
-  constructor(graph: Graph, count: number, geo: THREE.BufferGeometry, colors: string[], speed: [number, number], opts: { segments?: number; gap?: number; offset?: number; seed: number; vertexColors?: boolean }) {
+  constructor(graph: Graph, count: number, geo: THREE.BufferGeometry, colors: string[], speed: [number, number], opts: { segments?: number; gap?: number; offset?: number; seed: number; vertexColors?: boolean; extra?: [THREE.BufferGeometry, string] }) {
     this.graph = graph
     this.segments = opts.segments ?? 1
     this.gap = opts.gap ?? 0
@@ -38,6 +40,11 @@ export class Movers {
       if (this.segments > 1) this.advance(a, (this.segments + 1) * this.gap, true)
     }
     this.mesh.count = n * this.segments
+    if (opts.extra) {
+      this.extra = new THREE.InstancedMesh(opts.extra[0], new THREE.MeshLambertMaterial({ color: opts.extra[1] }), this.mesh.count)
+      this.extra.frustumCulled = false
+      this.extra.castShadow = true
+    }
   }
 
   private advance(a: Agent, dist: number, record: boolean) {
@@ -104,9 +111,11 @@ export class Movers {
         this.q.setFromAxisAngle(this.up, Math.atan2(p.dy, p.dx))
         this.m.compose(this.v, this.q, this.sc)
         this.mesh.setMatrixAt(i * this.segments + k, this.m)
+        this.extra?.setMatrixAt(i * this.segments + k, this.m)
       }
     })
     this.mesh.instanceMatrix.needsUpdate = true
+    if (this.extra) this.extra.instanceMatrix.needsUpdate = true
   }
 }
 
