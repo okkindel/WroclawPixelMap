@@ -1,4 +1,5 @@
 // Surowe dane OSM (format Overpass `out geom` / `out center`) w data/raw i odczyt tagów.
+import { Color } from 'three'
 import { existsSync } from 'node:fs'
 import { readdir } from 'node:fs/promises'
 import { readJson } from './json.ts'
@@ -57,6 +58,11 @@ export const num = (v: string | undefined): number | null => {
   const n = parseFloat(String(v).replace(',', '.'))
   return Number.isFinite(n) ? n : null
 }
+
+// Kolor z tagu (building:colour, roof:colour), jeśli przeglądarka go zrozumie: #rgb, #rrggbb albo nazwa CSS
+// („red”, „firebrick”). Literówki z OSM (#101fefb, „brick”) pomijamy, zamiast ostrzeżeń three.js w konsoli.
+export const colour = (v: string | undefined): string | undefined =>
+  v && (/^#([0-9a-f]{3}){1,2}$/i.test(v) || v.toLowerCase() in Color.NAMES) ? v : undefined
 
 // Pierwszy czterocyfrowy rok z tagu (np. start_date „ok. 1890”, „1905-1907”), inaczej null.
 export const year = (v: string | undefined): number | null => {

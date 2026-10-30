@@ -1,7 +1,7 @@
 // Budynek albo część budynku (building:part) -> bryły. Dla części typ bierzemy z tagu building:part.
 import type { Building } from '../../../src/types/world.ts'
 import { r1 } from '../../lib/geo.ts'
-import { num, type OsmEl, type Tags, year } from '../../lib/osm.ts'
+import { colour, num, type OsmEl, type Tags, year } from '../../lib/osm.ts'
 import {
   MAX_H,
   MIN_BUILDING_AREA,
@@ -40,8 +40,8 @@ export function toBuildings(el: OsmEl, t: Tags, buildingTag: string, nid: NidMat
       y: year(t.start_date) ?? nidHit?.y ?? constructionYear(buildingTag),
       rs: roofShape(t, known, house),
       rh: num(t['roof:height']) ?? undefined,
-      rc: t['roof:colour'] || undefined,
-      c: t['building:colour'] || undefined,
+      rc: colour(t['roof:colour']),
+      c: colour(t['building:colour']),
       bm: t['building:material'] || undefined,
       rm: t['roof:material'] || undefined,
       n: t.name || undefined,

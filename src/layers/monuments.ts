@@ -2,6 +2,8 @@
 // Skala realna (wysokość z OSM albo typowa dla rodzaju), ale nie niższe niż MIN_H, żeby było je widać z góry.
 import * as THREE from 'three'
 import type { PopupContent } from '../ui/popup.ts'
+import { showMonument } from '../app/popups.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 import { hash } from '../engine/geo.ts'
 import { lang } from '../i18n/index.ts'
 import { vertexLambert } from '../scenes/util.ts'
@@ -197,7 +199,7 @@ const LABEL = {
 // Rodzaj obiektu OSM z pierwszej litery id (n123, w45, r6).
 const OSM_TYPE: Record<string, string> = { n: 'node', w: 'way', r: 'relation' }
 
-export class Monuments {
+export class Monuments implements Pickable {
   group = new THREE.Group()
   private list: Monument[]
   private parts: Part[] = []
@@ -271,7 +273,12 @@ export class Monuments {
   }
 
   // Kliknięty pomnik (najbliższy) albo null.
-  hit(ray: THREE.Raycaster): MonumentHit | null {
+  pick(ray: THREE.Raycaster): Pick | null {
+    const hit = this.hit(ray)
+    return hit ? { open: () => showMonument(hit), outline: { within: this.group } } : null
+  }
+
+  private hit(ray: THREE.Raycaster): MonumentHit | null {
     if (!this.group.visible) return null
     let best: { d: number; i: number } | null = null
     for (const { mesh, idx } of this.parts) {

@@ -1,6 +1,8 @@
 // Tramwaje według rozkładu GTFS MPK: na podstawie godziny i dnia tygodnia wyliczamy, które kursy są w drodze
 // i gdzie na trasie jest każdy wagon (równomiernie między pętlami, bez postojów na przystankach).
 import * as THREE from 'three'
+import { showTram } from '../app/popups.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 import type { TramSchedule, TramTrip } from '../types/world.ts'
 
 const CARS = 3
@@ -13,7 +15,7 @@ interface Shape {
   len: number
 }
 
-export class Timetable {
+export class Timetable implements Pickable {
   mesh: THREE.InstancedMesh
   active: TramTrip[] = []
   private data: TramSchedule
@@ -97,8 +99,18 @@ export class Timetable {
     this.mesh.instanceMatrix.needsUpdate = true
   }
 
+  // Kliknięty wagon: okienko kursu i obrys całego składu (wagony jednego kursu to kolejne instancje).
+  pick(ray: THREE.Raycaster): Pick | null {
+    const id = this.mesh.visible ? ray.intersectObject(this.mesh)[0]?.instanceId : undefined
+    const info = id == null ? null : this.describe(id)
+    if (id == null || !info) return null
+    const first = id - (id % CARS)
+    const ids = Array.from({ length: Math.min(CARS, this.mesh.count - first) }, (_, k) => first + k)
+    return { open: () => showTram(info), outline: { instances: this.mesh, ids }, live: true }
+  }
+
   // Opis kursu dla klikniętej instancji (wagonu).
-  describe(instance: number) {
+  private describe(instance: number) {
     const trip = this.active[Math.floor(instance / CARS)]
     if (!trip) return null
     const hhmm = (s: number) => `${String(Math.floor(s / 3600) % 24).padStart(2, '0')}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}`

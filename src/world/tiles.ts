@@ -1,6 +1,9 @@
 // Kafle mapy: wczytywane od środka widoku, każdy ma własne siatki (kamera pomija te poza kadrem).
 import * as THREE from 'three'
 import { C } from '../engine/palette.ts'
+import { bbox } from '../engine/geo.ts'
+import { showBuilding } from '../app/popups.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 import type { Building, TileData, World, WorldMeta } from '../types/world.ts'
 import { buildBuildings, type BuildOpts } from './buildings.ts'
 import { buildGround } from './ground.ts'
@@ -42,7 +45,7 @@ interface WorkerResult {
   simple: Packed
 }
 
-export class Tiles {
+export class Tiles implements Pickable {
   meta: WorldMeta
   list: Tile[] = []
   group = new THREE.Group()
@@ -223,7 +226,21 @@ export class Tiles {
   }
 
   // Który budynek trafił promień (lub undefined).
-  pick(ray: THREE.Raycaster): Building | undefined {
+  // akcja napisu (zabytek, obiekt z OSM) o tej nazwie w pobliżu: wspólne okienko dla napisu i bryły (src/layers/labels.ts)
+  openerFor: (name: string, x: number, y: number) => (() => void) | undefined = () => undefined
+
+  // Budynek z napisem otwiera to samo okienko co napis; bez napisu tylko wtedy, gdy znamy rok budowy.
+  pick(ray: THREE.Raycaster): Pick | null {
+    const b = this.buildingAt(ray)
+    const name = b?.n
+    if (!b || !name) return null
+    const opener = this.openerFor(name, b.o[0], b.o[1])
+    const year = b.y
+    if (!opener && !year) return null
+    return { open: opener ?? (() => showBuilding(name, year!)), outline: { meshes: this.shapeOf(b) } }
+  }
+
+  private buildingAt(ray: THREE.Raycaster): Building | undefined {
     const hit = ray.intersectObjects(this.list.map((t) => (t.far ? t.simple : t.buildings)))[0]
     if (hit?.faceIndex == null) return undefined
     const tile = this.list.find((t) => t.buildings === hit.object || t.simple === hit.object)
@@ -233,4 +250,57 @@ export class Tiles {
     const owners: Int32Array = mesh.geometry.userData.owners
     return tile.data.buildings[owners[hit.faceIndex]]
   }
+
+  // Obrys budynku liczony raz (najechanie odświeża się często); przy zmianie budynku bufory poprzedniego zwalniamy.
+  private shape: { b: Building; meshes: THREE.Mesh[] } | null = null
+  private shapeOf(b: Building) {
+    if (this.shape?.b !== b) {
+      for (const m of this.shape?.meshes ?? []) m.geometry.dispose()
+      this.shape = { b, meshes: this.buildingMeshes(b) }
+    }
+    return this.shape.meshes
+  }
+
+  // Bryły jednego budynku: o tej samej nazwie i stykające się ze sobą (część dotyka części), zaczynając od trafionej.
+  // Sama nazwa nie wystarcza: dwie różne kamienice przy Rynku potrafią nazywać się tak samo.
+  private sameBuilding(b: Building) {
+    const named = this.list.flatMap((t) =>
+      t.data.buildings.filter((o) => o.n === b.n && Math.hypot(o.o[0] - b.o[0], o.o[1] - b.o[1]) < 250),
+    )
+    const boxes = new Map(named.map((o) => [o, bbox(o.o)]))
+    if (!boxes.has(b)) boxes.set(b, bbox(b.o))
+    const touch = (a: Building, c: Building) => {
+      const [ax0, ay0, ax1, ay1] = boxes.get(a)!,
+        [cx0, cy0, cx1, cy1] = boxes.get(c)!
+      return ax0 <= cx1 + TOUCH_M && cx0 <= ax1 + TOUCH_M && ay0 <= cy1 + TOUCH_M && cy0 <= ay1 + TOUCH_M
+    }
+    const group = new Set<Building>([b])
+    for (const a of group) for (const c of named) if (!group.has(c) && touch(a, c)) group.add(c)
+    return group
+  }
+
+  // Dokładnie te trójkąty, z których budynek jest narysowany (te same dachy i hełmy). Każdy trójkąt siatki kafla zna swój budynek (owners).
+  private buildingMeshes(b: Building): THREE.Mesh[] {
+    const group = this.sameBuilding(b)
+    const out: THREE.Mesh[] = []
+    for (const tile of this.list) {
+      const mesh = tile.far ? tile.simple : tile.buildings
+      const owners: Int32Array | undefined = mesh.geometry.userData.owners
+      const pos = mesh.geometry.getAttribute('position')
+      if (!owners || !pos) continue
+      const tris: number[] = []
+      for (let f = 0; f < owners.length; f++) {
+        if (!group.has(tile.data.buildings[owners[f]])) continue
+        for (let k = 0; k < 9; k++) tris.push(pos.array[f * 9 + k])
+      }
+      if (!tris.length) continue
+      const g = new THREE.BufferGeometry()
+      g.setAttribute('position', new THREE.Float32BufferAttribute(tris, 3))
+      out.push(new THREE.Mesh(g))
+    }
+    return out
+  }
 }
+
+// części jednego budynku: obrysy bliżej niż tyle metrów się stykają
+const TOUCH_M = 1

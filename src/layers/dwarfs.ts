@@ -1,6 +1,7 @@
 // Warstwa krasnali: pikselowe figurki z OSM (artwork_type=dwarf), klikalne, do kolekcjonowania.
 import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 import type { Dwarf } from '../types/world.ts'
 import { merge } from '../world/geometry.ts'
 
@@ -20,12 +21,14 @@ function dwarfGeometry() {
   return merge(parts)
 }
 
-export class Dwarfs {
+export class Dwarfs implements Pickable {
   list: Dwarf[]
+  // kliknięcie w krasnala (kolekcja i okienko: src/app.ts)
+  onOpen: (i: number) => void = () => {}
   mesh: THREE.InstancedMesh
   found: Set<number>
   private scale = 1
-  private hover = -1
+  private hovered = -1
   private t = 0
   private party = 0
   private m = new THREE.Matrix4()
@@ -67,16 +70,26 @@ export class Dwarfs {
     }
   }
 
+  pick(ray: THREE.Raycaster): Pick | null {
+    const id = this.mesh.visible ? ray.intersectObject(this.mesh)[0]?.instanceId : undefined
+    return id == null ? null : { open: () => this.onOpen(id), outline: { instances: this.mesh, ids: [id] }, live: true }
+  }
+
+  // krasnal pod kursorem podskakuje
+  hover(ray: THREE.Raycaster) {
+    if (this.mesh.visible) this.setHover(ray.intersectObject(this.mesh)[0]?.instanceId ?? -1)
+  }
+
   setHover(i: number) {
-    if (i !== this.hover) {
-      this.hover = i
+    if (i !== this.hovered) {
+      this.hovered = i
       this.layout()
     }
   }
 
   layout() {
     this.list.forEach((d, i) => {
-      const jumping = i === this.hover || this.party > 0
+      const jumping = i === this.hovered || this.party > 0
       const hop = jumping ? Math.abs(Math.sin(this.t * 10 + i)) * 0.6 * this.scale : 0
       const found = this.found.has(d.id)
       this.v.set(d.x, 0.2 + hop, -d.y)
@@ -92,7 +105,7 @@ export class Dwarfs {
     this.t += dt
     const wasParty = this.party > 0
     this.party = Math.max(0, this.party - dt)
-    if (this.hover >= 0 || this.party > 0 || wasParty) this.layout()
+    if (this.hovered >= 0 || this.party > 0 || wasParty) this.layout()
   }
 
   // Rewolucja Krasnoludków: wszystkie krasnale rosną i skaczą przez chwilę.

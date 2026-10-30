@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Egg, Landmark } from '../content/index.ts'
-import { PLACE_ZOOM, type PinGroup, type PinRule, landmarkLabel } from '../rules/labels.ts'
+import { PLACE_ZOOM, POI_DEDUP_RADIUS, type PinGroup, type PinRule, landmarkLabel, sameName } from '../rules/labels.ts'
 
 export type { PinGroup }
 
@@ -38,8 +38,14 @@ export class Labels {
   // Napis z nazwą (zabytki, uczelnie, obiekty z OSM).
   // Akcja napisu o danej nazwie w pobliżu punktu (x, y) — żeby kliknięcie w bryłę budynku otwierało to samo okienko.
   private openers: { name: string; x: number; y: number; open: () => void }[] = []
+  // Najpierw ta sama nazwa w promieniu `radius`, potem bliska nazwa (sameName, jak przy duplikatach napisów):
+  // bryła „Kościół Garnizonowy pw. Świętej Elżbiety” z OSM otwiera zabytek „Kościół św. Elżbiety”.
   openerFor(name: string, x: number, y: number, radius = 250) {
-    return this.openers.find((o) => o.name === name && Math.hypot(o.x - x, o.y - y) < radius)?.open
+    const near = (o: { x: number; y: number }, r: number) => Math.hypot(o.x - x, o.y - y) < r
+    return (
+      this.openers.find((o) => o.name === name && near(o, radius)) ??
+      this.openers.find((o) => near(o, POI_DEDUP_RADIUS) && sameName(o.name, name))
+    )?.open
   }
 
   addLabel(name: string, lat: number, lon: number, rule: PinRule, onClick: () => void) {

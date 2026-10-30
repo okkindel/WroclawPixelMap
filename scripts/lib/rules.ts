@@ -192,7 +192,8 @@ export function roofColour(px: [number, number, number, number][], total: number
   // na zieleń/morski; nasycone kolory (dachówka, miedź) zostają
   if (Math.max(...avg) - Math.min(...avg) < ORTHO_GREY_SPREAD) {
     const l = Math.round(avg[0] * 0.3 + avg[1] * 0.59 + avg[2] * 0.11)
-    avg = [l + 3, l, l - 3]
+    // z ograniczeniem do 0–255 (jasny dach + 3 dawało 256, czyli siedem cyfr szesnastkowych)
+    avg = [l + 3, l, l - 3].map((v) => Math.max(0, Math.min(255, v)))
   }
   return `#${avg.map((v) => v.toString(16).padStart(2, '0')).join('')}`
 }

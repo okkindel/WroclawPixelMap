@@ -3,6 +3,8 @@
 import * as THREE from 'three'
 import { hash, toLocal } from '../engine/geo.ts'
 import { NEONS, type NeonSpec } from '../content/index.ts'
+import { showNeon } from '../app/popups.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 
 const FONT = { block: 'bold 10px "Courier New", monospace', script: 'italic bold 11px Georgia, serif' }
 const BIG = 'bold 13px "Courier New", monospace' // większe litery wyróżnienia (PZU)
@@ -293,7 +295,7 @@ interface Sign {
   flickT: number
 }
 
-export class Neons {
+export class Neons implements Pickable {
   group = new THREE.Group()
   private signs: Sign[] = []
   private t = 0
@@ -426,7 +428,12 @@ export class Neons {
   }
 
   // Kliknięty napis (najbliższy z widocznych) albo null.
-  hit(ray: THREE.Raycaster): NeonSpec | null {
+  pick(ray: THREE.Raycaster): Pick | null {
+    const spec = this.group.visible ? this.hit(ray) : null
+    return spec ? { open: () => showNeon(spec), outline: { within: this.group }, live: true } : null
+  }
+
+  private hit(ray: THREE.Raycaster): NeonSpec | null {
     const meshes = this.signs.filter((s) => s.root.visible).map((s) => s.hit)
     const h = ray.intersectObjects(meshes, false)[0]
     return h ? (this.signs.find((sign) => sign.hit === h.object)?.spec ?? null) : null

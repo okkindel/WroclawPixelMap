@@ -671,6 +671,16 @@ a.icon {
   margin-bottom: 8px;
   box-shadow: 0 0 0 2px var(--ink);
 }
+#popup a {
+  color: var(--odra);
+  font-weight: 600;
+}
+#popup .credit {
+  display: block;
+  margin: -4px 0 8px;
+  font-size: 11px;
+  color: var(--ink2);
+}
 /* szkielet zdjęcia do czasu wczytania: pole w kolorze papieru z przesuwającym się jaśniejszym pasem (skokowo, jak piksele) */
 #popup .photo.loading {
   height: 180px;
@@ -678,8 +688,7 @@ a.icon {
   background: linear-gradient(90deg, var(--paper2) 0 35%, var(--paper) 35% 50%, var(--paper2) 50%) 0 0 / 300% 100%;
   animation: skeleton 1.2s steps(12) infinite;
 }
-#popup .photo.loading img,
-#popup .photo.loading .credit {
+#popup .photo.loading > * {
   display: none;
 }
 @keyframes skeleton {
@@ -694,16 +703,6 @@ a.icon {
   #popup .photo.loading {
     animation: none;
   }
-}
-#popup a {
-  color: var(--odra);
-  font-weight: 600;
-}
-#popup .credit {
-  display: block;
-  margin: -4px 0 8px;
-  font-size: 11px;
-  color: var(--ink2);
 }
 #popup .close {
   position: absolute;

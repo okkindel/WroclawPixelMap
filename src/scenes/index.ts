@@ -13,6 +13,8 @@ import { Lamplighter } from './lamplighter.ts'
 import { Market, marketOpen } from './market.ts'
 import type { ScenesData } from './types.ts'
 import { t } from '../i18n/index.ts'
+import { showScene } from '../app/popups.ts'
+import type { Pick, Pickable } from '../types/pick.ts'
 
 export type { ScenesData } from './types.ts'
 
@@ -41,13 +43,7 @@ interface Scene {
   hit?: (ray: THREE.Raycaster) => TextKind | null
 }
 
-export interface SceneHit {
-  title: string
-  text: string
-  root: THREE.Object3D
-}
-
-export class Scenes {
+export class Scenes implements Pickable {
   group = new THREE.Group()
   forced = new Set<SceneName>()
   // statki to warstwa życia miasta (przełącznik w „Na mapie”), nie scenka
@@ -147,11 +143,14 @@ export class Scenes {
     }
   }
 
-  // Trafiona scenka: tekst okienka i jej korzeń (do obrysu).
-  hit(ray: THREE.Raycaster): SceneHit | null {
+  // Trafiona scenka: okienko z jej tekstem i obrys trafionej bryły (ruchome, więc co klatkę).
+  pick(ray: THREE.Raycaster): Pick | null {
     for (const s of this.list) {
       const kind = s.root.visible ? s.hit?.(ray) : null
-      if (kind) return { title: t(`scene.${kind}.title`), text: t(`scene.${kind}.text`), root: s.root }
+      if (kind) {
+        const text = { title: t(`scene.${kind}.title`), text: t(`scene.${kind}.text`) }
+        return { open: () => showScene(text), outline: { within: s.root }, live: true }
+      }
     }
     return null
   }
