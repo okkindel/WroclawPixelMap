@@ -129,6 +129,7 @@ export async function startApp() {
     tiles.setTreesVisible(layers.trees)
     stands.visible = epoch.year >= 1928
     structures.setYear(epoch.year)
+    labels.year = epoch.year
     // pierwszy krasnal stanął w 2001 r.
     dwarfs.mesh.visible = layers.dwarfs && modern
     labels.showLabels = layers.labels
@@ -143,7 +144,7 @@ export async function startApp() {
     openPopup({ title: t.title, sub: { miejsce: 'Ciekawostka', uczelnia: 'Uczelnia', kultowe: 'Kultowe miejsce' }[t.category], text: t.text, link: { href: t.source, label: 'Źródło' } })
   for (const t of TRIVIA) {
     if (t.category === 'uczelnia') labels.addLabel(t.title, t.lat, t.lon, 0.9, () => showTrivia(t), 'uni')
-    else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult')
+    else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1945)
     else labels.addMarker(t, () => showTrivia(t))
   }
   for (const [name, x, y, rank] of meta.places) labels.addPlace(name, x, y, rank)
@@ -153,7 +154,9 @@ export async function startApp() {
   for (const [name, x, y, kind, rank] of meta.pois) {
     if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
     const [lat, lon] = toLatLon(x, y)
-    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind] }), kind === 'church' ? 'poi church' : `poi poi-${kind}`)
+    // bez daty w OSM: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1945 r.
+    const from = kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1945
+    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind] }), kind === 'church' ? 'poi church' : `poi poi-${kind}`, from)
   }
   for (const st of meta.stadiums) {
     if (!st.n) continue

@@ -97,7 +97,8 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     // kolejność: kolor z OSM > materiał z OSM > wariant typowy dla rodzaju budynku
     let wall = parseColor(b.c, (b.bm && C.wallMaterial[b.bm]) || pick(set, r))
     // dach: kolor z OSM > zdjęcie lotnicze GUGiK > materiał z OSM > wariant typowy
-    let roof = parseColor(b.rc, b.oc || (b.rm && C.roofMaterial[b.rm]) || kind === 'church' ? pick(C.roofChurch, r2) : old ? pick(C.roofTile, r2) : pick(C.roofFlat, r2))
+    const typical = kind === 'church' ? pick(C.roofChurch, r2) : old ? pick(C.roofTile, r2) : pick(C.roofFlat, r2)
+    let roof = parseColor(b.rc, b.oc || (b.rm && C.roofMaterial[b.rm]) || typical)
     let H = b.H, base = b.m || 0, shape = b.rs
     const m = opts.mod && opts.mod(b, idx)
     if (m) {
@@ -166,7 +167,7 @@ function insetRing(ring: Flat, d: number, towardInside: boolean): Flat {
 // Dach kopertowy dla dowolnego obrysu: połacie od krawędzi do linii odsuniętej o d, na górze płaski kalenicowy pas.
 function ringRoof(geo: Geo, outer: Flat, holes: Flat[] | undefined, top: number, d: number, rh: number, color: string) {
   const area = Math.abs(signedArea(outer)) - (holes ?? []).reduce((s, h) => s + Math.abs(signedArea(h)), 0)
-  if (area < 120) return false
+  if (area < 120 || outer.length / 2 > 160) return false
   const rings: [Flat, Flat][] = [[outer, insetRing(outer, d, true)], ...(holes ?? []).map((h): [Flat, Flat] => [h, insetRing(h, d, false)])]
   for (const [r, ins] of rings) {
     const n = r.length / 2
@@ -185,6 +186,7 @@ function ringRoof(geo: Geo, outer: Flat, holes: Flat[] | undefined, top: number,
       else geo.quad(a, e, c, b2, [nx / L, ny / L, nz / L], color)
     }
   }
-  flatPoly(geo, rings[0][1], rings.slice(1).map((r) => r[1]), top + rh, color)
+  // środek dachu: płaski, na wysokości okapu (odsunięty wielokąt bywa samoprzecinający się przy wielu wierzchołkach)
+  flatPoly(geo, outer, holes, top + 0.05, color)
   return true
 }

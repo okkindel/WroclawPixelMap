@@ -3,7 +3,20 @@ import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Egg, Landmark } from '../history/content.ts'
 
-interface Pin { el: HTMLElement; pos: THREE.Vector3; minZoom: number; maxZoom?: number; size?: [number, number] }
+// fromYear: od którego roku obiekt istnieje (napis chowany we wcześniejszych epokach)
+interface Pin { el: HTMLElement; pos: THREE.Vector3; minZoom: number; maxZoom?: number; size?: [number, number]; fromYear?: number }
+
+// Rok z opisu zabytku: pierwszy czterocyfrowy rok albo wiek rzymski (XIII w. → 1250).
+export function yearOf(text: string): number | undefined {
+  const y = text.match(/\d{4}/)
+  if (y) return +y[0]
+  const c = text.match(/\b([IVX]+)\s*w/)
+  if (!c) return undefined
+  const R: Record<string, number> = { I: 1, V: 5, X: 10 }
+  let n = 0
+  for (let i = 0; i < c[1].length; i++) { const v = R[c[1][i]], w = R[c[1][i + 1]] ?? 0; n += v < w ? -v : v }
+  return (n - 1) * 100 + 50
+}
 
 export class Labels {
   root: HTMLElement
@@ -12,6 +25,7 @@ export class Labels {
   placePins: Pin[] = []
   showLabels = true
   showEggs = true
+  year = 9999
   private v = new THREE.Vector3()
 
   constructor(root: HTMLElement, landmarks: Landmark[], rank: Record<string, 1 | 2>, onLandmark: (l: Landmark) => void) {
@@ -21,18 +35,18 @@ export class Labels {
     const zoomFor = (l: Landmark) => ({ 1: 0, 2: 0.9 })[rank[l.name] as 1 | 2] ?? 1.6
     // świątynie dostają osobny kolor napisu
     const sacred = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic/
-    for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), sacred.test(l.name) ? 'church' : '')
+    for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), sacred.test(l.name) ? 'church' : '', yearOf(l.year))
   }
 
   // Napis z nazwą (zabytki, uczelnie).
-  addLabel(name: string, lat: number, lon: number, minZoom: number, onClick: () => void, cls = '') {
+  addLabel(name: string, lat: number, lon: number, minZoom: number, onClick: () => void, cls = '', fromYear?: number) {
     const [x, y] = toLocal(lat, lon)
     const el = document.createElement('button')
     el.className = `label ${cls}`
     el.textContent = name
     el.onclick = onClick
     this.root.appendChild(el)
-    this.pins.push({ el, pos: new THREE.Vector3(x, 30, -y), minZoom })
+    this.pins.push({ el, pos: new THREE.Vector3(x, 30, -y), minZoom, fromYear })
   }
 
   // Nazwa osiedla: duży napis widoczny z daleka, znika po przybliżeniu.
@@ -45,7 +59,7 @@ export class Labels {
   }
 
   // Okrągły znacznik: „?” dla ciekawostek, „★” dla kultowych miejsc.
-  addMarker(e: Egg, onClick: () => void, icon = '?', cls = '') {
+  addMarker(e: Egg, onClick: () => void, icon = '?', cls = '', fromYear?: number) {
     if (e.trigger === 'konami') return
     const [x, y] = toLocal(e.lat, e.lon)
     const el = document.createElement('button')
@@ -54,7 +68,7 @@ export class Labels {
     el.textContent = icon
     el.onclick = onClick
     this.root.appendChild(el)
-    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), minZoom: e.trigger === 'zoom' ? 3 : 0.75 })
+    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), minZoom: e.trigger === 'zoom' ? 3 : 0.75, fromYear })
   }
 
   update(camera: THREE.OrthographicCamera, w: number, h: number) {
@@ -62,7 +76,7 @@ export class Labels {
     // Napis, który nachodziłby na już postawiony, chowamy.
     const placed: [number, number, number, number][] = []
     const place = (p: Pin, visible: boolean) => {
-      if (!visible || camera.zoom < p.minZoom || camera.zoom > (p.maxZoom ?? Infinity)) { p.el.style.display = 'none'; return }
+      if (!visible || (p.fromYear ?? 0) > this.year || camera.zoom < p.minZoom || camera.zoom > (p.maxZoom ?? Infinity)) { p.el.style.display = 'none'; return }
       this.v.copy(p.pos).project(camera)
       if (Math.abs(this.v.x) > 1.05 || Math.abs(this.v.y) > 1.05) { p.el.style.display = 'none'; return }
       const x = ((this.v.x + 1) / 2) * w, y = ((1 - this.v.y) / 2) * h
