@@ -6,6 +6,8 @@ export const SINCE = {
   stadium: 1928, // otwarcie Stadionu Olimpijskiego (trybuny)
   speedway: 1988, // easter egg: bieg żużlowy na Olimpijskim
   dwarfs: 2001, // pierwszy krasnal
+  // konstrukcje bez daty w OSM (maszty, wieże ciśnień, kominy) to epoka przemysłowa i później
+  undatedStructures: 1850,
   // od tego roku epoka „dziś” wygląda jak współczesne dane (bez filtrowania budynków)
   today: 2020,
 } as const

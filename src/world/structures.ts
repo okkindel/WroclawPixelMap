@@ -1,5 +1,6 @@
 // Konstrukcje spoza budynków (iglice, maszty, wieże ciśnień) i koleje linowe z jeżdżącymi wagonikami.
 import * as THREE from 'three'
+import { SINCE } from '../rules/milestones.ts'
 import type { Aerialway, Flat, Structure } from '../types/world.ts'
 
 const lambert = (color: string) => new THREE.MeshLambertMaterial({ color })
@@ -155,7 +156,7 @@ export class Structures {
 
   // Konstrukcje z datą w OSM pokazujemy dopiero od roku budowy.
   setYear(year: number) {
-    for (const o of this.items) o.visible = !o.userData.yr || o.userData.yr <= year
+    for (const o of this.items) o.visible = (o.userData.yr ?? SINCE.undatedStructures) <= year
   }
 
   update(dt: number) {
