@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://okkindel.github.io/wroclaw/</loc>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://okkindel.github.io/wroclaw/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://okkindel.github.io/wroclaw/?lang=en" />
+    <loc>https://okkindel.github.io/projects/wroclaw-w-pikselach/</loc>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://okkindel.github.io/projects/wroclaw-w-pikselach/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://okkindel.github.io/projects/wroclaw-w-pikselach/?lang=en" />
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://okkindel.github.io/wroclaw/?lang=en</loc>
-    <xhtml:link rel="alternate" hreflang="pl" href="https://okkindel.github.io/wroclaw/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://okkindel.github.io/wroclaw/?lang=en" />
+    <loc>https://okkindel.github.io/projects/wroclaw-w-pikselach/?lang=en</loc>
+    <xhtml:link rel="alternate" hreflang="pl" href="https://okkindel.github.io/projects/wroclaw-w-pikselach/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://okkindel.github.io/projects/wroclaw-w-pikselach/?lang=en" />
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://okkindel.github.io/wroclaw/sitemap.xml
+Sitemap: https://okkindel.github.io/projects/wroclaw-w-pikselach/sitemap.xml

@@ -6,7 +6,7 @@ export type { Key }
 export { dwarfFacts, eggs, epochs, landmarkRank, landmarks, trivia } from './content.ts'
 
 const STORE = 'wpm.lang'
-const SITE = 'https://okkindel.github.io/wroclaw/'
+const SITE = 'https://okkindel.github.io/projects/wroclaw-w-pikselach/'
 const ok = (v: string | null | undefined): Lang | null => (v === 'pl' || v === 'en' ? v : null)
 
 let current: Lang | null = null
