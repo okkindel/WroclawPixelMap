@@ -1,5 +1,20 @@
 [
   {
+    "id": "tarczynski-arena",
+    "lat": 51.14140,
+    "lon": 16.94360,
+    "year": "2011",
+    "rank": 1,
+    "pl": {
+      "name": "Tarczyński Arena",
+      "text": "Stadion Śląska Wrocław zbudowany na Euro 2012 i otwarty w 2011 r. Mieści ponad 40 tys. widzów. Półprzezroczysta elewacja z membrany wieczorem świeci jak lampion."
+    },
+    "en": {
+      "name": "Tarczyński Arena",
+      "text": "Śląsk Wrocław’s stadium, built for Euro 2012 and opened in 2011. It holds more than 40,000 spectators. Its translucent membrane façade glows like a lantern in the evening."
+    }
+  },
+  {
     "id": "politechnika-wroclawska",
     "lat": 51.10793,
     "lon": 17.06176,
