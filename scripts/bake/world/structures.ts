@@ -26,7 +26,7 @@ export function structures(rawStructures: OsmEl[], out: World): Built {
   const lines: Aerialway[] = []
   for (const el of rawStructures) {
     const t: Tags = el.tags || {}
-    if (t.building) continue // takie są już budynkami
+    if (t.building || t['building:part']) continue // takie są już budynkami (albo częścią budynku, np. wieża kościoła)
     const pts = el.type === 'way' && el.geometry ? wayPts(el.geometry) : el.lat != null && el.lon != null ? [proj(el.lat, el.lon)] : []
     if (!pts.length) continue
     const [cx, cy] = meanPt(pts)
