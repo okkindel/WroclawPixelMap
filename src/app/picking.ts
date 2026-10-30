@@ -1,13 +1,12 @@
-// Kliknięcia w mapę: krasnale, tramwaje z rozkładu, pomniki, neony, scenki, żużel i budynki (w tej kolejności).
+// Kliknięcia i najechanie na mapie: krasnale, tramwaje z rozkładu, pomniki, neony, scenki i budynki (lista `providers`).
 import * as THREE from 'three'
 import { bbox } from '../engine/geo.ts'
-import { t } from '../i18n/index.ts'
 import type { Dwarfs } from '../layers/dwarfs.ts'
 import type { Monuments } from '../layers/monuments.ts'
 import type { Neons } from '../layers/neons.ts'
 import type { Timetable } from '../life/timetable.ts'
 import type { Scenes } from '../scenes/index.ts'
-import { openPopup } from '../ui/popup.ts'
+import { showBuilding, showMonument, showNeon, showScene, showTram } from './popups.ts'
 import type { Tiles } from '../world/tiles.ts'
 import type { Building } from '../types/world.ts'
 import { byId } from '../ui/dom.ts'
@@ -30,7 +29,7 @@ export interface Pickables {
   onDwarf: (i: number) => void
   // scena podświetlenia filtra pikselowego (PixelPass.highlight)
   highlight: THREE.Scene
-  // akcja napisu (zabytek, obiekt z OSM) o tej nazwie w pobliżu — wspólne okienko dla napisu i bryły
+  // akcja napisu (zabytek, obiekt z OSM) o tej nazwie w pobliżu: wspólne okienko dla napisu i bryły
   openerFor: (name: string, x: number, y: number) => (() => void) | undefined
 }
 
@@ -134,66 +133,55 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     return out
   }
 
-  const find = (): Target | null => {
-    if (p.dwarfs.mesh.visible) {
-      const hit = ray.intersectObject(p.dwarfs.mesh)[0]
-      const id = hit?.instanceId
-      if (id != null) return { open: () => p.onDwarf(id), shape: () => [instanceCopy(p.dwarfs.mesh, id)], live: true }
-    }
-    const timetable = p.timetable
-    if (timetable?.mesh.visible) {
-      const tram = ray.intersectObject(timetable.mesh)[0]
-      const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
-      if (info && tram?.instanceId != null) {
-        const open = () =>
-          openPopup({
-            title: t('tram.title', { line: info.line }),
-            sub: t('tram.sub', { head: info.head }),
-            text: t('tram.text', { dep: info.dep, arr: info.arr }),
-          })
-        // cały skład: wagony jednego kursu to kolejne instancje
-        const first = tram.instanceId - (tram.instanceId % TRAM_CARS)
-        const shape = () =>
-          Array.from({ length: Math.min(TRAM_CARS, timetable.mesh.count - first) }, (_, k) => instanceCopy(timetable.mesh, first + k))
-        return { open, shape, live: true }
-      }
-    }
-    const monument = p.monuments?.hit(ray)
-    if (monument && p.monuments) return { open: () => openPopup(monument), shape: hitShape(p.monuments.group) }
-    const neon = p.neons.group.visible ? p.neons.hit(ray) : null
-    if (neon) {
-      const link = neon.source ? { href: neon.source, label: t('source') } : undefined
-      return {
-        open: () => openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link }),
-        shape: hitShape(p.neons.group),
-        live: true,
-      }
-    }
-    const scenes = p.scenes()
-    const scene = scenes?.hit(ray)
-    if (scene && scenes)
-      return {
-        open: () => openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text }),
-        shape: hitShape(scenes.group),
-        live: true,
-      }
-    const speedway = scenes?.speedway
-    if (speedway?.group.visible && speedway.hit(ray)) {
-      return {
-        open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }),
-        shape: hitShape(speedway.group),
-        live: true,
-      }
-    }
-    const b = p.tiles.pick(ray)
-    // budynek z napisem otwiera to samo okienko co napis; bez napisu — tylko gdy znamy rok budowy
-    const opener = b?.n ? p.openerFor(b.n, b.o[0], b.o[1]) : undefined
-    if (b?.n && (opener || b.y)) {
-      const name = b.n,
-        year = b.y
+  // Dostawcy klikalnych obiektów w kolejności pierwszeństwa: pierwszy, który coś trafi, wygrywa.
+  const providers: (() => Target | null)[] = [
+    // krasnal (podskakuje pod kursorem)
+    () => {
+      if (!p.dwarfs.mesh.visible) return null
+      const id = ray.intersectObject(p.dwarfs.mesh)[0]?.instanceId
+      return id == null ? null : { open: () => p.onDwarf(id), shape: () => [instanceCopy(p.dwarfs.mesh, id)], live: true }
+    },
+    // tramwaj z rozkładu: obrys całego składu (wagony jednego kursu to kolejne instancje)
+    () => {
+      const tt = p.timetable
+      if (!tt?.mesh.visible) return null
+      const id = ray.intersectObject(tt.mesh)[0]?.instanceId
+      const info = id == null ? null : tt.describe(id)
+      if (id == null || !info) return null
+      const first = id - (id % TRAM_CARS)
+      const shape = () => Array.from({ length: Math.min(TRAM_CARS, tt.mesh.count - first) }, (_, k) => instanceCopy(tt.mesh, first + k))
+      return { open: () => showTram(info), shape, live: true }
+    },
+    () => {
+      const m = p.monuments
+      const hit = m?.hit(ray)
+      return m && hit ? { open: () => showMonument(hit), shape: hitShape(m.group) } : null
+    },
+    () => {
+      const neon = p.neons.group.visible ? p.neons.hit(ray) : null
+      return neon ? { open: () => showNeon(neon), shape: hitShape(p.neons.group), live: true } : null
+    },
+    // scenki: żużel, jarmark, sylwester, statki, latarnik
+    () => {
+      const hit = p.scenes()?.hit(ray)
+      return hit ? { open: () => showScene(hit), shape: hitShape(hit.root), live: true } : null
+    },
+    // budynek z napisem otwiera to samo okienko co napis; bez napisu tylko wtedy, gdy znamy rok budowy
+    () => {
+      const b = p.tiles.pick(ray)
+      const name = b?.n
+      if (!b || !name) return null
+      const opener = p.openerFor(name, b.o[0], b.o[1])
+      const year = b.y
+      if (!opener && !year) return null
       const shape = cachedBuildingShape(b)
-      const open = opener ?? (() => openPopup({ title: name, sub: t('building.built', { y: year! }) }))
-      return { open, shape: () => shape }
+      return { open: opener ?? (() => showBuilding(name, year!)), shape: () => shape }
+    },
+  ]
+  const find = (): Target | null => {
+    for (const provider of providers) {
+      const target = provider()
+      if (target) return target
     }
     return null
   }

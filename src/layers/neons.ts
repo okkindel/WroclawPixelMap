@@ -2,7 +2,6 @@
 // W nocy świecą z poświatą i migoczącymi literami, za dnia widać zgaszone rurki; złodzieje z PZU zapalają się po kolei.
 import * as THREE from 'three'
 import { hash, toLocal } from '../engine/geo.ts'
-import { lang } from '../i18n/index.ts'
 import { NEONS, type NeonSpec } from '../content/index.ts'
 
 const FONT = { block: 'bold 10px "Courier New", monospace', script: 'italic bold 11px Georgia, serif' }
@@ -427,13 +426,9 @@ export class Neons {
   }
 
   // Kliknięty napis (najbliższy z widocznych) albo null.
-  hit(ray: THREE.Raycaster): { title: string; text: string; source?: string } | null {
+  hit(ray: THREE.Raycaster): NeonSpec | null {
     const meshes = this.signs.filter((s) => s.root.visible).map((s) => s.hit)
     const h = ray.intersectObjects(meshes, false)[0]
-    if (!h) return null
-    const s = this.signs.find((sign) => sign.hit === h.object)?.spec
-    if (!s) return null
-    const l = lang()
-    return { title: s.title[l], text: s.text[l], source: s.source }
+    return h ? (this.signs.find((sign) => sign.hit === h.object)?.spec ?? null) : null
   }
 }

@@ -2,10 +2,9 @@
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Egg, Landmark } from '../content/index.ts'
-import { PLACE_ZOOM, SACRED, landmarkMinZoom, markerMinZoom, yearOf } from '../rules/labels.ts'
+import { PLACE_ZOOM, type PinGroup, type PinRule, landmarkLabel } from '../rules/labels.ts'
 
-// Grupy znaczników (osobne przełączniki w panelu „Znaczniki”).
-export type PinGroup = 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'
+export type { PinGroup }
 
 // fromYear: od którego roku obiekt istnieje (napis chowany we wcześniejszych epokach)
 interface Pin {
@@ -30,11 +29,10 @@ export class Labels {
 
   constructor(root: HTMLElement, landmarks: Landmark[], rank: Record<string, 1 | 2>, onLandmark: (l: Landmark) => void) {
     this.root = root
-    // próg przybliżenia wg rangi (src/rules/labels.ts); kolejność = pierwszeństwo przy nachodzeniu napisów
-    const zoomFor = (l: Landmark) => landmarkMinZoom(rank[l.name])
-    for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) {
-      this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), SACRED.test(l.name) ? 'church' : '', yearOf(l.year))
-    }
+    // reguła napisu wg rangi (src/rules/labels.ts); kolejność = pierwszeństwo przy nachodzeniu napisów
+    const rule = (l: Landmark) => landmarkLabel(l.name, rank[l.name], l.year)
+    for (const l of [...landmarks].sort((a, b) => rule(a).minZoom - rule(b).minZoom))
+      this.addLabel(l.name, l.lat, l.lon, rule(l), () => onLandmark(l))
   }
 
   // Napis z nazwą (zabytki, uczelnie, obiekty z OSM).
@@ -44,24 +42,15 @@ export class Labels {
     return this.openers.find((o) => o.name === name && Math.hypot(o.x - x, o.y - y) < radius)?.open
   }
 
-  addLabel(
-    name: string,
-    lat: number,
-    lon: number,
-    minZoom: number,
-    onClick: () => void,
-    cls = '',
-    fromYear?: number,
-    group: PinGroup = 'labels',
-  ) {
+  addLabel(name: string, lat: number, lon: number, rule: PinRule, onClick: () => void) {
     const [x, y] = toLocal(lat, lon)
     this.openers.push({ name, x, y, open: onClick })
     const el = document.createElement('button')
-    el.className = `label ${cls}`
+    el.className = `label ${rule.cls}`
     el.textContent = name
     el.onclick = onClick
     this.root.appendChild(el)
-    this.pins.push({ el, pos: new THREE.Vector3(x, 30, -y), group, minZoom, fromYear })
+    this.pins.push({ el, pos: new THREE.Vector3(x, 30, -y), group: rule.group, minZoom: rule.minZoom, fromYear: rule.from })
   }
 
   // Nazwa osiedla: duży napis widoczny z daleka, znika po przybliżeniu.
@@ -80,16 +69,16 @@ export class Labels {
   }
 
   // Okrągły znacznik: „?” dla ciekawostek, „★” dla kultowych miejsc.
-  addMarker(e: Egg, onClick: () => void, icon = '?', cls = '', fromYear?: number, group: PinGroup = 'eggs') {
+  addMarker(e: Egg, rule: PinRule, onClick: () => void) {
     if (e.trigger === 'konami') return
     const [x, y] = toLocal(e.lat, e.lon)
     const el = document.createElement('button')
-    el.className = `egg ${cls}`
+    el.className = `egg ${rule.cls}`
     el.title = e.title
-    el.textContent = icon
+    el.textContent = rule.icon ?? '?'
     el.onclick = onClick
     this.root.appendChild(el)
-    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), group, minZoom: markerMinZoom(e.trigger), fromYear })
+    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), group: rule.group, minZoom: rule.minZoom, fromYear: rule.from })
   }
 
   update(camera: THREE.OrthographicCamera, w: number, h: number) {

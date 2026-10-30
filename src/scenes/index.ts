@@ -1,4 +1,5 @@
-// Smaczki: scenki zależne od daty, pory dnia i epoki (jarmark, sylwester, Odra, latarnik) oraz dźwięki miasta.
+// Smaczki: scenki zależne od daty, pory dnia i epoki (żużel, mecz, jarmark, sylwester, Odra, latarnik).
+// Każda scenka to jeden wpis w Scenes.list: kiedy ją widać, co robi w klatce, co pokazuje po kliknięciu.
 // Dane z public/data/scenes.json (scripts/bake/bake-scenes.ts); bez nich zostają tylko scenki, które da się zbudować z World.
 import * as THREE from 'three'
 import { Football, matchOn } from './football.ts'
@@ -11,75 +12,109 @@ import { Fireworks, newYearMinutes } from './fireworks.ts'
 import { Lamplighter } from './lamplighter.ts'
 import { Market, marketOpen } from './market.ts'
 import type { ScenesData } from './types.ts'
+import { t } from '../i18n/index.ts'
 
 export type { ScenesData } from './types.ts'
 
-const TEXT = {
-  market: {
-    title: 'Jarmark Bożonarodzeniowy',
-    text: 'Od końca listopada do 7 stycznia Rynek i plac Solny wypełniają drewniane budki z grzańcem, piernikami, pierogami i rękodziełem. Do tego wielka choinka, karuzela i tysiące światełek — to jeden z największych jarmarków świątecznych w Polsce.',
-  },
-  fireworks: {
-    title: 'Sylwester na Rynku',
-    text: 'O północy niebo nad Rynkiem rozbłyska fajerwerkami, a na płycie bawią się tysiące wrocławian i turystów.',
-  },
-  barge: {
-    title: 'Barka na Odrze',
-    text: 'Przez Wrocław biegnie Odrzańska Droga Wodna. W mieście Odra rozgałęzia się, tworząc Wrocławski Węzeł Wodny — sieć kanałów, śluz i jazów; barki towarowe płyną głównie Głównym Szlakiem Żeglugowym na północy, a przez centrum prowadzi Miejski Szlak Żeglugowy.',
-  },
-  cruise: {
-    title: 'Statek spacerowy',
-    text: 'Od wiosny do jesieni po Odrze kursują statki wycieczkowe i gondole. Z wody najlepiej widać, że Wrocław leży na kilkunastu wyspach połączonych ponad setką mostów i kładek.',
-  },
-  kayak: {
-    title: 'Kajakiem po Odrze',
-    text: 'W ciepłe miesiące można wypożyczyć kajak i opłynąć Ostrów Tumski, Wyspę Piasek i Słodową — miejskie odnogi Odry to jeden z najciekawszych szlaków kajakowych w Polsce.',
-  },
-  lamplighter: {
-    title: 'Latarnik z Ostrowa Tumskiego',
-    text: 'Na Ostrowie Tumskim wciąż świeci blisko sto latarni gazowych (dziś 98). Codziennie o zmierzchu latarnik w czarnej pelerynie i cylindrze zapala je ręcznie długą tyczką, a o świcie gasi. To jedyny taki latarnik w Polsce.',
-  },
-}
+// Rodzaje tekstu okienka scenki: klucze scene.<rodzaj>.title / .text w src/i18n/dict.ts
+type TextKind = 'market' | 'fireworks' | 'barge' | 'cruise' | 'kayak' | 'lamplighter' | 'speedway'
 
 export const SCENE_NAMES = ['market', 'fireworks', 'lamplighter', 'match', 'speedway'] as const
 export type SceneName = (typeof SCENE_NAMES)[number]
 
+// Stan świata w danej klatce, z którego scenki decydują, czy je widać.
+interface Ctx {
+  dt: number
+  now: Date
+  year: number
+  night: number
+  // włączona ręcznie z menu: widoczna niezależnie od daty, pory i epoki
+  forced: (name: SceneName) => boolean
+}
+
+// Scenka: korzeń w scenie 3D, kiedy ją widać, co robi w klatce i co trafił promień (rodzaj tekstu okienka).
+interface Scene {
+  root: THREE.Object3D
+  on: (c: Ctx) => boolean
+  tick: (c: Ctx) => void
+  off?: () => void
+  hit?: (ray: THREE.Raycaster) => TextKind | null
+}
+
+export interface SceneHit {
+  title: string
+  text: string
+  root: THREE.Object3D
+}
+
 export class Scenes {
   group = new THREE.Group()
-  // scenki włączone ręcznie z menu: widoczne niezależnie od daty, pory i epoki
   forced = new Set<SceneName>()
   // statki to warstwa życia miasta (przełącznik w „Na mapie”), nie scenka
   boatsOn = true
+  private list: Scene[] = []
   private forcedT = 0
-  private market: Market | null = null
-  private fireworks: Fireworks
-  private boats: Boats | null = null
-  private lamplighter: Lamplighter | null = null
-  private match: Football | null = null
-  speedway: Speedway | null = null
 
   constructor(world: World, data?: ScenesData, speedwayTrack?: Flat | null) {
+    // żużel na Olimpijskim: w terminach zawodów
     if (speedwayTrack) {
-      this.speedway = new Speedway(speedwayTrack)
-      this.group.add(this.speedway.group)
+      const s = new Speedway(speedwayTrack)
+      this.add({
+        root: s.group,
+        on: (c) => c.year >= SINCE.speedway && (c.forced('speedway') || raceOn(c.now)),
+        tick: (c) => s.update(c.dt),
+        hit: (ray) => (s.hit(ray) ? 'speedway' : null),
+      })
     }
+    // mecz Śląska na Tarczyński Arena: w weekendowe popołudnia sezonu
+    const arena = world.pitches?.find((p) => /Tarczyński/.test(p.stadium ?? ''))
+    if (arena) {
+      const m = new Football(arena.o)
+      this.add({ root: m.group, on: (c) => c.year >= SINCE.arena && (c.forced('match') || matchOn(c.now)), tick: (c) => m.update(c.dt) })
+    }
+    // jarmark bożonarodzeniowy na Rynku
     if (data?.rynek.stalls.length) {
-      this.market = new Market(data.rynek.stalls, data.rynek.tree)
-      this.group.add(this.market.group)
+      const m = new Market(data.rynek.stalls, data.rynek.tree)
+      this.add({
+        root: m.group,
+        on: (c) => c.forced('market') || marketOpen(c.now, c.year),
+        tick: (c) => m.update(c.dt, c.night),
+        hit: (ray) => (m.hit(ray) ? 'market' : null),
+      })
     }
-    // fajerwerki startują z płyty Rynku (bez danych: kwadrat wokół środka Rynku)
+    // sylwester: fajerwerki startują z płyty Rynku (bez danych: kwadrat wokół środka Rynku);
+    // wymuszony pokaz kręci się w pętli wokół „północy” (najgęstsze wybuchy)
     const [rx, ry] = toLocal(51.1099, 17.0326)
     const sq = data?.rynek.square
-    const area: [number, number, number, number] = sq?.length ? bboxOf(sq, 30) : [rx - 60, ry - 50, rx + 60, ry + 50]
-    this.fireworks = new Fireworks(area)
-    this.group.add(this.fireworks.mesh)
-
+    const fw = new Fireworks(sq?.length ? bboxOf(sq, 30) : [rx - 60, ry - 50, rx + 60, ry + 50])
+    const minutes = (c: Ctx) => (c.forced('fireworks') ? this.forcedT - 5 : c.year >= SINCE.fireworks ? newYearMinutes(c.now) : null)
+    this.add({
+      root: fw.mesh,
+      on: (c) => minutes(c) !== null,
+      tick: (c) => fw.update(c.dt, minutes(c)!),
+      off: () => fw.clear(),
+      hit: (ray) => {
+        fw.mesh.boundingSphere = null
+        return ray.intersectObject(fw.mesh).length ? 'fireworks' : null
+      },
+    })
+    // statki na Odrze: barki zawsze, spacerowe i kajaki w sezonie, za dnia
     if (data?.rivers.length) {
-      this.boats = new Boats(data.rivers)
-      this.group.add(this.boats.group)
+      const b = new Boats(data.rivers)
+      this.add({
+        root: b.group,
+        on: () => this.boatsOn,
+        tick: (c) => {
+          const month = c.now.getMonth()
+          const season = month >= 4 && month <= 8 && c.night < 0.5
+          const show: Record<BoatKind, boolean> = { barge: true, cruise: season && c.year >= 1900, kayak: season && c.year >= 1960 }
+          b.update(c.dt, show)
+        },
+        hit: (ray) => b.hit(ray),
+      })
     }
-
-    // trasa latarnika: z danych albo z ul. Katedralnej w World (latarnie co 12 m na przemian)
+    // latarnik z Ostrowa Tumskiego: trasa z danych albo z ul. Katedralnej w World (latarnie co 12 m na przemian);
+    // wymuszony z menu: zmierzch, żeby szedł zapalać latarnie
     let route: Flat | undefined = data?.tumski.route
     let lamps: Flat | undefined = data?.tumski.lamps
     if (!route?.length) {
@@ -87,65 +122,36 @@ export class Scenes {
       lamps = route ? alternate(route, 12, 4.5) : undefined
     }
     if (route && lamps?.length) {
-      this.lamplighter = new Lamplighter(route, lamps)
-      this.group.add(this.lamplighter.group)
-    }
-    const arena = world.pitches?.find((p) => /Tarczyński/.test(p.stadium ?? ''))
-    if (arena) {
-      this.match = new Football(arena.o)
-      this.group.add(this.match.group)
+      const l = new Lamplighter(route, lamps)
+      this.add({
+        root: l.group,
+        on: (c) => c.forced('lamplighter') || c.year >= SINCE.gasLamps,
+        tick: (c) => l.update(c.dt, c.forced('lamplighter') ? Math.max(c.night, 0.6) : c.night),
+        hit: (ray) => (l.hit(ray) ? 'lamplighter' : null),
+      })
     }
   }
 
-  update(dt: number, now: Date, epochYear: number, night: number) {
-    // żużel i mecz: same w terminach zawodów albo włączone ręcznie z menu
-    if (this.speedway) {
-      this.speedway.group.visible = epochYear >= SINCE.speedway && (this.forced.has('speedway') || raceOn(now))
-      if (this.speedway.group.visible) this.speedway.update(dt)
-    }
-    // stadion otwarto w 2011 r.
-    if (this.match) {
-      this.match.group.visible = epochYear >= 2011 && (this.forced.has('match') || matchOn(now))
-      if (this.match.group.visible) this.match.update(dt)
-    }
-    const m = this.market
-    if (m) {
-      m.group.visible = this.forced.has('market') || marketOpen(now, epochYear)
-      if (m.group.visible) m.update(dt, night)
-    }
+  private add(s: Scene) {
+    this.list.push(s)
+    this.group.add(s.root)
+  }
 
-    // wymuszony pokaz kręci się w pętli wokół „północy” (najgęstsze wybuchy)
+  update(dt: number, now: Date, year: number, night: number) {
     this.forcedT = (this.forcedT + dt / 60) % 10
-    const ny = this.forced.has('fireworks') ? this.forcedT - 5 : newYearMinutes(now)
-    this.fireworks.mesh.visible = ny !== null
-    if (ny !== null) this.fireworks.update(dt, ny)
-    else this.fireworks.clear()
-
-    if (this.boats) this.boats.group.visible = this.boatsOn
-    if (this.boats && this.boatsOn) {
-      const month = now.getMonth()
-      const season = month >= 4 && month <= 8 && night < 0.5
-      const show: Record<BoatKind, boolean> = { barge: true, cruise: season && epochYear >= 1900, kayak: season && epochYear >= 1960 }
-      this.boats.update(dt, show)
-    }
-
-    // latarnie gazowe od połowy XIX w. (gazownia miejska od 1847 r.)
-    if (this.lamplighter) {
-      const lamp = this.forced.has('lamplighter')
-      this.lamplighter.group.visible = lamp || epochYear >= 1850
-      // wymuszony latarnik: zmierzch, żeby szedł zapalać latarnie
-      if (this.lamplighter.group.visible) this.lamplighter.update(dt, lamp ? Math.max(night, 0.6) : night)
+    const c: Ctx = { dt, now, year, night, forced: (n) => this.forced.has(n) }
+    for (const s of this.list) {
+      s.root.visible = s.on(c)
+      if (s.root.visible) s.tick(c)
+      else s.off?.()
     }
   }
 
-  hit(ray: THREE.Raycaster): { title: string; text: string } | null {
-    if (this.lamplighter?.group.visible && this.lamplighter.hit(ray)) return TEXT.lamplighter
-    if (this.market?.group.visible && this.market.hit(ray)) return TEXT.market
-    const boat = this.boats?.hit(ray)
-    if (boat) return TEXT[boat]
-    if (this.fireworks.mesh.visible) {
-      this.fireworks.mesh.boundingSphere = null
-      if (ray.intersectObject(this.fireworks.mesh).length) return TEXT.fireworks
+  // Trafiona scenka: tekst okienka i jej korzeń (do obrysu).
+  hit(ray: THREE.Raycaster): SceneHit | null {
+    for (const s of this.list) {
+      const kind = s.root.visible ? s.hit?.(ray) : null
+      if (kind) return { title: t(`scene.${kind}.title`), text: t(`scene.${kind}.text`), root: s.root }
     }
     return null
   }

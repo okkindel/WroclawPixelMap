@@ -1,5 +1,19 @@
-// Reguły napisów: od jakiego przybliżenia widać napis, od którego roku istnieje obiekt, co jest duplikatem.
+// Reguły napisów i znaczników (jedno źródło): od jakiego przybliżenia widać napis, od którego roku istnieje obiekt,
+// jak wygląda (klasa CSS, ikona), do której grupy przełączników należy i co jest duplikatem.
 import type { PoiKind } from '../types/world.ts'
+import { SINCE } from './milestones.ts'
+
+// Grupy znaczników (osobne przełączniki w panelu „Znaczniki”).
+export type PinGroup = 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'
+
+// Napis albo znacznik: próg przybliżenia, klasa CSS, grupa i rok, od którego obiekt istnieje (wcześniej schowany).
+export interface PinRule {
+  minZoom: number
+  cls: string
+  group: PinGroup
+  from?: number
+  icon?: string
+}
 
 // ---------- zabytki z listy (content/landmarks.json) ----------
 
@@ -117,3 +131,40 @@ export function poiLabelRule(name: string, kind: PoiKind, rank: 1 | 2): PoiLabel
           : POI_MIN_ZOOM.other
   return { minZoom, university, school }
 }
+
+// ---------- reguły dla każdego rodzaju napisu ----------
+
+export const landmarkLabel = (name: string, rank: 1 | 2 | undefined, year: string | undefined): PinRule => ({
+  minZoom: landmarkMinZoom(rank),
+  cls: SACRED.test(name) ? 'church' : '',
+  group: 'labels',
+  from: yearOf(year),
+})
+
+// Ciekawostka o uczelni: niebieski napis z czapką, z bliska.
+export const uniTriviaLabel: PinRule = { minZoom: UNI_TRIVIA_MIN_ZOOM, cls: 'uni', group: 'unis' }
+
+// Stadion: Olimpijski od 1928 r., Tarczyński Arena od 2011 r.
+export const stadiumLabel = (name: string): PinRule => ({
+  minZoom: STADIUM_MIN_ZOOM,
+  cls: '',
+  group: 'labels',
+  from: /Tarczyński/.test(name) ? SINCE.arena : SINCE.stadium,
+})
+
+// Obiekt z OSM: uczelnie i szkoły jak napisy uczelni z ciekawostek (niebieskie, z czapką), świątynie w kolorze świątyń;
+// rok z OSM (start_date), inaczej poiFrom.
+export function poiLabel(name: string, kind: PoiKind, rank: 1 | 2, from?: number): PinRule & { school: boolean } {
+  const { minZoom, university, school } = poiLabelRule(name, kind, rank)
+  const cls = kind === 'church' ? 'poi church' : kind === 'edu' ? 'uni' : `poi poi-${kind}`
+  return { minZoom, cls, group: university ? 'unis' : 'pois', from: from ?? poiFrom(kind), school }
+}
+
+// Znaczniki: „?” ciekawostki i neony, gwiazdka (z CSS) kultowe miejsca.
+export const markerRule = (trigger: string, kind: 'egg' | 'cult' | 'neon', from?: number): PinRule => ({
+  minZoom: markerMinZoom(trigger),
+  icon: kind === 'cult' ? '' : '?',
+  cls: kind === 'egg' ? '' : kind,
+  group: kind === 'cult' ? 'cult' : 'eggs',
+  from: kind === 'cult' ? CULT_FROM : from,
+})

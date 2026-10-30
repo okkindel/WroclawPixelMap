@@ -5,21 +5,18 @@ import { Labels } from '../layers/labels.ts'
 import { NEONS, type Egg, type Landmark, type Trivia } from '../content/index.ts'
 import { lang, t } from '../i18n/index.ts'
 import type { PoiKind, WorldMeta } from '../types/world.ts'
-import { openPopup } from '../ui/popup.ts'
 import { byId } from '../ui/dom.ts'
-import { showEgg, showLandmark, showNeon, showTrivia } from './popups.ts'
-import { CULT_FROM, POI_DEDUP_RADIUS, STADIUM_MIN_ZOOM, UNI_TRIVIA_MIN_ZOOM, poiFrom, poiLabelRule, sameName } from '../rules/labels.ts'
-import { wikiInfo } from './wiki.ts'
+import { showEgg, showLandmark, showNeon, showPoi, showStadium, showTrivia } from './popups.ts'
+import { POI_DEDUP_RADIUS, markerRule, poiLabel, sameName, stadiumLabel, uniTriviaLabel } from '../rules/labels.ts'
 
 export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record<string, 1 | 2>, eggs: Egg[], trivia: Trivia[]) {
   const labels = new Labels(byId('pins'), landmarks, rank, showLandmark)
-  for (const e of eggs) labels.addMarker(e, () => showEgg(e))
+  for (const e of eggs) labels.addMarker(e, markerRule(e.trigger, 'egg'), () => showEgg(e))
 
   for (const tr of trivia) {
     const onClick = () => showTrivia(tr)
-    if (tr.category === 'uczelnia') labels.addLabel(tr.title, tr.lat, tr.lon, UNI_TRIVIA_MIN_ZOOM, onClick, 'uni', undefined, 'unis')
-    else if (tr.category === 'kultowe') labels.addMarker(tr, onClick, '', 'cult', CULT_FROM, 'cult')
-    else labels.addMarker(tr, onClick)
+    if (tr.category === 'uczelnia') labels.addLabel(tr.title, tr.lat, tr.lon, uniTriviaLabel, onClick)
+    else labels.addMarker(tr, markerRule(tr.trigger, tr.category === 'kultowe' ? 'cult' : 'egg'), onClick)
   }
 
   // ciekawostki przy neonach (galeria przy Ruskiej, ns-*, jako jeden znacznik)
@@ -27,7 +24,7 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     if (n.id.startsWith('ns-')) continue
     const L = lang()
     const egg: Egg = { id: `neon-${n.id}`, lat: n.lat, lon: n.lon, title: n.title[L], text: n.text[L], trigger: 'click' }
-    labels.addMarker(egg, () => showNeon(n), '?', 'neon', n.from)
+    labels.addMarker(egg, markerRule('click', 'neon', n.from), () => showNeon(n))
   }
 
   for (const [name, x, y, placeRank] of meta.places) labels.addPlace(name, x, y, placeRank)
@@ -48,21 +45,16 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     // duplikat zabytku z listy (src/rules/labels.ts)
     if (landmarkXY.some(([lx, ly, n]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && sameName(n, name))) continue
     const [lat, lon] = toLatLon(x, y)
-    const church = kind === 'church'
-    const { minZoom, university, school } = poiLabelRule(name, kind, poiRank)
-    const sub = school ? t('poi.school') : poiSub[kind]
-    // opis i zdjęcie z Wikipedii (public/data/wiki.json), jeśli są; wczytywane leniwie przy pierwszym kliknięciu
-    const onClick = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki ?? undefined)) })
-    // uczelnie i szkoły jak napisy uczelni z ciekawostek (niebieskie, z czapką)
-    const cls = church ? 'poi church' : kind === 'edu' ? 'uni' : `poi poi-${kind}`
-    labels.addLabel(name, lat, lon, minZoom, onClick, cls, from ?? poiFrom(kind), university ? 'unis' : 'pois')
+    const rule = poiLabel(name, kind, poiRank, from)
+    const sub = rule.school ? t('poi.school') : poiSub[kind]
+    labels.addLabel(name, lat, lon, rule, () => showPoi(name, sub, wiki))
   }
 
   for (const st of meta.stadiums) {
     const name = st.n
     if (!name) continue
     const [lat, lon] = toLatLon(...centroid(st.o))
-    labels.addLabel(name, lat, lon, STADIUM_MIN_ZOOM, () => openPopup({ title: name, sub: t('sub.stadium') }))
+    labels.addLabel(name, lat, lon, stadiumLabel(name), () => showStadium(name))
   }
   return labels
 }

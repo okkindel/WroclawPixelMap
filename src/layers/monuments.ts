@@ -1,6 +1,7 @@
 // Pomniki: pikselowe bryły (cokół + figura) z OSM, po jednym InstancedMesh na rodzaj i część.
 // Skala realna (wysokość z OSM albo typowa dla rodzaju), ale nie niższe niż MIN_H, żeby było je widać z góry.
 import * as THREE from 'three'
+import type { PopupContent } from '../ui/popup.ts'
 import { hash } from '../engine/geo.ts'
 import { lang } from '../i18n/index.ts'
 import { vertexLambert } from '../scenes/util.ts'
@@ -28,14 +29,8 @@ export interface Monument {
   cr?: string // autor i licencja zdjęcia
 }
 
-export interface MonumentHit {
-  title: string
-  sub: string
-  text: string
-  img?: string
-  credit?: string
-  link?: { href: string; label: string }
-}
+// Treść okienka pomnika (src/app/popups.ts)
+export type MonumentHit = PopupContent
 
 const MIN_H = 3.5
 const MAX_H = 30

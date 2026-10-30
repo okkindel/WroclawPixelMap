@@ -126,10 +126,27 @@ export const PL = {
   'tram.title': 'Tramwaj linii {line}',
   'tram.sub': 'kierunek: {head}',
   'tram.text': 'Kurs {dep}–{arr} według rozkładu MPK Wrocław.',
-  'speedway.title': 'Żużel na Olimpijskim',
-  'speedway.text':
+  'scene.speedway.title': 'Żużel na Olimpijskim',
+  'scene.speedway.text':
     'Na Stadionie Olimpijskim ścigają się żużlowcy Sparty Wrocław. Cztery okrążenia, same lewe zakręty i motocykle bez hamulców: zwalnia się, kładąc maszynę w łuk.',
   'building.built': 'zbudowany {y}',
+  'scene.market.title': 'Jarmark Bożonarodzeniowy',
+  'scene.market.text':
+    'Od końca listopada do 7 stycznia Rynek i plac Solny wypełniają drewniane budki z grzańcem, piernikami, pierogami i rękodziełem. Do tego wielka choinka, karuzela i tysiące światełek: to jeden z największych jarmarków świątecznych w Polsce.',
+  'scene.fireworks.title': 'Sylwester na Rynku',
+  'scene.fireworks.text': 'O północy niebo nad Rynkiem rozbłyska fajerwerkami, a na płycie bawią się tysiące wrocławian i turystów.',
+  'scene.barge.title': 'Barka na Odrze',
+  'scene.barge.text':
+    'Przez Wrocław biegnie Odrzańska Droga Wodna. W mieście Odra rozgałęzia się, tworząc Wrocławski Węzeł Wodny: sieć kanałów, śluz i jazów. Barki towarowe płyną głównie Głównym Szlakiem Żeglugowym na północy, a przez centrum prowadzi Miejski Szlak Żeglugowy.',
+  'scene.cruise.title': 'Statek spacerowy',
+  'scene.cruise.text':
+    'Od wiosny do jesieni po Odrze kursują statki wycieczkowe i gondole. Z wody najlepiej widać, że Wrocław leży na kilkunastu wyspach połączonych ponad setką mostów i kładek.',
+  'scene.kayak.title': 'Kajakiem po Odrze',
+  'scene.kayak.text':
+    'W ciepłe miesiące można wypożyczyć kajak i opłynąć Ostrów Tumski, Wyspę Piasek i Słodową. Miejskie odnogi Odry to jeden z najciekawszych szlaków kajakowych w Polsce.',
+  'scene.lamplighter.title': 'Latarnik z Ostrowa Tumskiego',
+  'scene.lamplighter.text':
+    'Na Ostrowie Tumskim wciąż świeci blisko sto latarni gazowych (dziś 98). Codziennie o zmierzchu latarnik w czarnej pelerynie i cylindrze zapala je ręcznie długą tyczką, a o świcie gasi. To jedyny taki latarnik w Polsce.',
   'dwarf.author': 'autor: {a}',
   'dwarf.since': 'od {d}',
   'dwarf.quote': '„{s}”',
@@ -270,10 +287,28 @@ export const EN: Record<Key, string> = {
   'tram.title': 'Tram line {line}',
   'tram.sub': 'towards: {head}',
   'tram.text': 'Trip {dep}–{arr} according to the MPK Wrocław timetable.',
-  'speedway.title': 'Speedway at the Olympic Stadium',
-  'speedway.text':
+  'scene.speedway.title': 'Speedway at the Olympic Stadium',
+  'scene.speedway.text':
     'Sparta Wrocław’s speedway riders race at the Olympic Stadium. Four laps, nothing but left turns and bikes without brakes: you slow down by laying the bike into the bend.',
   'building.built': 'built {y}',
+  'scene.market.title': 'Christmas market',
+  'scene.market.text':
+    'From late November to 7 January the Market Square and Salt Square fill with wooden stalls selling mulled wine, gingerbread, pierogi and crafts. Add a giant Christmas tree, a carousel and thousands of lights: it is one of the largest Christmas markets in Poland.',
+  'scene.fireworks.title': 'New Year’s Eve on the Market Square',
+  'scene.fireworks.text':
+    'At midnight fireworks light up the sky over the Market Square, where thousands of locals and visitors celebrate.',
+  'scene.barge.title': 'Barge on the Oder',
+  'scene.barge.text':
+    'The Oder Waterway runs through Wrocław. In the city the river branches into the Wrocław Water Junction, a network of canals, locks and weirs. Cargo barges mostly take the Main Shipping Route in the north, while the City Shipping Route crosses the centre.',
+  'scene.cruise.title': 'Pleasure boat',
+  'scene.cruise.text':
+    'From spring to autumn cruise boats and gondolas sail the Oder. From the water it is easiest to see that Wrocław sits on a dozen islands linked by more than a hundred bridges and footbridges.',
+  'scene.kayak.title': 'Kayaking on the Oder',
+  'scene.kayak.text':
+    'In the warm months you can rent a kayak and paddle around Ostrów Tumski, Sand Island and Słodowa Island. The city’s Oder branches are among the most interesting kayak routes in Poland.',
+  'scene.lamplighter.title': 'The lamplighter of Ostrów Tumski',
+  'scene.lamplighter.text':
+    'Almost a hundred gas lamps still glow on Ostrów Tumski (98 today). Every evening at dusk a lamplighter in a black cape and top hat lights them by hand with a long pole, and puts them out at dawn. He is the only lamplighter of this kind in Poland.',
   'dwarf.author': 'by {a}',
   'dwarf.since': 'since {d}',
   'dwarf.quote': '“{s}”',
