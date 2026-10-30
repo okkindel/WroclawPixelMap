@@ -661,12 +661,39 @@ a.icon {
   color: var(--odra);
   margin-bottom: 8px;
 }
+#popup .photo {
+  margin: 8px 0;
+}
 #popup img {
   max-width: 100%;
   max-height: 240px;
   display: block;
-  margin: 8px 0;
+  margin-bottom: 8px;
   box-shadow: 0 0 0 2px var(--ink);
+}
+/* szkielet zdjęcia do czasu wczytania: pole w kolorze papieru z przesuwającym się jaśniejszym pasem (skokowo, jak piksele) */
+#popup .photo.loading {
+  height: 180px;
+  box-shadow: 0 0 0 2px var(--ink);
+  background: linear-gradient(90deg, var(--paper2) 0 35%, var(--paper) 35% 50%, var(--paper2) 50%) 0 0 / 300% 100%;
+  animation: skeleton 1.2s steps(12) infinite;
+}
+#popup .photo.loading img,
+#popup .photo.loading .credit {
+  display: none;
+}
+@keyframes skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #popup .photo.loading {
+    animation: none;
+  }
 }
 #popup a {
   color: var(--odra);

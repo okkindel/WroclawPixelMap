@@ -26,7 +26,11 @@ const isImageUrl = (src: string) => /\.(jpe?g|png|webp|gif)(\?|$)/i.test(src) &&
 
 export function openPopup(c: PopupContent) {
   const credit = c.credit ? `<small class="credit">fot. ${esc(c.credit)}</small>` : ''
-  const img = c.img && isImageUrl(c.img) ? `<img src="${esc(c.img)}" alt="" loading="lazy" referrerpolicy="no-referrer">${credit}` : ''
+  // zdjęcie w ramce z szkieletem do czasu wczytania; jeśli się nie wczyta, znika razem z podpisem
+  const img =
+    c.img && isImageUrl(c.img)
+      ? `<figure class="photo loading"><img src="${esc(c.img)}" alt="" referrerpolicy="no-referrer">${credit}</figure>`
+      : ''
   const link =
     c.link && /^https?:/.test(c.link.href) ? `<a href="${esc(c.link.href)}" target="_blank" rel="noopener">${esc(c.link.label)}</a>` : ''
   body.innerHTML = [
@@ -36,6 +40,14 @@ export function openPopup(c: PopupContent) {
     c.text ? `<p>${esc(c.text)}</p>` : '',
     link,
   ].join('')
+  const photo = body.querySelector<HTMLElement>('.photo')
+  const pic = photo?.querySelector('img')
+  if (photo && pic) {
+    const done = () => photo.classList.remove('loading')
+    if (pic.complete && pic.naturalWidth) done()
+    pic.addEventListener('load', done)
+    pic.addEventListener('error', () => photo.remove())
+  }
   popup.hidden = false
 }
 
