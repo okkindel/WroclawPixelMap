@@ -19,7 +19,9 @@ export class Labels {
     // ranga 1 widoczna z daleka, 2 przy średnim przybliżeniu, reszta po przybliżeniu;
     // kolejność = pierwszeństwo przy nachodzeniu napisów
     const zoomFor = (l: Landmark) => ({ 1: 0, 2: 0.9 })[rank[l.name] as 1 | 2] ?? 1.6
-    for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l))
+    // świątynie dostają osobny kolor napisu
+    const sacred = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic/
+    for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), sacred.test(l.name) ? 'church' : '')
   }
 
   // Napis z nazwą (zabytki, uczelnie).

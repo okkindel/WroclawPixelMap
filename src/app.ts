@@ -153,7 +153,7 @@ export async function startApp() {
   for (const [name, x, y, kind, rank] of meta.pois) {
     if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
     const [lat, lon] = toLatLon(x, y)
-    labels.addLabel(name, lat, lon, rank === 1 ? 0.6 : 1.8, () => openPopup({ title: name, sub: POI_SUB[kind] }), `poi poi-${kind}`)
+    labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind] }), kind === 'church' ? 'poi church' : `poi poi-${kind}`)
   }
   for (const st of meta.stadiums) {
     if (!st.n) continue

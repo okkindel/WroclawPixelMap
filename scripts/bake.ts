@@ -33,7 +33,7 @@ const [MAXX, MAXY] = proj(N, E)
 // Surowe dane są w kawałkach (world-R-C.json), które na brzegach się nakładają: usuwamy duplikaty.
 const raw: OsmEl[] = []
 const seen = new Set<string>()
-for (const f of (await readdir('data/raw')).filter((f) => /^world-[\d-]+\.json$/.test(f)).sort()) {
+for (const f of (await readdir('data/raw')).filter((f) => /^(world-[\d-]+|landcover)\.json$/.test(f)).sort()) {
   for (const el of JSON.parse(await readFile(`data/raw/${f}`, 'utf8')).elements as OsmEl[]) {
     const id = el.type + el.id
     if (!seen.has(id)) { seen.add(id); raw.push(el) }
@@ -178,6 +178,8 @@ const GREEN: Record<string, GreenKind> = {
   grass: 'grass', village_green: 'grass', meadow: 'grass', grassland: 'grass', recreation_ground: 'grass',
   park: 'park', garden: 'park', wood: 'wood', forest: 'wood', scrub: 'wood', cemetery: 'park',
   allotments: 'park', pitch: 'pitch', playground: 'play', stadium: 'pitch',
+  farmland: 'farm', orchard: 'park', vineyard: 'park', plant_nursery: 'park', greenhouse_horticulture: 'farm',
+  wetland: 'grass', heath: 'grass', brownfield: 'bare',
 }
 
 const ROAD_WIDTH: Record<string, number> = {
@@ -287,7 +289,12 @@ for (const el of raw) {
     continue
   }
 
-  if (t.natural === 'water' || t.waterway === 'riverbank') {
+  // fontanny (obszary) rysujemy jak wodę; pergola to ażurowy daszek na wysokości ok. 4 m
+  if (t.man_made === 'pergola' && el.type === 'way') {
+    for (const p of polygons(el)) out.buildings.push({ ...encodePoly(p), H: 4.2, m: 3.6, k: 'roof', n: t.name || undefined })
+    continue
+  }
+  if (t.natural === 'water' || t.waterway === 'riverbank' || (t.amenity === 'fountain' && el.type !== 'node')) {
     for (const p of polygons(el)) out.water.push({ ...encodePoly(p), n: t.name || undefined })
     continue
   }

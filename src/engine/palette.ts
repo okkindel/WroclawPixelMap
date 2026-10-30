@@ -32,6 +32,8 @@ export const C: {
   wood: '#2e5e3a',
   pitch: '#4a8a45',
   play: '#d9734e',
+  farm: '#b4d77a',
+  bare: '#c2a67e',
   water: '#2c5d8a',
   tree: ['#2e5e3a', '#4a8a45', '#3e7a3e', '#1f3d2b'],
   treeAutumn: ['#c98f2c', '#d9734e', '#b5523a', '#f2d16b'],

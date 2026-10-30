@@ -36,14 +36,18 @@ export function initPanel(h: PanelHandlers) {
     drawer.hidden = !drawer.hidden
     btn.setAttribute('aria-expanded', String(!drawer.hidden))
   })
+  const attrib = document.getElementById('attrib')!
+  const fold = () => attrib.classList.add('folded')
+  setTimeout(fold, 8000)
+  document.getElementById('map')!.addEventListener('pointerdown', fold, { once: true })
   const about = document.getElementById('about') as HTMLDialogElement
   document.getElementById('btn-about')!.addEventListener('click', () => about.showModal())
   about.querySelector('.close')!.addEventListener('click', () => about.close())
   about.addEventListener('click', (e) => { if (e.target === about) about.close() })
   const card = document.getElementById('info')!
-  const fold = card.querySelector<HTMLButtonElement>('.fold')!
-  fold.addEventListener('click', () => {
-    fold.textContent = card.classList.toggle('folded') ? '+' : '–'
+  const foldBtn = card.querySelector<HTMLButtonElement>('.fold')!
+  foldBtn.addEventListener('click', () => {
+    foldBtn.textContent = card.classList.toggle('folded') ? '+' : '–'
   })
 }
 

@@ -107,13 +107,15 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 #pins { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
 #pins .label, #pins .egg { position: absolute; left: 0; top: 0; pointer-events: auto; border: 0; white-space: nowrap; }
 #pins .label { font: 16px var(--head); color: var(--ink); background: var(--paper); padding: 1px 5px; box-shadow: 0 0 0 1px var(--ink), 2px 2px 0 1px var(--ink); }
-#pins .label::after { content: ''; position: absolute; left: 50%; bottom: -6px; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--ink); }
+#pins .label::after { content: ''; position: absolute; left: 50%; bottom: -9px; margin-left: -4px; border: 4px solid transparent; border-bottom: 0; border-top-color: var(--ink); }
 #pins .egg { width: 22px; height: 22px; padding: 0; display: grid; place-items: center; line-height: 1; border-radius: 50%; background: var(--red); color: var(--paper); font: 18px var(--head); box-shadow: 0 0 0 2px var(--paper), 2px 2px 0 2px var(--ink); animation: bob 1.8s ease-in-out infinite; }
 #pins .place { position: absolute; left: 0; top: 0; pointer-events: none; white-space: nowrap; font: 26px var(--head); color: var(--paper); text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 0 var(--ink), -2px 0 var(--ink), 0 2px var(--ink), 0 -2px var(--ink), 3px 3px var(--ink); }
 #pins .place-1 { font-size: 20px; }
 #pins .place-2 { font-size: 16px; letter-spacing: 1px; }
 #pins .label.poi { font-size: 13px; }
 #pins .label.poi-mall { background: var(--gold); }
+#pins .label.church { background: #8a3b2a; color: var(--paper); }
+#pins .label.church::before { content: '✝ '; }
 #pins .label.uni { background: var(--odra); color: var(--paper); }
 #pins .label.uni::before { content: '🎓 '; }
 #pins .egg.cult { background: var(--gold); color: var(--ink); }
@@ -145,6 +147,8 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 #about .close { position: absolute; top: 6px; right: 10px; background: none; border: 0; font-size: 24px; color: var(--ink2); }
 #attrib { position: fixed; right: 14px; bottom: 98px; font-size: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 2px 6px; }
 #attrib a { color: var(--odra); }
+#attrib { transition: opacity 0.6s; }
+#attrib.folded { opacity: 0; pointer-events: none; }
 body.hide-ui #topbar, body.hide-ui #info, body.hide-ui #drawer, body.hide-ui #timeline, body.hide-ui #tools { display: none; }
 
 @media (max-width: 760px) {

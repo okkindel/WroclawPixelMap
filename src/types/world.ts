@@ -24,7 +24,7 @@ export interface Building extends Poly {
   n?: string
 }
 
-export type GreenKind = 'grass' | 'park' | 'wood' | 'pitch' | 'play'
+export type GreenKind = 'grass' | 'park' | 'wood' | 'pitch' | 'play' | 'farm' | 'bare'
 
 export interface Road {
   p: Flat

@@ -117,6 +117,14 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
       pitched = pitchedRoof(geo, b.o, wallTop, shape, roof)
       if (!pitched) wallTop = H
     }
+    // Dachówka (spadzisty dach w OSM albo ceglasty kolor na zdjęciu), a kształt nie jest prostokątem
+    // albo ma dziedziniec: dach kopertowy wzdłuż wszystkich krawędzi (kamienice w kwartałach, gmachy z dziedzińcami).
+    if (!pitched && !m?.flat && H - base > 6 && kind !== 'chimney' && kind !== 'tank' && (TILE_ROOFS.has(shape ?? '') || tileColour(roof))) {
+      const d = 5.5, rh = 4
+      wallTop = Math.max(base + 2.5, H - rh)
+      pitched = ringRoof(geo, b.o, b.h, wallTop, d, H - wallTop, roof)
+      if (!pitched) wallTop = H
+    }
     if (kind === 'chimney' && !m?.flat) {
       // komin: betonowy trzon, u góry biało-czerwone pasy ostrzegawcze
       const bands = wallTop - base > 60 ? 5 : 3
@@ -130,4 +138,53 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     if (!pitched) flatPoly(geo, b.o, b.h, wallTop, roof)
   })
   return geo.build()
+}
+
+// czerwień/brąz dachówki: czerwony wyraźnie przeważa nad niebieskim
+function tileColour(hex: string) {
+  col.set(hex)
+  return col.r > col.b * 1.35 && col.r > col.g * 1.1 && col.r > 0.12
+}
+
+// Odsunięcie pierścienia o d w stronę dachu (do środka obrysu, na zewnątrz dziedzińca), z fazowaniem narożników.
+function insetRing(ring: Flat, d: number, towardInside: boolean): Flat {
+  const n = ring.length / 2
+  const sign = (signedArea(ring) > 0 ? 1 : -1) * (towardInside ? 1 : -1)
+  const out: Flat = []
+  for (let i = 0; i < n; i++) {
+    const p = (i + n - 1) % n, q = (i + 1) % n
+    const x = ring[i * 2], y = ring[i * 2 + 1]
+    const e1x = x - ring[p * 2], e1y = y - ring[p * 2 + 1], e2x = ring[q * 2] - x, e2y = ring[q * 2 + 1] - y
+    const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1
+    const n1x = (-e1y / l1) * sign, n1y = (e1x / l1) * sign, n2x = (-e2y / l2) * sign, n2y = (e2x / l2) * sign
+    const k = Math.min(3, 1 / Math.max(0.33, (1 + n1x * n2x + n1y * n2y) / 2))
+    out.push(x + ((n1x + n2x) / 2) * d * k, y + ((n1y + n2y) / 2) * d * k)
+  }
+  return out
+}
+
+// Dach kopertowy dla dowolnego obrysu: połacie od krawędzi do linii odsuniętej o d, na górze płaski kalenicowy pas.
+function ringRoof(geo: Geo, outer: Flat, holes: Flat[] | undefined, top: number, d: number, rh: number, color: string) {
+  const area = Math.abs(signedArea(outer)) - (holes ?? []).reduce((s, h) => s + Math.abs(signedArea(h)), 0)
+  if (area < 120) return false
+  const rings: [Flat, Flat][] = [[outer, insetRing(outer, d, true)], ...(holes ?? []).map((h): [Flat, Flat] => [h, insetRing(h, d, false)])]
+  for (const [r, ins] of rings) {
+    const n = r.length / 2
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n
+      const a: V3 = [r[i * 2], top, -r[i * 2 + 1]], b2: V3 = [r[j * 2], top, -r[j * 2 + 1]]
+      const c: V3 = [ins[j * 2], top + rh, -ins[j * 2 + 1]], e: V3 = [ins[i * 2], top + rh, -ins[i * 2 + 1]]
+      // normalna połaci z iloczynu wektorowego, skierowana w górę
+      const ux = b2[0] - a[0], uz = b2[2] - a[2], vx = e[0] - a[0], vy = rh, vz = e[2] - a[2]
+      let nx = vy * uz, ny = uz * vx - ux * vz, nz = -ux * vy
+      if (ny < 0) { nx = -nx; ny = -ny; nz = -nz }
+      const L = Math.hypot(nx, ny, nz) || 1
+      // kolejność wierzchołków zgodna z normalną w górę (inaczej połać byłaby odrzucona jako tylna ściana)
+      const cy = (b2[2] - a[2]) * (c[0] - a[0]) - (b2[0] - a[0]) * (c[2] - a[2])
+      if (cy >= 0) geo.quad(a, b2, c, e, [nx / L, ny / L, nz / L], color)
+      else geo.quad(a, e, c, b2, [nx / L, ny / L, nz / L], color)
+    }
+  }
+  flatPoly(geo, rings[0][1], rings.slice(1).map((r) => r[1]), top + rh, color)
+  return true
 }
