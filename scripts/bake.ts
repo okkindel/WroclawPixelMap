@@ -290,7 +290,8 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
     const hh = known ? h! : house ? 8 : kind === 'gen' && area < 400 ? 10 : DEFAULT_H[kind] ?? 12
     const roofShape = t['roof:shape'] && t['roof:shape'] !== 'flat' ? t['roof:shape'] : !known && house && !t['roof:shape'] ? 'gabled' : undefined
     // wąska, okrągła i bardzo wysoka bryła bez tagu man_made to też komin
-    const round = p.outer.length >= 8 && area < 400 && hh > 40 && hh / Math.sqrt(area) > 3
+    // (tylko samodzielne budynki bez kształtu dachu — wieże kościołów to części z hełmami)
+    const round = !t['building:part'] && !t['roof:shape'] && p.outer.length >= 8 && area < 400 && hh > 40 && hh / Math.sqrt(area) > 3
     const k: BuildingKind = round && (kind === 'gen' || kind === 'ind') ? 'chimney' : kind
     const nidHit = t.start_date ? null : nidYear(t, p)
     const b: Building = {
@@ -301,6 +302,7 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
       // budowa w toku (building=construction) istnieje dopiero „dziś”
       y: year(t.start_date) ?? nidHit?.y ?? (buildingTag === 'construction' ? new Date().getFullYear() : undefined),
       rs: roofShape,
+      rh: num(t['roof:height']) ?? undefined,
       rc: t['roof:colour'] || undefined,
       c: t['building:colour'] || undefined,
       bm: t['building:material'] || undefined,
@@ -459,7 +461,8 @@ for (const el of raw) {
         covered.set(i, (covered.get(i) ?? 0) + ringArea(flatRing(part.o)))
         part.n ??= parent.n
         part.y ??= parent.y
-        if (part.k === 'gen') part.k = parent.k
+        // część kościoła jest kościołem (ceglane ściany, bez okien bloków); inne dziedziczą tylko rodzaj ogólny
+        if (part.k === 'gen' || parent.k === 'church') part.k = parent.k
       }
       added.push(part)
     }

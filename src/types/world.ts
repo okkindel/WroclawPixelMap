@@ -16,6 +16,7 @@ export interface Building extends Poly {
   k: BuildingKind
   y?: number // rok budowy (start_date)
   rs?: string // roof:shape
+  rh?: number // roof:height (wysokość samego dachu, np. hełmu wieży)
   rc?: string // roof:colour
   oc?: string // kolor dachu z ortofotomapy GUGiK
   c?: string // building:colour

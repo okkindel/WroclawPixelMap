@@ -111,7 +111,17 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     const win = kind === 'low' || kind === 'roof' || kind === 'ruin' || kind === 'chimney' || kind === 'tank' || (m && m.flat) ? 0 : 1
     let wallTop = H
     let pitched = false
-    if (shape && TILE_ROOFS.has(shape) && !b.h && H - base > 5) {
+    // hełmy wież: stożek / ostrosłup / cebula na wąskiej bryle — szpic do pełnej wysokości
+    if (shape && SPIRES.has(shape) && !b.h && H - base > 4) {
+      const area = Math.abs(signedArea(b.o))
+      const rh = b.rh ?? (area < 900 ? Math.min((H - base) * 0.45, Math.sqrt(area) * 1.6) : 0)
+      if (rh > 1) {
+        wallTop = Math.max(base + 1, H - rh)
+        spireRoof(geo, b.o, wallTop, H, roof)
+        pitched = true
+      }
+    }
+    if (!pitched && shape && TILE_ROOFS.has(shape) && !b.h && H - base > 5) {
       const w = minRect(b.o)
       const rh = w ? Math.min(Math.min(w.a1 - w.a0, w.b1 - w.b0) * 0.42, 9) : 0
       wallTop = Math.max(base + 2.5, H - rh)
@@ -189,4 +199,26 @@ function ringRoof(geo: Geo, outer: Flat, holes: Flat[] | undefined, top: number,
   // środek dachu: płaski, na wysokości okapu (odsunięty wielokąt bywa samoprzecinający się przy wielu wierzchołkach)
   flatPoly(geo, outer, holes, top + 0.05, color)
   return true
+}
+
+const SPIRES = new Set(['pyramidal', 'cone', 'onion', 'dome'])
+
+// Szpic: trójkąty od każdej krawędzi obrysu do wierzchołka nad środkiem.
+function spireRoof(geo: Geo, ring: Flat, top: number, apex: number, color: string) {
+  const n = ring.length / 2
+  let cx = 0, cy = 0
+  for (let i = 0; i < n; i++) { cx += ring[i * 2]; cy += ring[i * 2 + 1] }
+  cx /= n; cy /= n
+  const P: V3 = [cx, apex, -cy]
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n
+    const a: V3 = [ring[i * 2], top, -ring[i * 2 + 1]], b: V3 = [ring[j * 2], top, -ring[j * 2 + 1]]
+    const ux = b[0] - a[0], uz = b[2] - a[2], vx = P[0] - a[0], vy = apex - top, vz = P[2] - a[2]
+    let nx = vy * uz, ny = uz * vx - ux * vz, nz = -ux * vy
+    if (ny < 0) { nx = -nx; ny = -ny; nz = -nz }
+    const L = Math.hypot(nx, ny, nz) || 1
+    const cyw = (b[2] - a[2]) * (P[0] - a[0]) - (b[0] - a[0]) * (P[2] - a[2])
+    if (cyw >= 0) geo.tri(a, b, P, [nx / L, ny / L, nz / L], color)
+    else geo.tri(a, P, b, [nx / L, ny / L, nz / L], color)
+  }
 }
