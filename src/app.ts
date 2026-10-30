@@ -253,6 +253,9 @@ export async function startApp() {
   })
 
   // --- kamera: obrót, kompas, link ---
+  // wersja w oknie „O mapie” (vite.config.ts)
+  const v = __APP_VERSION__
+  byId('app-version').textContent = t('about.version', { v: [v.version, v.commit, v.date].filter(Boolean).join(' · ') })
   byId('btn-rot-l').onclick = () => view.rotate(-1)
   byId('btn-rot-r').onclick = () => view.rotate(1)
   // kompas przywraca domyślny widok: północ u góry i standardowe nachylenie

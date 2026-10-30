@@ -704,6 +704,10 @@ a.icon {
     animation: none;
   }
 }
+#about .version {
+  font-size: 12px;
+  color: var(--ink2);
+}
 #popup .close {
   position: absolute;
   top: 6px;

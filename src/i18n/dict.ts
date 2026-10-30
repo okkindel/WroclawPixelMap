@@ -94,6 +94,7 @@ export const PL = {
   'about.inspirations': 'Inspiracje',
   'about.author.html':
     'Autor: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
+  'about.version': 'Wersja {v}',
   'about.thanks.html':
     'Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> Michała Pietralika, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> i <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. Kod, grafika i teksty tej mapy powstały od zera.',
   'attrib.html':
@@ -256,6 +257,7 @@ export const EN: Record<Key, string> = {
   'about.inspirations': 'Inspirations',
   'about.author.html':
     'Author: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
+  'about.version': 'Version {v}',
   'about.thanks.html':
     'Thanks to the authors of similar maps for the idea: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> by Michał Pietralik, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> and <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. The code, graphics and texts of this map were made from scratch.',
   'attrib.html':
