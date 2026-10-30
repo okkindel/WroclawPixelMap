@@ -107,7 +107,8 @@ export async function startApp() {
     epoch = e
     if (epochState) scene.remove(epochState.extras)
     epochState = epochScene(e, world, WALLS)
-    tiles.setBuildOpts(epochState.opts)
+    // „dziś” = wygląd budowany w wątkach roboczych (bez filtrowania budynków)
+    tiles.setBuildOpts(epochState.opts, e.mode === 'today' && e.year >= 2020)
     scene.add(epochState.extras)
     showEpoch(e)
     markEpoch(e)
@@ -361,6 +362,22 @@ export async function startApp() {
       setSeason(season)
     })
 
+  // Tryb oszczędny: gdy przez kilka sekund jest < 24 kl./s, zwiększ piksel, potem wyłącz cienie.
+  const lowDetailHidesLife = true
+  let fpsAcc = 0, fpsFrames = 0, saverStep = 0
+  const governor = (dt: number) => {
+    fpsAcc += dt
+    fpsFrames++
+    if (fpsAcc < 4) return
+    const fps = fpsFrames / fpsAcc
+    fpsAcc = fpsFrames = 0
+    if (fps >= 24 || document.hidden) return
+    if (saverStep === 0 && px < 4) { px++; resize(); toast('Tryb oszczędny: większy piksel') }
+    else if (saverStep === 1) { renderer.shadowMap.enabled = false; scene.traverse((o) => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true }); toast('Tryb oszczędny: bez cieni') }
+    else return
+    saverStep++
+  }
+
   const clock = new THREE.Clock()
   let lastClock = 0
   const [bx0, by0, bx1, by1] = world.bounds
@@ -386,7 +403,11 @@ export async function startApp() {
     uTime.value += dt
     if (performance.now() - lastClock > 1000) { setClock(now); lastClock = performance.now() }
 
-    life?.update(dt)
+    // daleko: ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy
+    const far = camera.zoom < 0.55
+    if (life) { life.group.visible = !far || !lowDetailHidesLife; if (life.group.visible) life.update(dt) }
+    tiles.setTreesVisible(layers.trees && camera.zoom > 0.35)
+    governor(dt)
     if (timetable) {
       timetable.mesh.visible = layers.trams && epoch.year >= 1877
       if (timetable.mesh.visible) timetable.update(now)

@@ -5,6 +5,7 @@ import type { Building, TileData, World, WorldMeta } from '../types/world.ts'
 import { buildBuildings, type BuildOpts } from './buildings.ts'
 import { buildGround } from './ground.ts'
 import { buildTrees, recolorTrees } from './trees.ts'
+import { unpack, type Packed } from './packed.ts'
 
 export interface Materials {
   ground: THREE.Material
@@ -22,6 +23,8 @@ export interface Tile {
   trees: THREE.InstancedMesh | null
 }
 
+interface WorkerResult { key: string; data: TileData; ground: Packed; water: Packed; roads: Packed; bridges: Packed; buildings: Packed }
+
 export class Tiles {
   meta: WorldMeta
   list: Tile[] = []
@@ -30,6 +33,8 @@ export class Tiles {
   world: World
   private mats: Materials
   private opts: BuildOpts = {}
+  // w epoce „dziś” budynki można zbudować w wątku roboczym (bez funkcji filtrujących)
+  private defaultOpts = true
   private treePalette: string[] = C.tree
 
   constructor(meta: WorldMeta, mats: Materials) {
@@ -49,21 +54,32 @@ export class Tiles {
       .map((t) => ({ ...t, d: Math.hypot(center(t.k)[0] - x, center(t.k)[1] - y) }))
       .sort((a, b) => a.d - b.d)
     let done = 0
-    const worker = async () => {
+    const url = (k: string) => new URL(`${import.meta.env.BASE_URL}data/tiles/${k}.json`, location.href).href
+    // kilka wątków roboczych buduje siatki równolegle; bez obsługi Workerów — budowa w głównym wątku
+    const threads = Math.min(4, Math.max(2, (navigator.hardwareConcurrency || 4) - 1))
+    const run = async (w: Worker | null) => {
       for (let t = queue.shift(); t; t = queue.shift()) {
-        const res = await fetch(`${import.meta.env.BASE_URL}data/tiles/${t.k}.json`)
-        this.add(t.k, await res.json())
+        const seed = this.seeds++ * 100003
+        if (w && this.defaultOpts) {
+          const msg = await new Promise<WorkerResult>((resolve) => { w.onmessage = (e) => resolve(e.data); w.postMessage({ url: url(t!.k), key: t!.k, seed }) })
+          this.add(t.k, msg.data, seed, msg)
+        } else {
+          this.add(t.k, await (await fetch(url(t.k))).json(), seed)
+          // oddaj klatkę przeglądarce, żeby mapa rysowała się w trakcie wczytywania
+          await new Promise((r) => requestAnimationFrame(r))
+        }
         onProgress(++done, this.meta.tiles.length)
-        // oddaj klatkę przeglądarce, żeby mapa rysowała się w trakcie wczytywania
-        await new Promise((r) => requestAnimationFrame(r))
       }
+      w?.terminate()
     }
-    await Promise.all([worker(), worker(), worker()])
+    const make = () => { try { return new Worker(new URL('./tile-worker.ts', import.meta.url), { type: 'module' }) } catch { return null } }
+    await Promise.all(Array.from({ length: threads }, () => run(make())))
   }
 
-  private add(key: string, data: TileData) {
-    const seed = this.list.length * 100003
-    const ground = buildGround(data)
+  private seeds = 0
+
+  private add(key: string, data: TileData, seed: number, pre?: WorkerResult) {
+    const ground = pre ? { ground: unpack(pre.ground), water: unpack(pre.water), roads: unpack(pre.roads), bridges: unpack(pre.bridges) } : buildGround(data)
     const group = new THREE.Group()
     const mesh = (g: THREE.BufferGeometry, m: THREE.Material) => {
       const x = new THREE.Mesh(g, m)
@@ -75,7 +91,7 @@ export class Tiles {
     mesh(ground.water, this.mats.water)
     mesh(ground.roads, this.mats.roads)
     mesh(ground.bridges, this.mats.roads).castShadow = true
-    const buildings = mesh(buildBuildings(data.buildings, this.opts, seed), this.mats.buildings)
+    const buildings = mesh(pre && this.defaultOpts ? unpack(pre.buildings) : buildBuildings(data.buildings, this.opts, seed), this.mats.buildings)
     buildings.castShadow = true
     let trees: THREE.InstancedMesh | null = null
     if (data.trees.length) {
@@ -96,8 +112,11 @@ export class Tiles {
     w.trees.push(...data.trees)
   }
 
-  setBuildOpts(opts: BuildOpts) {
+  setBuildOpts(opts: BuildOpts, isDefault = false) {
+    // przy pierwszym ustawieniu „dziś” (np. start) nie trzeba przebudowywać
+    if (isDefault && this.defaultOpts && this.opts === opts) return
     this.opts = opts
+    this.defaultOpts = isDefault
     for (const t of this.list) {
       t.buildings.geometry.dispose()
       t.buildings.geometry = buildBuildings(t.data.buildings, opts, t.seed)
