@@ -5,7 +5,7 @@
   top: 50%;
   transform: translate(-50%, -50%);
   width: min(420px, calc(100vw - 32px));
-  max-height: 80vh;
+  max-height: 80dvh;
   overflow: auto;
   padding: 16px 18px;
   z-index: 10;

@@ -4,17 +4,22 @@
   top: 70px;
   right: 14px;
   width: 290px;
-  max-height: calc(100vh - 200px);
+  /* dvh: wysokość bez pasków przeglądarki i nawigacji telefonu (vh liczy ekran razem z nimi) */
+  max-height: calc(100dvh - 200px);
   overflow: auto;
   background: var(--paper);
   box-shadow: var(--shadow);
   padding: 4px 14px 12px;
   z-index: 12;
 
+  /* telefon: od dwurzędowego paska do dołu ekranu, nad osią czasu */
   @media (max-width: 760px) {
-    left: 14px;
-    right: 14px;
+    top: var(--mobile-top);
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    left: var(--gutter-l);
+    right: var(--gutter-r);
     width: auto;
+    max-height: none;
   }
 
   h2 {

@@ -81,7 +81,9 @@
   background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% - 4px), transparent 0);
 
   @media (max-width: 760px) {
-    bottom: 104px;
+    bottom: calc(104px + env(safe-area-inset-bottom));
+    left: var(--gutter-l);
+    width: calc(100vw - var(--gutter-l) - var(--gutter-r));
   }
 
   &::before {
@@ -101,12 +103,32 @@
     font: 16px var(--head);
     color: var(--odra);
     text-transform: uppercase;
+
+    /* telefon: strzałka podpowiada, że dotknięcie kartki pokazuje opis */
+    @media (max-width: 760px) {
+      &::after {
+        content: " ▾";
+      }
+    }
   }
   p {
     margin: 8px 0 0;
 
+    /* telefon: opis dopiero po dotknięciu kartki (klasa expanded, src/ui/panel.ts) */
     @media (max-width: 760px) {
       display: none;
+    }
+  }
+  @media (max-width: 760px) {
+    cursor: pointer;
+
+    &.expanded {
+      p {
+        display: block;
+      }
+      .state::after {
+        content: " ▴";
+      }
     }
   }
   &.folded {
@@ -116,6 +138,19 @@
     }
     .fold {
       content: "+";
+    }
+
+    /* telefon: zwinięta pocztówka znika całkiem, zostaje sam języczek nad osią czasu */
+    @media (max-width: 760px) {
+      height: 0;
+      padding: 0;
+      background: none;
+      box-shadow: none;
+
+      &::before,
+      > :not(.fold) {
+        display: none;
+      }
     }
   }
 }

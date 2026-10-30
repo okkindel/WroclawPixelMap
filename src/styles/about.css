@@ -1,7 +1,7 @@
 /* --- okno „O mapie” --- */
 #about {
   width: min(560px, calc(100vw - 32px));
-  max-height: 80vh;
+  max-height: 80dvh;
   padding: 16px 20px;
   border: 0;
   background: var(--paper);

@@ -1,5 +1,10 @@
 /* Styl „pocztówki”: kremowy papier, granatowy tusz, czerwień z herbu Wrocławia, błękit Odry. */
 :root {
+  /* telefon: pierwsza linia pod dwurzędowym górnym paskiem (src/styles/topbar.css) */
+  --mobile-top: 112px;
+  /* telefon: wspólne marginesy ekranu; z prawej o 4 px więcej, bo cień (--shadow) wystaje w prawo i w dół */
+  --gutter-l: 12px;
+  --gutter-r: 16px;
   --paper: #f4ecd8;
   --paper2: #e9dfc4;
   --ink: #1d2340;
@@ -41,7 +46,7 @@ kbd {
   position: fixed;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   image-rendering: pixelated;
   cursor: grab;
   touch-action: none;

@@ -10,6 +10,13 @@
   padding: 10px 14px;
   pointer-events: none;
 
+  /* telefon: logo i przyciski w pierwszym rzędzie, wyszukiwarka pod nimi na całą szerokość */
+  @media (max-width: 760px) {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px var(--gutter-r) 8px var(--gutter-l);
+  }
+
   > * {
     pointer-events: auto;
   }
@@ -24,6 +31,11 @@
   padding: 6px 12px 6px 6px;
   text-decoration: none;
   color: var(--ink);
+
+  /* telefon: samo logo, kwadrat tej samej wysokości co przyciski obok */
+  @media (max-width: 760px) {
+    padding: 5px;
+  }
 
   img {
     image-rendering: pixelated;
@@ -51,7 +63,8 @@
   margin: 0 auto;
 
   @media (max-width: 760px) {
-    flex: 1;
+    order: 1;
+    flex: 1 0 100%;
   }
 
   input {
@@ -109,6 +122,13 @@
 
 .dwarf-badge {
   display: flex;
+
+  /* telefon: licznik i przyciski dosunięte do prawej krawędzi, logo zostaje z lewej; wysokość jak przyciski */
+  @media (max-width: 760px) {
+    margin-left: auto;
+    height: 42px;
+    box-sizing: border-box;
+  }
   align-items: center;
   gap: 6px;
   background: var(--paper);

@@ -105,6 +105,10 @@ export function initPanel(h: PanelHandlers) {
   foldBtn.addEventListener('click', () => {
     foldBtn.textContent = card.classList.toggle('folded') ? '+' : '–'
   })
+  // dotknięcie kartki rozwija i zwija opis epoki (na telefonie opis jest domyślnie schowany)
+  card.addEventListener('click', (e) => {
+    if (e.target !== foldBtn) card.classList.toggle('expanded')
+  })
 }
 
 // Oś czasu jako linijka: epoki rozłożone równo, aktywna zaznaczona czerwonym rombem.
@@ -124,11 +128,15 @@ export function initTimeline(epochs: Epoch[], onPick: (e: Epoch) => void) {
     rail.appendChild(b)
     return b
   })
+  // aktywna epoka na środku osi (na telefonie oś jest szersza niż ekran); przy starcie bez animacji
+  let first = true
   return (e: Epoch) =>
     buttons.forEach((b, i) => {
-      const on = epochs[i] === e
+      const on = epochs[i].id === e.id
       b.classList.toggle('on', on)
-      if (on) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+      if (!on) return
+      nav.scrollTo({ left: rail.offsetLeft + b.offsetLeft - nav.clientWidth / 2, behavior: first ? 'instant' : 'smooth' })
+      first = false
     })
 }
 

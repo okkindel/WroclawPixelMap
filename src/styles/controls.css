@@ -7,6 +7,20 @@
   flex-direction: column;
   gap: 8px;
   align-items: center;
+
+  /* telefon: w prawym górnym rogu pod paskiem, żeby nie zasłaniać kartki epoki i osi czasu */
+  @media (max-width: 760px) {
+    top: var(--mobile-top);
+    bottom: auto;
+    right: var(--gutter-r);
+    gap: 6px;
+
+    .icon {
+      width: 36px;
+      height: 36px;
+      font-size: 17px;
+    }
+  }
 }
 #compass {
   width: 54px;
@@ -16,6 +30,11 @@
   background: var(--paper);
   box-shadow: var(--shadow);
   position: relative;
+
+  @media (max-width: 760px) {
+    width: 44px;
+    height: 44px;
+  }
 
   i {
     position: absolute;
@@ -47,6 +66,13 @@
   background: var(--paper);
   box-shadow: var(--shadow);
   padding: 4px 8px;
+
+  @media (max-width: 760px) {
+    top: var(--mobile-top);
+    bottom: auto;
+    left: var(--gutter-l);
+    right: auto;
+  }
 }
 #attrib {
   position: fixed;
@@ -57,6 +83,12 @@
   background: color-mix(in srgb, var(--paper) 85%, transparent);
   padding: 2px 6px;
   transition: opacity 0.6s;
+
+  @media (max-width: 760px) {
+    top: var(--mobile-top);
+    bottom: auto;
+    right: 62px;
+  }
 
   a {
     color: var(--odra);
