@@ -146,12 +146,14 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
       return { open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }), shape: hitShape(speedway.group), live: true }
     }
     const b = p.tiles.pick(ray)
-    if (b?.n) {
+    // budynek klikalny tylko, gdy jest co pokazać: artykuł w Wikipedii albo znany rok budowy
+    const wiki = b?.n ? p.wikiFor(b.n, b.o[0], b.o[1]) : undefined
+    if (b?.n && (wiki || b.y)) {
       const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')
       const name = b.n
       const shape = buildingShape(b)
       // opis i zdjęcie z Wikipedii, jeśli obiekt o tej nazwie w pobliżu ma artykuł
-      const open = async () => openPopup({ title: name, sub, ...(await wikiInfo(p.wikiFor(name, b.o[0], b.o[1]))) })
+      const open = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki)) })
       return { open, shape: () => shape }
     }
     return null
