@@ -161,7 +161,13 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     if (target && byId<HTMLInputElement>('opt-hover').checked) p.highlight.add(...target.shape())
   }
 
-  const pick = () => find()?.open()
+  let hovered: Target | null = null
+  // po kliknięciu chowamy obrys — okienko zasłania mapę, a kursor nie wraca nad obiekt
+  const pick = () => {
+    hovered = null
+    showOutline(null)
+    find()?.open()
+  }
 
   let downAt = [0, 0]
   canvas.addEventListener('pointerdown', (ev) => (downAt = [ev.clientX, ev.clientY]))
@@ -173,7 +179,6 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
 
   // Najechanie: kursor-łapka i obrys nad wszystkim, co da się kliknąć (krasnale dodatkowo podskakują).
   let hoverAt = 0
-  let hovered: Target | null = null
   canvas.addEventListener('pointermove', (ev) => {
     if (ev.buttons || performance.now() - hoverAt < HOVER_INTERVAL_MS) return
     hoverAt = performance.now()
