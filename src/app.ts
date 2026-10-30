@@ -16,15 +16,18 @@ import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
 import { Labels } from './layers/labels.ts'
 import { Speedway } from './layers/speedway.ts'
-import { DWARF_FACTS, EGGS, EPOCHS, LANDMARK_RANK, LANDMARKS, WALLS, type Egg, type Epoch } from './history/content.ts'
+import { WALLS, type Egg, type Epoch } from './history/content.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
-import { TRIVIA, type Trivia } from './history/trivia.ts'
+import type { Trivia } from './history/trivia.ts'
+import { dwarfFacts, eggs, epochs, landmarkRank, landmarks, t, trivia } from './i18n/index.ts'
 import { initPanel, initTimeline, setClock, setCompass, setDwarfCount, showEpoch, type Layer } from './ui/panel.ts'
 import { openPopup, toast } from './ui/popup.ts'
 import { initSearch, type SearchItem } from './ui/search.ts'
 import type { WorldMeta } from './types/world.ts'
 
 const DEFAULT_TILT = 0.75
+// treści w wybranym języku (PL/EN)
+const EPOCHS = epochs(), LANDMARKS = landmarks(), LANDMARK_RANK = landmarkRank(), EGGS = eggs(), TRIVIA = trivia(), DWARF_FACTS = dwarfFacts()
 const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a']
 
 export async function startApp() {
@@ -138,11 +141,11 @@ export async function startApp() {
   }
 
   // --- napisy i ciekawostki ---
-  const showEgg = (e: Egg) => openPopup({ title: e.title, text: e.text, sub: 'Ciekawostka' })
+  const showEgg = (e: Egg) => openPopup({ title: e.title, text: e.text, sub: t('sub.trivia') })
   const labels = new Labels(document.getElementById('pins')!, LANDMARKS, LANDMARK_RANK, (l) => openPopup({ title: l.name, sub: l.year, text: l.text }))
   for (const e of EGGS) labels.addMarker(e, () => showEgg(e))
-  const showTrivia = (t: Trivia) =>
-    openPopup({ title: t.title, sub: { miejsce: 'Ciekawostka', uczelnia: 'Uczelnia', kultowe: 'Kultowe miejsce' }[t.category], text: t.text, link: { href: t.source, label: 'Źródło' } })
+  const showTrivia = (tr: Trivia) =>
+    openPopup({ title: tr.title, sub: { miejsce: t('sub.trivia'), uczelnia: t('sub.uni'), kultowe: t('sub.cult') }[tr.category], text: tr.text, link: { href: tr.source, label: t('source') } })
   for (const t of TRIVIA) {
     if (t.category === 'uczelnia') labels.addLabel(t.title, t.lat, t.lon, 0.9, () => showTrivia(t), 'uni')
     else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1945)
@@ -151,7 +154,7 @@ export async function startApp() {
   for (const [name, x, y, rank] of meta.places) labels.addPlace(name, x, y, rank)
   // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
   const landmarkXY = LANDMARKS.map((l) => toLocal(l.lat, l.lon))
-  const POI_SUB = { mall: 'Galeria handlowa', culture: 'Kultura', church: 'Świątynia', edu: 'Uczelnia', health: 'Szpital', sport: 'Sport', notable: 'Ciekawe miejsce' }
+  const POI_SUB = { mall: t('poi.mall'), culture: t('poi.culture'), church: t('poi.church'), edu: t('poi.edu'), health: t('poi.health'), sport: t('poi.sport'), notable: t('poi.notable') }
   for (const [name, x, y, kind, rank] of meta.pois) {
     if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
     const [lat, lon] = toLatLon(x, y)
@@ -162,7 +165,7 @@ export async function startApp() {
   for (const st of meta.stadiums) {
     if (!st.n) continue
     const [lat, lon] = toLatLon(...centroid(st.o))
-    labels.addLabel(st.n, lat, lon, 0.8, () => openPopup({ title: st.n!, sub: 'Stadion' }))
+    labels.addLabel(st.n, lat, lon, 0.8, () => openPopup({ title: st.n!, sub: t('sub.stadium') }))
   }
 
   // --- czas i pory roku ---
@@ -236,7 +239,7 @@ export async function startApp() {
   controls.addEventListener('end', saveHash)
   document.getElementById('btn-link')!.onclick = async () => {
     saveHash()
-    try { await navigator.clipboard.writeText(location.href); toast('Link skopiowany') } catch { toast(location.href, 5000) }
+    try { await navigator.clipboard.writeText(location.href); toast(t('toast.linkCopied')) } catch { toast(location.href, 5000) }
   }
 
   // --- kliknięcia: krasnale i budynki ---
@@ -259,18 +262,18 @@ export async function startApp() {
     if (timetable?.mesh.visible) {
       const tram = ray.intersectObject(timetable.mesh)[0]
       const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
-      if (info) return openPopup({ title: `Tramwaj linii ${info.line}`, sub: `kierunek: ${info.head}`, text: `Kurs ${info.dep}–${info.arr} według rozkładu MPK Wrocław.` })
+      if (info) return openPopup({ title: t('tram.title', { line: info.line }), sub: t('tram.sub', { head: info.head }), text: t('tram.text', { dep: info.dep, arr: info.arr }) })
     }
     if (speedway?.hit(ray)) {
       return openPopup({
-        title: 'Żużel na Olimpijskim',
-        sub: 'Ciekawostka',
-        text: 'Na Stadionie Olimpijskim ścigają się żużlowcy Sparty Wrocław. Cztery okrążenia, same lewe zakręty i motocykle bez hamulców: zwalnia się, kładąc maszynę w łuk.',
+        title: t('speedway.title'),
+        sub: t('sub.trivia'),
+        text: t('speedway.text'),
       })
     }
     const b = tiles.pick(ray)
     {
-      if (b?.n) openPopup({ title: b.n, sub: [b.y && `zbudowany ${b.y}`, `${Math.round(b.H)} m`].filter(Boolean).join(' · ') })
+      if (b?.n) openPopup({ title: b.n, sub: [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ') })
     }
   })
   let hoverTick = 0
@@ -286,17 +289,17 @@ export async function startApp() {
   function clickDwarf(i: number) {
     const { dwarf, isNew } = dwarfs.collect(i)
     updateDwarfCount()
-    const sub = [dwarf.a && `autor: ${dwarf.a}`, dwarf.d && `od ${dwarf.d}`].filter(Boolean).join(' · ')
+    const sub = [dwarf.a && t('dwarf.author', { a: dwarf.a }), dwarf.d && t('dwarf.since', { d: dwarf.d })].filter(Boolean).join(' · ')
     const fact = DWARF_FACTS[Math.floor(Math.random() * DWARF_FACTS.length)]
     openPopup({
       title: dwarf.n,
       sub,
       img: dwarf.img,
-      text: dwarf.i ? `„${dwarf.i}”` : fact,
-      link: { href: `https://www.openstreetmap.org/node/${dwarf.id}`, label: 'Zobacz w OpenStreetMap' },
+      text: dwarf.i ? t('dwarf.quote', { s: dwarf.i }) : fact,
+      link: { href: `https://www.openstreetmap.org/node/${dwarf.id}`, label: t('dwarf.osm') },
     })
-    if (isNew) toast(`Nowy krasnal! ${dwarfs.found.size}/${dwarfs.list.length}`)
-    if (dwarfs.found.size === dwarfs.list.length) toast('Wszystkie krasnale znalezione. Jesteś Papą Krasnalem!', 6000)
+    if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
+    if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
 
   // --- easter eggi z klawiatury ---
@@ -328,14 +331,14 @@ export async function startApp() {
   const items: SearchItem[] = [
     ...LANDMARKS.map((l) => {
       const [x, y] = toLocal(l.lat, l.lon)
-      return { name: l.name, kind: 'zabytek', x, y, onPick: () => openPopup({ title: l.name, sub: l.year, text: l.text }) }
+      return { name: l.name, kind: t('kind.zabytek'), x, y, onPick: () => openPopup({ title: l.name, sub: l.year, text: l.text }) }
     }),
-    ...TRIVIA.map((t) => {
-      const [x, y] = toLocal(t.lat, t.lon)
-      return { name: t.title, kind: t.category === 'miejsce' ? 'ciekawostka' : t.category, x, y, onPick: () => showTrivia(t) }
+    ...TRIVIA.map((tr) => {
+      const [x, y] = toLocal(tr.lat, tr.lon)
+      return { name: tr.title, kind: t(`kind.${tr.category === 'miejsce' ? 'ciekawostka' : tr.category}`), x, y, onPick: () => showTrivia(tr) }
     }),
-    ...dwarfs.list.map((d, i) => ({ name: d.n, kind: 'krasnal', x: d.x, y: d.y, onPick: () => clickDwarf(i) })),
-    ...world.named.map(([name, x, y, kind]) => ({ name, kind, x, y })),
+    ...dwarfs.list.map((d, i) => ({ name: d.n, kind: t('kind.krasnal'), x: d.x, y: d.y, onPick: () => clickDwarf(i) })),
+    ...world.named.map(([name, x, y, kind]) => ({ name, kind: t(`kind.${kind}`), x, y })),
   ]
   initSearch(items, fly)
 
@@ -352,7 +355,7 @@ export async function startApp() {
     .load(sx, sy, (done, total) => {
       document.getElementById('loading')!.classList.add('done')
       progress.hidden = done === total
-      progress.textContent = `Wczytuję dzielnice… ${done}/${total}`
+      progress.textContent = t('progress', { done, total })
     })
     .then(() => {
       life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
@@ -372,8 +375,8 @@ export async function startApp() {
     const fps = fpsFrames / fpsAcc
     fpsAcc = fpsFrames = 0
     if (fps >= 24 || document.hidden) return
-    if (saverStep === 0 && px < 4) { px++; resize(); toast('Tryb oszczędny: większy piksel') }
-    else if (saverStep === 1) { renderer.shadowMap.enabled = false; scene.traverse((o) => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true }); toast('Tryb oszczędny: bez cieni') }
+    if (saverStep === 0 && px < 4) { px++; resize(); toast(t('saver.pixel')) }
+    else if (saverStep === 1) { renderer.shadowMap.enabled = false; scene.traverse((o) => { if ((o as THREE.Mesh).material) ((o as THREE.Mesh).material as THREE.Material).needsUpdate = true }); toast(t('saver.shadows')) }
     else return
     saverStep++
   }

@@ -4,8 +4,56 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wrocław w pikselach</title>
-    <meta name="description" content="Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś, z krasnalami." />
+    <meta name="description" content="Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami." />
+    <meta name="theme-color" content="#1d2340" />
+    <link rel="canonical" href="https://okkindel.github.io/wroclaw/" />
+    <link rel="alternate" hreflang="pl" href="https://okkindel.github.io/wroclaw/" />
+    <link rel="alternate" hreflang="en" href="https://okkindel.github.io/wroclaw/?lang=en" />
+    <link rel="alternate" hreflang="x-default" href="https://okkindel.github.io/wroclaw/" />
+    <!-- Open Graph / Twitter: adresy bezwzględne, bo czytają je zewnętrzne serwisy -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Wrocław w pikselach" />
+    <meta property="og:title" content="Wrocław w pikselach" />
+    <meta property="og:description" content="Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami." />
+    <meta property="og:url" content="https://okkindel.github.io/wroclaw/" />
+    <meta property="og:locale" content="pl_PL" />
+    <meta property="og:locale:alternate" content="en_GB" />
+    <meta property="og:image" content="https://okkindel.github.io/wroclaw/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pikselowa mapa centrum Wrocławia" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Wrocław w pikselach" />
+    <meta name="twitter:description" content="Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami." />
+    <meta name="twitter:image" content="https://okkindel.github.io/wroclaw/og.png" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": ["WebApplication", "Map"],
+        "name": "Wrocław w pikselach",
+        "alternateName": "Wrocław in pixels",
+        "url": "https://okkindel.github.io/wroclaw/",
+        "description": "Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami.",
+        "image": "https://okkindel.github.io/wroclaw/og.png",
+        "inLanguage": ["pl", "en"],
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "browserRequirements": "Requires WebGL",
+        "isAccessibleForFree": true,
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PLN" },
+        "mapType": "https://schema.org/VenueMap",
+        "spatialCoverage": {
+          "@type": "City",
+          "name": "Wrocław",
+          "geo": { "@type": "GeoCoordinates", "latitude": 51.1099, "longitude": 17.0326 }
+        },
+        "author": { "@type": "Person", "name": "Maciej Hajduk" }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
@@ -14,19 +62,20 @@
     <div id="pins"></div>
 
     <header id="topbar">
-      <a class="logo" href="./" title="Wrocław w pikselach">
+      <a class="logo" href="./" title="Wrocław w pikselach" data-i18n-title="meta.title">
         <img src="/favicon.svg" alt="" width="32" height="32" />
-        <span>Wrocław<small>w pikselach</small></span>
+        <span>Wrocław<small data-i18n="top.subtitle">w pikselach</small></span>
       </a>
       <div id="search">
-        <input id="search-input" type="search" placeholder="Ulica, zabytek albo krasnal…" autocomplete="off" />
+        <input id="search-input" type="search" placeholder="Ulica, zabytek albo krasnal…" data-i18n-placeholder="top.search" autocomplete="off" />
         <ul id="search-results"></ul>
       </div>
-      <div class="dwarf-badge" title="Znalezione krasnale: kliknij krasnala na mapie">
+      <div class="dwarf-badge" title="Znalezione krasnale: kliknij krasnala na mapie" data-i18n-title="top.dwarfs">
         <img src="/favicon.svg" alt="" width="20" height="20" /><b id="dwarf-found">0</b><span>/<span id="dwarf-total">0</span></span>
       </div>
-      <button id="btn-about" class="icon" title="O mapie">i</button>
-      <button id="btn-settings" class="icon" title="Ustawienia" aria-expanded="false">☰</button>
+      <a id="btn-lang" class="icon" href="?lang=en" hreflang="en" title="English version" data-i18n="lang.switch" data-i18n-title="lang.switchTitle">EN</a>
+      <button id="btn-about" class="icon" title="O mapie" data-i18n-title="top.about">i</button>
+      <button id="btn-settings" class="icon" title="Ustawienia" data-i18n-title="top.settings" aria-expanded="false">☰</button>
     </header>
 
     <section id="info" class="postcard">
@@ -35,84 +84,86 @@
       <h1 id="info-label">Dziś</h1>
       <div class="state" id="info-state"></div>
       <p id="info-text"></p>
-      <button class="fold" title="Zwiń">–</button>
+      <button class="fold" title="Zwiń" data-i18n-title="info.fold">–</button>
     </section>
 
     <aside id="drawer" hidden>
-      <h2>Pora</h2>
+      <h2 data-i18n="drawer.time">Pora</h2>
       <div class="seg" data-group="time">
-        <button data-v="now" class="on">Teraz</button><button data-v="day">Południe</button><button data-v="dusk">Zmierzch</button><button data-v="night">Noc</button>
+        <button data-v="now" class="on" data-i18n="time.now">Teraz</button><button data-v="day" data-i18n="time.day">Południe</button><button data-v="dusk" data-i18n="time.dusk">Zmierzch</button><button data-v="night" data-i18n="time.night">Noc</button>
       </div>
       <div class="seg" data-group="season">
-        <button data-v="summer" class="on">Lato</button><button data-v="autumn">Jesień</button><button data-v="winter">Zima</button>
+        <button data-v="summer" class="on" data-i18n="season.summer">Lato</button><button data-v="autumn" data-i18n="season.autumn">Jesień</button><button data-v="winter" data-i18n="season.winter">Zima</button>
       </div>
-      <h2>Wygląd</h2>
-      <label class="slider">Wielkość piksela <input id="pixel" type="range" min="1" max="4" step="1" value="2" /><output id="pixel-v">2</output></label>
+      <h2 data-i18n="drawer.look">Wygląd</h2>
+      <label class="slider"><span data-i18n="look.pixel">Wielkość piksela</span> <input id="pixel" type="range" min="1" max="4" step="1" value="2" /><output id="pixel-v">2</output></label>
       <div class="toggles">
-        <label><input type="checkbox" data-opt="palette" checked /><span>Paleta</span></label>
-        <label><input type="checkbox" data-opt="outline" checked /><span>Kontury</span></label>
-        <label><input type="checkbox" data-opt="dither" checked /><span>Dithering</span></label>
+        <label><input type="checkbox" data-opt="palette" checked /><span data-i18n="look.palette">Paleta</span></label>
+        <label><input type="checkbox" data-opt="outline" checked /><span data-i18n="look.outline">Kontury</span></label>
+        <label><input type="checkbox" data-opt="dither" checked /><span data-i18n="look.dither">Dithering</span></label>
       </div>
-      <h2>Na mapie</h2>
+      <h2 data-i18n="drawer.layers">Na mapie</h2>
       <div class="toggles">
-        <label><input type="checkbox" data-layer="dwarfs" checked /><span>Krasnale</span></label>
-        <label><input type="checkbox" data-layer="trams" checked /><span>Tramwaje</span></label>
-        <label><input type="checkbox" data-layer="trains" checked /><span>Pociągi</span></label>
-        <label><input type="checkbox" data-layer="cars" checked /><span>Auta</span></label>
-        <label><input type="checkbox" data-layer="people" checked /><span>Ludzie</span></label>
-        <label><input type="checkbox" data-layer="birds" checked /><span>Ptaki</span></label>
-        <label><input type="checkbox" data-layer="clouds" checked /><span>Chmury</span></label>
-        <label><input type="checkbox" data-layer="trees" checked /><span>Drzewa</span></label>
-        <label><input type="checkbox" data-layer="labels" checked /><span>Napisy</span></label>
-        <label><input type="checkbox" data-layer="eggs" checked /><span>Ciekawostki</span></label>
+        <label><input type="checkbox" data-layer="dwarfs" checked /><span data-i18n="layer.dwarfs">Krasnale</span></label>
+        <label><input type="checkbox" data-layer="trams" checked /><span data-i18n="layer.trams">Tramwaje</span></label>
+        <label><input type="checkbox" data-layer="trains" checked /><span data-i18n="layer.trains">Pociągi</span></label>
+        <label><input type="checkbox" data-layer="cars" checked /><span data-i18n="layer.cars">Auta</span></label>
+        <label><input type="checkbox" data-layer="people" checked /><span data-i18n="layer.people">Ludzie</span></label>
+        <label><input type="checkbox" data-layer="birds" checked /><span data-i18n="layer.birds">Ptaki</span></label>
+        <label><input type="checkbox" data-layer="clouds" checked /><span data-i18n="layer.clouds">Chmury</span></label>
+        <label><input type="checkbox" data-layer="trees" checked /><span data-i18n="layer.trees">Drzewa</span></label>
+        <label><input type="checkbox" data-layer="labels" checked /><span data-i18n="layer.labels">Napisy</span></label>
+        <label><input type="checkbox" data-layer="eggs" checked /><span data-i18n="layer.eggs">Ciekawostki</span></label>
       </div>
       <div class="actions">
-        <button id="btn-link">Kopiuj link</button>
-        <button id="btn-photo">Zrób zdjęcie</button>
+        <button id="btn-link" data-i18n="btn.link">Kopiuj link</button>
+        <button id="btn-photo" data-i18n="btn.photo">Zrób zdjęcie</button>
       </div>
-      <p class="hint">Przeciągnij, żeby przesunąć · prawy przycisk obraca i pochyla · kompas wraca do widoku z góry · <kbd>Q</kbd>/<kbd>E</kbd> obrót · <kbd>H</kbd> chowa interfejs</p>
-      <p class="credits">Dane © współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · ortofotomapa © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)</p>
+      <p class="hint" data-i18n-html="drawer.hint.html">Przeciągnij, żeby przesunąć · prawy przycisk obraca i pochyla · kompas wraca do widoku z góry · <kbd>Q</kbd>/<kbd>E</kbd> obrót · <kbd>H</kbd> chowa interfejs</p>
+      <p class="credits" data-i18n-html="drawer.credits.html">Dane © współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · ortofotomapa © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)</p>
     </aside>
 
     <div id="tools">
-      <button id="btn-rot-l" class="icon" title="Obróć w lewo (Q)">↺</button>
-      <button id="compass" title="Domyślny widok: północ u góry"><i></i><span>N</span></button>
-      <button id="btn-rot-r" class="icon" title="Obróć w prawo (E)">↻</button>
+      <button id="btn-rot-l" class="icon" title="Obróć w lewo (Q)" data-i18n-title="tools.rotL">↺</button>
+      <button id="compass" title="Domyślny widok: północ u góry" data-i18n-title="tools.compass"><i></i><span>N</span></button>
+      <button id="btn-rot-r" class="icon" title="Obróć w prawo (E)" data-i18n-title="tools.rotR">↻</button>
     </div>
 
-    <nav id="timeline" aria-label="Oś czasu"></nav>
+    <nav id="timeline" aria-label="Oś czasu" data-i18n-aria="timeline"></nav>
 
     <div id="popup" hidden>
-      <button class="close" aria-label="Zamknij">×</button>
+      <button class="close" aria-label="Zamknij" data-i18n-aria="close">×</button>
       <div id="popup-body"></div>
     </div>
     <dialog id="about">
-      <button class="close" aria-label="Zamknij">×</button>
-      <h2>Wrocław w pikselach</h2>
-      <p>Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś. To ilustracja do oglądania i poznawania
+      <button class="close" aria-label="Zamknij" data-i18n-aria="close">×</button>
+      <h2 data-i18n="meta.title">Wrocław w pikselach</h2>
+      <p data-i18n="about.intro">Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś. To ilustracja do oglądania i poznawania
         historii miasta, nie mapa do nawigacji. Wygląd dawnych epok jest przybliżony.</p>
-      <h3>Dane i licencje</h3>
+      <h3 data-i18n="about.data">Dane i licencje</h3>
       <ul>
-        <li>© współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
+        <li data-i18n-html="about.osm.html">© współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
           licencja <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>.
           Dane mapy (katalog <code>public/data</code>) są bazą pochodną udostępnioną na tej samej licencji.</li>
-        <li>Ortofotomapa: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>,
+        <li data-i18n-html="about.ortho.html">Ortofotomapa: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>,
           <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone (kolory dachów).</li>
-        <li>Rozkład jazdy tramwajów: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a>
+        <li data-i18n-html="about.gtfs.html">Rozkład jazdy tramwajów: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a>
           (GTFS MPK Wrocław, kopia <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); dane przetworzone.</li>
-        <li>Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.</li>
-        <li>Ciekawostki: opracowanie własne na podstawie źródeł podanych przy każdej z nich.</li>
-        <li>Fonty: VT323 i Work Sans (SIL Open Font License).</li>
+        <li data-i18n-html="about.lod1.html">Wysokości budynków: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">Modele 3D budynków LoD1 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone.</li>
+        <li data-i18n="about.nid">Daty budowy zabytków: rejestr zabytków nieruchomych, Narodowy Instytut Dziedzictwa (dane.gov.pl); dane przetworzone.</li>
+        <li data-i18n="about.dwarfs">Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.</li>
+        <li data-i18n="about.trivia">Ciekawostki: opracowanie własne na podstawie źródeł podanych przy każdej z nich.</li>
+        <li data-i18n="about.fonts">Fonty: VT323 i Work Sans (SIL Open Font License).</li>
       </ul>
-      <h3>Inspiracje</h3>
-      <p>Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a>
+      <h3 data-i18n="about.inspirations">Inspiracje</h3>
+      <p data-i18n-html="about.thanks.html">Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a>
         Michała Pietralika, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>,
         <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> i <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>.
         Kod, grafika i teksty tej mapy powstały od zera.</p>
     </dialog>
-    <div id="attrib">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ortofoto © GUGiK · rozkład MPK Wrocław</div>
+    <div id="attrib" data-i18n-html="attrib.html">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ortofoto © GUGiK · rozkład MPK Wrocław</div>
     <div id="toast" hidden></div>
-    <div id="loading"><img src="/favicon.svg" alt="" width="64" height="64" />Wczytuję Wrocław…</div>
+    <div id="loading"><img src="/favicon.svg" alt="" width="64" height="64" /><span data-i18n="loading">Wczytuję Wrocław…</span></div>
     <div id="progress" hidden></div>
 
     <script type="module" src="/src/main.ts"></script>

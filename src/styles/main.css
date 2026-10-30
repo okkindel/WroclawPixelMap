@@ -42,9 +42,11 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 @keyframes pop { 40% { transform: scale(1.25) rotate(-4deg); } }
 .icon { width: 42px; height: 42px; background: var(--paper); border: 0; box-shadow: var(--shadow); font-size: 20px; line-height: 1; }
 .icon:hover, #btn-settings[aria-expanded='true'] { background: var(--gold); }
+/* przełącznik języka: link wyglądający jak przycisk */
+a.icon { display: grid; place-items: center; flex: none; color: var(--ink); text-decoration: none; font: 21px/1 var(--head); }
 
 /* --- pocztówka z epoką --- */
-.postcard { position: fixed; left: 14px; bottom: 112px; width: min(380px, calc(100vw - 28px)); background: var(--paper); box-shadow: var(--shadow); padding: 14px 16px 12px; background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% - 4px), transparent 0); }
+.postcard { position: fixed; left: 14px; bottom: 122px; width: min(380px, calc(100vw - 28px)); background: var(--paper); box-shadow: var(--shadow); padding: 14px 16px 12px; background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% - 4px), transparent 0); }
 .postcard::before { content: ''; position: absolute; inset: 0; border: 2px dashed color-mix(in srgb, var(--red) 35%, transparent); margin: 5px; pointer-events: none; }
 .postcard h1 { font: 29px/1.1 var(--head); color: var(--red); margin: 0 76px 4px 0; }
 .postcard .state { font: 16px var(--head); color: var(--odra); text-transform: uppercase; }
@@ -85,19 +87,19 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 .credits a { color: var(--odra); }
 
 /* --- obrót i kompas --- */
-#tools { position: fixed; right: 14px; bottom: 112px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+#tools { position: fixed; right: 14px; bottom: 122px; display: flex; flex-direction: column; gap: 8px; align-items: center; }
 #compass { width: 54px; height: 54px; border: 0; border-radius: 50%; background: var(--paper); box-shadow: var(--shadow); position: relative; }
 #compass i { position: absolute; left: 50%; top: 14px; bottom: 6px; width: 6px; margin-left: -3px; background: linear-gradient(var(--red) 50%, var(--ink) 50%); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); transform: rotate(var(--rot, 0rad)); }
 #compass span { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); font: 13px var(--head); color: var(--red); }
 
 /* --- oś czasu: linijka --- */
-#timeline { position: fixed; left: 14px; right: 14px; bottom: 14px; height: 78px; background: var(--paper); box-shadow: var(--shadow); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+#timeline { position: fixed; left: 14px; right: 14px; bottom: 14px; height: 88px; background: var(--paper); box-shadow: var(--shadow); overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
 #timeline .rail { position: relative; height: 100%; min-width: 900px; margin: 0 52px; }
 #timeline .rail::before { content: ''; position: absolute; left: 0; right: 0; top: 37px; height: 4px; background: var(--ink); }
-#timeline .tick { position: absolute; top: 0; transform: translateX(-50%); background: none; border: 0; padding: 5px 0 0; display: flex; flex-direction: column; align-items: center; width: 80px; }
+#timeline .tick { position: absolute; top: 0; transform: translateX(-50%); background: none; border: 0; padding: 5px 0 0; display: flex; flex-direction: column; align-items: center; width: 92px; }
 #timeline .tick b { font: 17px var(--head); line-height: 1; height: 16px; color: var(--ink2); }
 #timeline .tick i { width: 8px; height: 8px; margin: 13px 0 8px; background: var(--paper); box-shadow: 0 0 0 2px var(--ink); transform: rotate(45deg); }
-#timeline .tick span { font-size: 11px; line-height: 1.15; color: var(--ink2); text-align: center; max-width: 80px; }
+#timeline .tick span { font-size: 11px; line-height: 1.15; color: var(--ink2); text-align: center; max-width: 92px; }
 #timeline .tick:hover i { background: var(--gold); }
 #timeline .tick.on b { color: var(--red); font-size: 14px; }
 #timeline .tick.on i { background: var(--red); transform: rotate(45deg) scale(1.3); }
@@ -135,7 +137,7 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 #loading { position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 16px; background: var(--paper); font: 25px var(--head); color: var(--red); z-index: 30; }
 #loading img { image-rendering: pixelated; animation: bob 1s ease-in-out infinite; }
 #loading.done { display: none; }
-#progress { position: fixed; right: 80px; bottom: 112px; font: 16px var(--head); background: var(--paper); box-shadow: var(--shadow); padding: 4px 8px; }
+#progress { position: fixed; right: 80px; bottom: 122px; font: 16px var(--head); background: var(--paper); box-shadow: var(--shadow); padding: 4px 8px; }
 
 #about { width: min(560px, calc(100vw - 32px)); max-height: 80vh; padding: 16px 20px; border: 0; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
 #about::backdrop { background: rgb(29 35 64 / 0.5); }
@@ -145,7 +147,7 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 #about li { margin: 4px 0; }
 #about a { color: var(--odra); }
 #about .close { position: absolute; top: 6px; right: 10px; background: none; border: 0; font-size: 24px; color: var(--ink2); }
-#attrib { position: fixed; right: 14px; bottom: 98px; font-size: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 2px 6px; }
+#attrib { position: fixed; right: 14px; bottom: 108px; font-size: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 2px 6px; }
 #attrib a { color: var(--odra); }
 #attrib { transition: opacity 0.6s; }
 #attrib.folded { opacity: 0; pointer-events: none; }

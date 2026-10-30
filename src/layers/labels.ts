@@ -10,6 +10,9 @@ interface Pin { el: HTMLElement; pos: THREE.Vector3; minZoom: number; maxZoom?: 
 export function yearOf(text: string): number | undefined {
   const y = text.match(/\d{4}/)
   if (y) return +y[0]
+  // angielskie „14th c.”
+  const o = text.match(/\b(\d{1,2})(?:st|nd|rd|th)\b/)
+  if (o) return (+o[1] - 1) * 100 + 50
   const c = text.match(/\b([IVX]+)\s*w/)
   if (!c) return undefined
   const R: Record<string, number> = { I: 1, V: 5, X: 10 }
@@ -34,7 +37,7 @@ export class Labels {
     // kolejność = pierwszeństwo przy nachodzeniu napisów
     const zoomFor = (l: Landmark) => ({ 1: 0, 2: 0.9 })[rank[l.name] as 1 | 2] ?? 1.6
     // świątynie dostają osobny kolor napisu
-    const sacred = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic/
+    const sacred = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic|Church|Cathedral|Collegiate|Synagogue|Chapel/
     for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), sacred.test(l.name) ? 'church' : '', yearOf(l.year))
   }
 

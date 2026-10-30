@@ -1,5 +1,6 @@
 // Panel ustawień, oś czasu i karta informacyjna epoki.
 import type { Epoch } from '../history/content.ts'
+import { lang } from '../i18n/index.ts'
 
 export type Layer = 'dwarfs' | 'trams' | 'trains' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees' | 'labels' | 'eggs'
 export type LookOpt = 'palette' | 'outline' | 'dither'
@@ -56,7 +57,7 @@ export function initTimeline(epochs: Epoch[], onPick: (e: Epoch) => void) {
   const nav = document.getElementById('timeline')!
   const rail = document.createElement('div')
   rail.className = 'rail'
-  rail.style.minWidth = `${epochs.length * 84}px`
+  rail.style.minWidth = `${epochs.length * 96}px`
   nav.appendChild(rail)
   const buttons = epochs.map((e, i) => {
     const b = document.createElement('button')
@@ -89,7 +90,7 @@ export function showEpoch(e: Epoch) {
 }
 
 export function setClock(d: Date) {
-  document.getElementById('info-clock')!.textContent = d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })
+  document.getElementById('info-clock')!.textContent = d.toLocaleTimeString(lang() === 'en' ? 'en-GB' : 'pl-PL', { hour: '2-digit', minute: '2-digit' })
 }
 
 export function setDwarfCount(found: number, total: number) {
