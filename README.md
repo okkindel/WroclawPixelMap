@@ -24,4 +24,6 @@ npm run bake
 - `public/data` to baza pochodna OpenStreetMap, udostępniona na licencji
   [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). © współtwórcy OpenStreetMap.
 - Kolory dachów: przetworzona ortofotomapa © GUGiK, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Wysokości budynków: przetworzone Modele 3D budynków LoD1 2024 © GUGiK, CC BY 4.0 (`npm run lod2`).
+- Daty budowy: rejestr zabytków nieruchomych NID (dane.gov.pl), dane przetworzone.
 - Rozkład tramwajów: przetworzony GTFS MPK Wrocław (Otwarte Dane Wrocław, kopia Mobility Database).

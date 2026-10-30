@@ -264,6 +264,8 @@ function nidYear(t: Record<string, string>, poly: RawPoly): NidHit | null {
 }
 
 // Budynek albo część budynku (building:part) -> bryły. Dla części typ bierzemy z tagu building:part.
+const estimated = new WeakSet<Building>()
+
 function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string): Building[] {
   const out: Building[] = []
   const levels = num(t['building:levels'])
@@ -305,6 +307,8 @@ function toBuildings(el: OsmEl, t: Record<string, string>, buildingTag: string):
       rm: t['roof:material'] || undefined,
       n: t.name || undefined,
     }
+    // wysokość tylko szacowana (brak height, kształtu dachu, nie kościół, nie część budynku): do zastąpienia pomiarem GUGiK
+    if (t.height == null && !t['roof:shape'] && k !== 'church' && !t['building:part']) estimated.add(b)
     out.push(b)
   }
   return out
@@ -465,6 +469,45 @@ for (const el of raw) {
   for (const i of covered.keys()) if (!replaced.has(i)) out.buildings[i].H = r1(Math.max(out.buildings[i].H - 0.4, (out.buildings[i].m ?? 0) + 0.5))
   out.buildings = out.buildings.filter((_, i) => !replaced.has(i)).concat(added)
   console.log(`części budynków: ${added.length}, zastąpione obrysy: ${replaced.size}`)
+}
+
+// ---------- wysokości z modeli 3D GUGiK (LoD1 2024, CC BY 4.0; npm run lod2) ----------
+// measuredHeight = mediana skaningu laserowego nad terenem. Zastępuje tylko wysokości szacowane z OSM
+// (piętra / wartości domyślne); kościoły, części budynków i jawne `height` zostają.
+if (existsSync('data/lod2/buildings.json')) {
+  const lod: { c: [number, number]; mh?: number; H: number }[] = JSON.parse(await readFile('data/lod2/buildings.json', 'utf8'))
+  const CELL = 50
+  const grid = new Map<string, number[]>()
+  out.buildings.forEach((b, i) => {
+    if (!estimated.has(b)) return
+    let a = Infinity, c = -Infinity, d = Infinity, e = -Infinity
+    for (let q = 0; q < b.o.length; q += 2) { a = Math.min(a, b.o[q]); c = Math.max(c, b.o[q]); d = Math.min(d, b.o[q + 1]); e = Math.max(e, b.o[q + 1]) }
+    for (let x = Math.floor(a / CELL); x <= Math.floor(c / CELL); x++)
+      for (let y = Math.floor(d / CELL); y <= Math.floor(e / CELL); y++) {
+        const k = `${x},${y}`
+        const l = grid.get(k) ?? []
+        l.push(i)
+        grid.set(k, l)
+      }
+  })
+  const best = new Map<number, number>()
+  for (const l of lod) {
+    const h = l.mh ?? l.H
+    if (!(h > 1.5)) continue
+    const [x, y] = l.c
+    for (const i of grid.get(`${Math.floor(x / CELL)},${Math.floor(y / CELL)}`) ?? []) {
+      const o = out.buildings[i].o
+      const ring: Pt[] = []
+      for (let q = 0; q < o.length; q += 2) ring.push([o[q], o[q + 1]])
+      if (pointInRing([x, y], ring)) { best.set(i, Math.max(best.get(i) ?? 0, h)); break }
+    }
+  }
+  for (const [i, h] of best) {
+    const b = out.buildings[i]
+    // przy dachu spadzistym mediana wypada w połowie dachu — kalenica jest wyżej
+    b.H = r1(Math.max((b.m ?? 0) + 2, b.rs ? h * 1.15 : h))
+  }
+  console.log(`wysokości z LoD1 GUGiK: ${best.size} budynków`)
 }
 
 // Nazwane miejsca do wyszukiwarki: ulice (środek) i nazwane budynki.
