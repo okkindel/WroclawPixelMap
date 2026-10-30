@@ -8,12 +8,12 @@
     "pl": {
       "label": "Gród na Ostrowie",
       "state": "Polska (Piastowie)",
-      "text": "Na zjeździe gnieźnieńskim w 1000 r. powstaje biskupstwo wrocławskie. Miasto to na razie drewniany gród na Ostrowie Tumskim, schowany między odnogami Odry — wyspa była najlepszym murem obronnym."
+      "text": "Na zjeździe gnieźnieńskim w 1000 r. powstaje biskupstwo wrocławskie. Miasto to na razie drewniany gród na Ostrowie Tumskim, schowany między odnogami Odry. Wyspa była najlepszym murem obronnym."
     },
     "en": {
       "label": "Stronghold on Ostrów",
       "state": "Poland (Piast dynasty)",
-      "text": "At the Congress of Gniezno in 1000 the Diocese of Wrocław is founded. For now the town is a wooden stronghold on Ostrów Tumski (Cathedral Island), tucked between arms of the Oder — the island was the best defensive wall there was."
+      "text": "At the Congress of Gniezno in 1000 the Diocese of Wrocław is founded. For now the town is a wooden stronghold on Ostrów Tumski (Cathedral Island), tucked between arms of the Oder. The island was the best defensive wall there was."
     }
   },
   {
@@ -110,12 +110,12 @@
     "pl": {
       "label": "Napoleon i Promenada",
       "state": "Królestwo Prus (okupacja francuska)",
-      "text": "Na początku 1807 r. miasto kapituluje przed wojskami napoleońskimi, a Hieronim Bonaparte każe zburzyć fortyfikacje. Z wałów zostają wzgórza widokowe, a wzdłuż fosy powstaje Promenada — najlepsza rzecz, jaką Wrocław dostał od okupanta."
+      "text": "Na początku 1807 r. miasto kapituluje przed wojskami napoleońskimi, a Hieronim Bonaparte każe zburzyć fortyfikacje. Z wałów zostają wzgórza widokowe, a wzdłuż fosy powstaje Promenada. To najlepsza rzecz, jaką Wrocław dostał od okupanta."
     },
     "en": {
       "label": "Napoleon and the Promenade",
       "state": "Kingdom of Prussia (French occupation)",
-      "text": "In early 1807 the city surrenders to Napoleon’s troops, and Jérôme Bonaparte orders the fortifications torn down. The ramparts become viewing hills, and the Promenade is laid out along the moat — the best thing Wrocław ever got from an occupier."
+      "text": "In early 1807 the city surrenders to Napoleon’s troops, and Jérôme Bonaparte orders the fortifications torn down. The ramparts become viewing hills, and the Promenade is laid out along the moat. It is the best thing Wrocław ever got from an occupier."
     }
   },
   {
@@ -144,12 +144,12 @@
     "pl": {
       "label": "Hala Stulecia",
       "state": "Cesarstwo Niemieckie",
-      "text": "Na stulecie wojen wyzwoleńczych z 1813 r. Max Berg stawia Halę Stulecia z żelbetową kopułą o rozpiętości 65 m. Wokół powstają Pergola i Pawilon Czterech Kopuł — wystawa, która przeszła do historii architektury."
+      "text": "Na stulecie wojen wyzwoleńczych z 1813 r. Max Berg stawia Halę Stulecia z żelbetową kopułą o rozpiętości 65 m. Wokół powstają Pergola i Pawilon Czterech Kopuł. Ta wystawa przeszła do historii architektury."
     },
     "en": {
       "label": "Centennial Hall",
       "state": "German Empire",
-      "text": "For the centenary of the 1813 Wars of Liberation, Max Berg builds the Centennial Hall (Hala Stulecia) with a reinforced-concrete dome spanning 65 m. Around it rise the Pergola and the Four Domes Pavilion — an exhibition that made architectural history."
+      "text": "For the centenary of the 1813 Wars of Liberation, Max Berg builds the Centennial Hall (Hala Stulecia) with a reinforced-concrete dome spanning 65 m. Around it rise the Pergola and the Four Domes Pavilion: an exhibition that made architectural history."
     }
   },
   {
@@ -178,12 +178,12 @@
     "pl": {
       "label": "Wrocław z gruzów",
       "state": "Polska",
-      "text": "Niemieckich mieszkańców wysiedlono, a do miasta przybywają Polacy, m.in. ze Lwowa — razem z nimi Ossolineum i Panorama Racławicka. Cegły z ruin jadą na odbudowę Warszawy, a w 1948 r. Wystawa Ziem Odzyskanych stawia Iglicę."
+      "text": "Niemieckich mieszkańców wysiedlono, a do miasta przybywają Polacy, m.in. ze Lwowa, a razem z nimi Ossolineum i Panorama Racławicka. Cegły z ruin jadą na odbudowę Warszawy, a w 1948 r. Wystawa Ziem Odzyskanych stawia Iglicę."
     },
     "en": {
       "label": "Wrocław from the rubble",
       "state": "Poland",
-      "text": "The German inhabitants are expelled and Poles arrive, many of them from Lwów (Lviv) — bringing the Ossolineum and the Racławice Panorama with them. Bricks from the ruins are shipped to rebuild Warsaw, and in 1948 the Exhibition of the Recovered Territories puts up the Iglica (Spire)."
+      "text": "The German inhabitants are expelled and Poles arrive, many of them from Lwów (Lviv), bringing the Ossolineum and the Racławice Panorama with them. Bricks from the ruins are shipped to rebuild Warsaw, and in 1948 the Exhibition of the Recovered Territories puts up the Iglica (Spire)."
     }
   },
   {
@@ -246,12 +246,12 @@
     "pl": {
       "label": "Dziś",
       "state": "Polska",
-      "text": "Miasto mostów, wysp i studentów — i setek krasnali, które trzeba omijać na chodniku. Zabudowa pokazuje dziś ponad tysiąc lat historii czterech państw."
+      "text": "Miasto mostów, wysp i studentów, a także setek krasnali, które trzeba omijać na chodniku. Zabudowa pokazuje dziś ponad tysiąc lat historii czterech państw."
     },
     "en": {
       "label": "Today",
       "state": "Poland",
-      "text": "A city of bridges, islands and students — and hundreds of dwarfs you have to step around on the pavement. Its buildings now tell over a thousand years of history of four states."
+      "text": "A city of bridges, islands and students, and of hundreds of dwarfs you have to step around on the pavement. Its buildings now tell over a thousand years of history of four states."
     }
   }
 ]

@@ -427,7 +427,6 @@
     "id": "wyspa-slodowa",
     "lat": 51.1161,
     "lon": 17.0378,
-    "year": "—",
     "pl": {
       "name": "Wyspa Słodowa",
       "text": "Wyspa między Starym Miastem a Nadodrzem, latem najpopularniejsze miejsce na wieczór nad wodą."
@@ -475,12 +474,12 @@
     "pl": {
       "name": "Plac Grunwaldzki",
       "year": "1945 / lata 70.",
-      "text": "W 1945 r. wyburzony pod lotnisko oblężonej twierdzy. Potem kampus i \"Sedesowce\" Jadwigi Grabowskiej-Hawrylak — bloki z charakterystycznymi owalnymi oknami."
+      "text": "W 1945 r. wyburzony pod lotnisko oblężonej twierdzy. Potem kampus i \"Sedesowce\" Jadwigi Grabowskiej-Hawrylak, czyli bloki z charakterystycznymi owalnymi oknami."
     },
     "en": {
       "name": "Plac Grunwaldzki",
       "year": "1945 / 1970s",
-      "text": "Demolished in 1945 to make an airfield for the besieged fortress. Later came the campus and Jadwiga Grabowska-Hawrylak’s \"Sedesowce\" (the \"Toilet Seats\") — blocks with distinctive oval windows."
+      "text": "Demolished in 1945 to make an airfield for the besieged fortress. Later came the campus and Jadwiga Grabowska-Hawrylak’s \"Sedesowce\" (the \"Toilet Seats\"), blocks with distinctive oval windows."
     }
   },
   {
