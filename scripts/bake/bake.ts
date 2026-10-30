@@ -9,7 +9,7 @@ import { dwarfs, namedPlaces, writeMeta } from './world/meta.ts'
 import { NidMatcher } from './world/nid-match.ts'
 import { roofColours } from './world/ortho.ts'
 import { applyParts } from './world/parts.ts'
-import { addSchools } from './world/pois.ts'
+import { addSchools, addWikiLinks } from './world/pois.ts'
 import { loadSources, newState } from './world/state.ts'
 import { structures } from './world/structures.ts'
 import { splitTiles, writeTiles } from './world/tiles.ts'
@@ -37,8 +37,9 @@ const tiles = splitTiles(out)
 await roofColours(tiles)
 nid.log(out.buildings)
 const bytes = await writeTiles(tiles)
-// 7. szkoły (POI spoza budynków) i meta.json
+// 7. szkoły (POI spoza budynków), ręczne linki do Wikipedii i meta.json
 addSchools(s.pois, src.schools)
+await addWikiLinks(s.pois, out.buildings)
 const metaLen = await writeMeta(s, src, tiles, built)
 console.log(
   `${tiles.size} kafli, ${(bytes / 1e6).toFixed(1)} MB + meta ${(metaLen / 1e6).toFixed(1)} MB:`,

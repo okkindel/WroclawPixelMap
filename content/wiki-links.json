@@ -1,0 +1,265 @@
+{
+  "_comment": "Ręczne przypisania artykułów Wikipedii do obiektów z OSM bez tagu wikipedia. Klucz: nazwa obiektu jak w OSM; wartość: adres artykułu.",
+  "links": {
+    "Mostek Pokutnic": {
+      "wiki": "https://pl.wikipedia.org/wiki/Mostek_Czarownic",
+      "x": -1071.8,
+      "y": -324.8
+    },
+    "Centrum Historii Zajezdnia": {
+      "wiki": "https://pl.wikipedia.org/wiki/Centrum_Historii_Zajezdnia",
+      "x": -4109.3,
+      "y": -1766.2
+    },
+    "Rotunda Panoramy Racławickiej": {
+      "wiki": "https://pl.wikipedia.org/wiki/Panorama_Rac%C5%82awicka",
+      "x": -391.7,
+      "y": -261.1
+    },
+    "Akademia Muzyczna im. Karola Lipińskiego": {
+      "wiki": "https://pl.wikipedia.org/wiki/Akademia_Muzyczna_im._Karola_Lipi%C5%84skiego_we_Wroc%C5%82awiu",
+      "x": -2034.5,
+      "y": -173.5
+    },
+    "Akademia Sztuk Pięknych": {
+      "wiki": "https://pl.wikipedia.org/wiki/Akademia_Sztuk_Pi%C4%99knych_im._Eugeniusza_Gepperta_we_Wroc%C5%82awiu",
+      "x": -397.8,
+      "y": -456.5
+    },
+    "Metropolitalne Wyższe Seminarium Duchowne": {
+      "wiki": "https://pl.wikipedia.org/wiki/Metropolitalne_Wy%C5%BCsze_Seminarium_Duchowne_we_Wroc%C5%82awiu",
+      "x": -139.2,
+      "y": 278.7
+    },
+    "Międzynarodowa Wyższa Szkoła Logistyki i Transportu": {
+      "wiki": "https://pl.wikipedia.org/wiki/Uniwersytet_Zachodni_we_Wroc%C5%82awiu",
+      "x": 1505.1,
+      "y": 3106.9
+    },
+    "Uniwersytet DSW Ideis": {
+      "wiki": "https://pl.wikipedia.org/wiki/Uniwersytet_DSW_Ideis",
+      "x": -4323,
+      "y": 121.3
+    },
+    "Uniwersytet WSB Merito": {
+      "wiki": "https://pl.wikipedia.org/wiki/Uniwersytet_WSB_Merito_we_Wroc%C5%82awiu",
+      "x": -4617.7,
+      "y": -548.8
+    },
+    "Uniwersytet Wrocławski": {
+      "wiki": "https://pl.wikipedia.org/wiki/Uniwersytet_Wroc%C5%82awski",
+      "x": -792.7,
+      "y": 67.1
+    },
+    "Uniwersytet SWPS": {
+      "wiki": "https://pl.wikipedia.org/wiki/Uniwersytet_SWPS",
+      "x": -5354.1,
+      "y": -2088
+    },
+    "Wyższa Szkoła Prawa": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wy%C5%BCsza_Szko%C5%82a_Prawa_we_Wroc%C5%82awiu",
+      "x": -695.6,
+      "y": 255.3
+    },
+    "Wyższa Szkoła Kształcenia Zawodowego": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wy%C5%BCsza_Szko%C5%82a_Kszta%C5%82cenia_Zawodowego_we_Wroc%C5%82awiu",
+      "x": -2315.7,
+      "y": -2340.1
+    },
+    "Wrocławska Wyższa Szkoła Informatyki Stosowanej „Horyzont”": {
+      "wiki": "https://pl.wikipedia.org/wiki/Akademia_Techniczno-Informatyczna_w_Naukach_Stosowanych",
+      "x": -4712.5,
+      "y": 1729.1
+    },
+    "Niepubliczna Wyższa Szkoła Medyczna": {
+      "wiki": "https://pl.wikipedia.org/wiki/Niepubliczna_Wy%C5%BCsza_Szko%C5%82a_Medyczna_we_Wroc%C5%82awiu",
+      "x": 552,
+      "y": 692.5
+    },
+    "Wyższa Szkola Fizjoterapii z siedzibą w Wroclawiu": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wy%C5%BCsza_Szko%C5%82a_Fizjoterapii_we_Wroc%C5%82awiu",
+      "x": -1605.8,
+      "y": -958.9
+    },
+    "Wrocławskie Centrum Sieciowo-Superkomputerowe (WCSS)": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wroc%C5%82awskie_Centrum_Sieciowo-Superkomputerowe",
+      "x": 513.1,
+      "y": -268.5
+    },
+    "Instytut Astronomiczny": {
+      "wiki": "https://pl.wikipedia.org/wiki/Instytut_Astronomiczny_Uniwersytetu_Wroc%C5%82awskiego",
+      "x": 2525.1,
+      "y": -252.8
+    },
+    "Liceum Ogólnokształcące nr XVII": {
+      "wiki": "https://pl.wikipedia.org/wiki/Liceum_Og%C3%B3lnokszta%C5%82c%C4%85ce_nr_XVII_im._Agnieszki_Osieckiej_we_Wroc%C5%82awiu",
+      "x": -2587,
+      "y": -902.8
+    },
+    "Międzynarodowe Laboratorium Silnych Pól Magnetycznych i Niskich Temperatur": {
+      "wiki": "https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowe_Laboratorium_Silnych_P%C3%B3l_Magnetycznych_i_Niskich_Temperatur",
+      "x": -2785,
+      "y": -1862.5
+    },
+    "Galeria Handlowa Sky Tower": {
+      "wiki": "https://pl.wikipedia.org/wiki/Sky_Tower_(Wroc%C5%82aw)",
+      "x": -2153.4,
+      "y": -1986.1
+    },
+    "Heritage Gates": {
+      "wiki": "https://pl.wikipedia.org/wiki/Gmach_Towarzystwa_Kredytowego_we_Wroc%C5%82awiu",
+      "x": -1558.2,
+      "y": -168.6
+    },
+    "Millennium Tower I": {
+      "wiki": "https://pl.wikipedia.org/wiki/Centrum_Biznesu_Descont_we_Wroc%C5%82awiu",
+      "x": -3968.1,
+      "y": 120.5
+    },
+    "Millennium Tower II": {
+      "wiki": "https://pl.wikipedia.org/wiki/Centrum_Biznesu_Descont_we_Wroc%C5%82awiu",
+      "x": -3931,
+      "y": 110
+    },
+    "Millennium Tower IV": {
+      "wiki": "https://pl.wikipedia.org/wiki/Centrum_Biznesu_Descont_we_Wroc%C5%82awiu",
+      "x": -3803.3,
+      "y": 84.3
+    },
+    "Times I": {
+      "wiki": "https://pl.wikipedia.org/wiki/Budynek_biurowy_Times_we_Wroc%C5%82awiu",
+      "x": -1648.3,
+      "y": -130.2
+    },
+    "Archiwum Państwowe": {
+      "wiki": "https://pl.wikipedia.org/wiki/Archiwum_Pa%C5%84stwowe_we_Wroc%C5%82awiu",
+      "x": -1328.3,
+      "y": 408.3
+    },
+    "Urząd Miejski": {
+      "wiki": "https://pl.wikipedia.org/wiki/Nowy_Ratusz_we_Wroc%C5%82awiu",
+      "x": -1292.7,
+      "y": -242
+    },
+    "Dolnośląski Urząd Wojewódzki": {
+      "wiki": "https://pl.wikipedia.org/wiki/Budynek_Urz%C4%99du_Wojew%C3%B3dzkiego_we_Wroc%C5%82awiu",
+      "x": -9.6,
+      "y": -273.1
+    },
+    "Thespian": {
+      "wiki": "https://pl.wikipedia.org/wiki/Apartamentowiec_Thespian",
+      "x": -2315.7,
+      "y": -2347.1
+    },
+    "Dom pod Zieloną Dynią i Dwoma Polakami": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Zielon%C4%85_Dyni%C4%85_i_Dwoma_Polakami_we_Wroc%C5%82awiu",
+      "x": -1101.4,
+      "y": 45.1
+    },
+    "Dom Rybischa": {
+      "wiki": "https://pl.wikipedia.org/wiki/Pa%C5%82ac_Rybisch%C3%B3w_we_Wroc%C5%82awiu",
+      "x": -1393.6,
+      "y": -422.1
+    },
+    "Kamienica Eichbornów": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_przy_pl._Solnym_13_we_Wroc%C5%82awiu",
+      "x": -1494.4,
+      "y": -390.8
+    },
+    "Kamienica Pod Drzewem Morwowym": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Drzewem_Morwowym_we_Wroc%C5%82awiu",
+      "x": -1262.9,
+      "y": -175.3
+    },
+    "Kamienica Pod Srebrnym Chełmem": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Srebrnym_He%C5%82mem_we_Wroc%C5%82awiu",
+      "x": -1115.4,
+      "y": -143.8
+    },
+    "Kamienica pod Złotym Pokojem i Czerwoną Gwiazdą": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Z%C5%82otym_Pokojem_i_Czerwon%C4%85_Gwiazd%C4%85_we_Wroc%C5%82awiu",
+      "x": -1019,
+      "y": -181.9
+    },
+    "Kamienica Pod Złotym Psem": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Z%C5%82otym_Psem_we_Wroc%C5%82awiu",
+      "x": -1128.1,
+      "y": -241.1
+    },
+    "Kamienica pod Złotym Sercem": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Pod_Z%C5%82otym_Sercem_we_Wroc%C5%82awiu",
+      "x": -910.3,
+      "y": -87.6
+    },
+    "Kamienica Artzatów": {
+      "wiki": "https://pl.wikipedia.org/wiki/Kamienica_Artzat%C3%B3w_we_Wroc%C5%82awiu",
+      "x": -1366.1,
+      "y": 8.8
+    },
+    "Pałac Arcybiskupi": {
+      "wiki": "https://pl.wikipedia.org/wiki/Pa%C5%82ac_arcybiskupi_we_Wroc%C5%82awiu",
+      "x": -394.5,
+      "y": 143.8
+    },
+    "Pałac Ballestremów": {
+      "wiki": "https://pl.wikipedia.org/wiki/Pa%C5%82ac_Ballestrem%C3%B3w_we_Wroc%C5%82awiu",
+      "x": -1745.2,
+      "y": -518.5
+    },
+    "Pałac Oppersdorfów": {
+      "wiki": "https://pl.wikipedia.org/wiki/Pa%C5%82ac_Oppersdorf%C3%B3w_we_Wroc%C5%82awiu",
+      "x": -873.8,
+      "y": -605.2
+    },
+    "Młyn Maria": {
+      "wiki": "https://pl.wikipedia.org/wiki/M%C5%82yn_Maria",
+      "x": -658.3,
+      "y": 337.9
+    },
+    "Dworzec Wrocław Zachodni": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wroc%C5%82aw_Zachodni",
+      "x": -6948.6,
+      "y": -2443.4
+    },
+    "Dworzec Kolejowy Wrocław Kuźniki": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wroc%C5%82aw_Ku%C5%BAniki",
+      "x": -6717.7,
+      "y": 1614.7
+    },
+    "Dworzec Kolejowy Wrocław Mikołajów": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wroc%C5%82aw_Miko%C5%82aj%C3%B3w",
+      "x": -3596.6,
+      "y": 300
+    },
+    "Klasztor Sióstr Karmelitanek Bosych pw. Najświętszej Maryi Panny Pośredniczki Łask i Świętego Józefa": {
+      "wiki": "https://pl.wikipedia.org/wiki/Klasztor_karmelitanek_bosych_we_Wroc%C5%82awiu",
+      "x": 2596.5,
+      "y": 565.6
+    },
+    "Kuria i Siedziba Biskupa Eparchii Wrocławsko-Koszalińskiej Kościoła Greckokatolickiego": {
+      "wiki": "https://pl.wikipedia.org/wiki/Plebania_ko%C5%9Bcio%C5%82a_pw._%C5%9Bw._Wincentego_we_Wroc%C5%82awiu",
+      "x": -893.4,
+      "y": -14.8
+    },
+    "Wojewódzki Sztab Wojskowy": {
+      "wiki": "https://pl.wikipedia.org/wiki/Wojew%C3%B3dzki_Sztab_Wojskowy_we_Wroc%C5%82awiu",
+      "x": -2021.1,
+      "y": 3734.1
+    },
+    "Klinika \"Przylądek Nadziei\"": {
+      "wiki": "https://pl.wikipedia.org/wiki/Ponadregionalne_Centrum_Onkologii_Dzieci%C4%99cej_%E2%80%9EPrzyl%C4%85dek_Nadziei%E2%80%9D",
+      "x": -1577.8,
+      "y": -4129.6
+    },
+    "Villa Colonia": {
+      "wiki": "https://pl.wikipedia.org/wiki/Villa_Colonia_we_Wroc%C5%82awiu",
+      "x": -3451.8,
+      "y": -4013.9
+    },
+    "Port Miejski": {
+      "wiki": "https://pl.wikipedia.org/wiki/Port_Miejski_we_Wroc%C5%82awiu",
+      "x": -1640.7,
+      "y": 1588.3
+    }
+  }
+}

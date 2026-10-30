@@ -1,5 +1,7 @@
 // Napisy obiektów z OSM (POI): nazwane budynki/obszary o znanej funkcji albo z Wikipedią.
-import type { Poi } from '../../../src/types/world.ts'
+import { existsSync } from 'node:fs'
+import type { Building, Poi } from '../../../src/types/world.ts'
+import { readJson } from '../../lib/json.ts'
 import { r1 } from '../../lib/geo.ts'
 import { type OsmEl, type Tags, year } from '../../lib/osm.ts'
 import { GENERIC, poiKind, poiRank } from '../../lib/rules.ts'
@@ -40,6 +42,33 @@ export function addSchools(pois: Poi[], schools: OsmEl[]) {
       addPoi(pois, { ...el, type: 'way', geometry: [{ lat: el.lat, lon: el.lon }] }, t)
     else addPoi(pois, el, t)
   }
+}
+
+// Ręczne przypisania artykułów (content/wiki-links.json) dla obiektów z OSM bez tagu wikipedia:
+// napis obiektu dostaje link, a nazwany budynek bez napisu — nowy napis „ciekawe miejsce” (z bliska),
+// z rokiem budowy tego budynku, żeby nie pojawiał się w epokach sprzed jego powstania.
+const WIKI_LINKS = 'content/wiki-links.json'
+// tak daleko od punktu z pliku może leżeć napis albo budynek o tej nazwie
+const WIKI_LINK_RADIUS = 300
+
+export async function addWikiLinks(pois: Poi[], buildings: Building[]) {
+  if (!existsSync(WIKI_LINKS)) return
+  const { links } = await readJson<{ links: Record<string, { wiki: string; x: number; y: number }> }>(WIKI_LINKS)
+  const near = (x: number, y: number, l: { x: number; y: number }) => Math.hypot(x - l.x, y - l.y) < WIKI_LINK_RADIUS
+  let linked = 0,
+    added = 0
+  for (const [name, l] of Object.entries(links)) {
+    const poi = pois.find((p) => p[0] === name && near(p[1], p[2], l))
+    if (poi) {
+      poi[5] ??= l.wiki
+      linked++
+      continue
+    }
+    const b = buildings.find((b) => b.n === name && near(b.o[0], b.o[1], l))
+    pois.push(b?.y ? [name, l.x, l.y, 'notable', 2, l.wiki, b.y] : [name, l.x, l.y, 'notable', 2, l.wiki])
+    added++
+  }
+  console.log(`linki do Wikipedii z ${WIKI_LINKS}: ${linked} napisów, ${added} nowych`)
 }
 
 // Jedna nazwa = jeden napis (budynek bywa zmapowany kilka razy, np. obszar i bryła): zostaje ostatni wpis na miejscu pierwszego.
