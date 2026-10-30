@@ -1,8 +1,8 @@
 [
   {
     "id": "tarczynski-arena",
-    "lat": 51.14140,
-    "lon": 16.94360,
+    "lat": 51.1414,
+    "lon": 16.9436,
     "year": "2011",
     "rank": 1,
     "pl": {
@@ -12,6 +12,141 @@
     "en": {
       "name": "Tarczyński Arena",
       "text": "Śląsk Wrocław’s stadium, built for Euro 2012 and opened in 2011. It holds more than 40,000 spectators. Its translucent membrane façade glows like a lantern in the evening."
+    }
+  },
+  {
+    "id": "sky-tower",
+    "lat": 51.09467,
+    "lon": 17.01895,
+    "year": "2012",
+    "rank": 1,
+    "pl": {
+      "name": "Sky Tower",
+      "text": "Wieżowiec przy ul. Powstańców Śląskich ukończony w 2012 r. Z iglicą ma 212 m i jest najwyższym budynkiem Wrocławia. Na 49. piętrze działa taras widokowy."
+    },
+    "en": {
+      "name": "Sky Tower",
+      "text": "A tower on Powstańców Śląskich Street completed in 2012. With its spire it is 212 m tall, the highest building in Wrocław. There is an observation deck on the 49th floor."
+    }
+  },
+  {
+    "id": "stadion-olimpijski",
+    "lat": 51.1192,
+    "lon": 17.09668,
+    "year": "1928",
+    "rank": 1,
+    "pl": {
+      "name": "Stadion Olimpijski",
+      "text": "Otwarty w 1928 r. jako Schlesierkampfbahn, część sportowego zespołu przy Hali Stulecia. Dziś ścigają się tu żużlowcy Sparty Wrocław."
+    },
+    "en": {
+      "name": "Olympic Stadium",
+      "text": "Opened in 1928 as the Schlesierkampfbahn, part of the sports grounds near the Centennial Hall. Today it is the home track of the Sparta Wrocław speedway team."
+    }
+  },
+  {
+    "id": "most-redzinski",
+    "lat": 51.1474,
+    "lon": 16.945,
+    "year": "2011",
+    "rank": 1,
+    "pl": {
+      "name": "Most Rędziński",
+      "text": "Most podwieszony na autostradowej obwodnicy Wrocławia (A8), otwarty w 2011 r. Jego żelbetowy pylon ma 122 m i jest najwyższym pylonem mostowym w Polsce."
+    },
+    "en": {
+      "name": "Rędziński Bridge",
+      "text": "A cable-stayed bridge on the Wrocław motorway ring road (A8), opened in 2011. Its 122 m concrete pylon is the tallest bridge pylon in Poland."
+    }
+  },
+  {
+    "id": "centrum-historii-zajezdnia",
+    "lat": 51.09652,
+    "lon": 16.9912,
+    "year": "2016",
+    "rank": 1,
+    "pl": {
+      "name": "Centrum Historii Zajezdnia",
+      "text": "W tej zajezdni autobusowej przy ul. Grabiszyńskiej 26 sierpnia 1980 r. zaczął się strajk, od którego wzięła początek wrocławska Solidarność. Od 2016 r. działa tu muzeum powojennego Wrocławia."
+    },
+    "en": {
+      "name": "Zajezdnia History Centre",
+      "text": "In this bus depot on Grabiszyńska Street a strike began on 26 August 1980, giving rise to Solidarity in Wrocław. Since 2016 it has housed a museum of post-war Wrocław."
+    }
+  },
+  {
+    "id": "hydropolis",
+    "lat": 51.10387,
+    "lon": 17.05716,
+    "year": "2015",
+    "rank": 2,
+    "pl": {
+      "name": "Hydropolis",
+      "text": "Centrum wiedzy o wodzie otwarte w 2015 r. w zabytkowym, XIX-wiecznym zbiorniku wody czystej przy ul. Na Grobli."
+    },
+    "en": {
+      "name": "Hydropolis",
+      "text": "A water science centre opened in 2015 inside a historic 19th-century clean water reservoir on Na Grobli Street."
+    }
+  },
+  {
+    "id": "port-miejski",
+    "lat": 51.12686,
+    "lon": 17.02652,
+    "year": "ok. 1900",
+    "rank": 2,
+    "pl": {
+      "name": "Port Miejski",
+      "text": "Rzeczny port przeładunkowy z przełomu XIX i XX w. przy Kanale Miejskim, dawniej ważne zaplecze żeglugi na Odrze."
+    },
+    "en": {
+      "name": "City Port",
+      "text": "A river cargo port from around 1900 on the City Canal, once an important base for shipping on the Oder."
+    }
+  },
+  {
+    "id": "kosciol-nepomucena",
+    "lat": 51.1087,
+    "lon": 17.08269,
+    "year": "1913",
+    "rank": 2,
+    "pl": {
+      "name": "Kościół św. Jana Nepomucena",
+      "text": "Drewniany kościółek z Górnego Śląska w Parku Szczytnickim, przeniesiony tu w 1913 r. na Wystawę Stulecia."
+    },
+    "en": {
+      "name": "St John of Nepomuk wooden church",
+      "text": "A wooden church from Upper Silesia in Szczytnicki Park, moved here in 1913 for the Centennial Exhibition."
+    }
+  },
+  {
+    "id": "cmentarz-osobowicki",
+    "lat": 51.13915,
+    "lon": 17.01051,
+    "year": "1867",
+    "rank": 2,
+    "pl": {
+      "name": "Cmentarz Osobowicki",
+      "text": "Jedna z największych nekropolii Wrocławia, założona w 1867 r. Na Alei Zasłużonych spoczywają ludzie nauki, kultury i sportu, którzy odbudowywali powojenne miasto."
+    },
+    "en": {
+      "name": "Osobowice Cemetery",
+      "text": "One of Wrocław’s largest cemeteries, founded in 1867. Its Avenue of the Distinguished is the resting place of scientists, artists and athletes who rebuilt the post-war city."
+    }
+  },
+  {
+    "id": "osiedle-wuwa",
+    "lat": 51.1078,
+    "lon": 17.086,
+    "year": "1929",
+    "rank": 2,
+    "pl": {
+      "name": "Osiedle WUWA",
+      "text": "Wzorcowe osiedle z wystawy Werkbundu „Wohnung und Werkraum” z 1929 r.: modernistyczne domy i bloki projektu m.in. Hansa Scharouna."
+    },
+    "en": {
+      "name": "WUWA estate",
+      "text": "A model housing estate from the 1929 Werkbund exhibition “Wohnung und Werkraum”: modernist houses and apartment blocks designed by, among others, Hans Scharoun."
     }
   },
   {
