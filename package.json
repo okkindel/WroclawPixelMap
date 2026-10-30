@@ -14,7 +14,8 @@
     "bake": "node scripts/bake.ts",
     "fetch-ortho": "node scripts/fetch-ortho.ts",
     "fetch-gtfs": "node scripts/fetch-gtfs.ts",
-    "bake-gtfs": "node scripts/bake-gtfs.ts"
+    "bake-gtfs": "node scripts/bake-gtfs.ts",
+    "deploy": "npm run build && node scripts/deploy.ts"
   },
   "dependencies": {
     "three": "^0.160.0"
