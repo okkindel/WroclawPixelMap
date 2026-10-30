@@ -18,3 +18,10 @@ npm run bake         # → public/data (meta.json + kafle)
 npm run fetch-ortho  # zdjęcia lotnicze GUGiK → data/ortho (kolory dachów)
 npm run bake
 ```
+
+## Licencje danych
+
+- `public/data` to baza pochodna OpenStreetMap, udostępniona na licencji
+  [ODbL 1.0](https://opendatacommons.org/licenses/odbl/1-0/). © współtwórcy OpenStreetMap.
+- Kolory dachów: przetworzona ortofotomapa © GUGiK, [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- Rozkład tramwajów: przetworzony GTFS MPK Wrocław (Otwarte Dane Wrocław, kopia Mobility Database).

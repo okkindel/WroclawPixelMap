@@ -82,12 +82,89 @@ for await (const s of rows('shapes.txt')) {
   list.push([+s.shape_pt_sequence, r1((+s.shape_pt_lon - lon0) * KX), r1((+s.shape_pt_lat - lat0) * KY)])
   pts.set(s.shape_id, list)
 }
+// Tory tramwajowe z OSM (kafle) w siatce 50 m: trasy z GTFS są uproszczone, więc przyciągamy je do torów.
+interface Seg { ax: number; ay: number; bx: number; by: number; z: number }
+const CELL = 50
+const grid = new Map<string, Seg[]>()
+for (const t of meta.tiles) {
+  const tile = JSON.parse(await readFile(`public/data/tiles/${t.k}.json`, 'utf8'))
+  for (const tr of tile.trams as { p: number[]; b?: 1 }[]) {
+    for (let i = 0; i + 3 < tr.p.length; i += 2) {
+      const sg: Seg = { ax: tr.p[i], ay: tr.p[i + 1], bx: tr.p[i + 2], by: tr.p[i + 3], z: tr.b ? 1.2 : 0.2 }
+      const x0 = Math.floor(Math.min(sg.ax, sg.bx) / CELL), x1 = Math.floor(Math.max(sg.ax, sg.bx) / CELL)
+      const y0 = Math.floor(Math.min(sg.ay, sg.by) / CELL), y1 = Math.floor(Math.max(sg.ay, sg.by) / CELL)
+      for (let gx = x0; gx <= x1; gx++) for (let gy = y0; gy <= y1; gy++) {
+        const k = `${gx},${gy}`
+        const l = grid.get(k) ?? []
+        l.push(sg)
+        grid.set(k, l)
+      }
+    }
+  }
+}
+// najbliższy punkt na torze w promieniu 30 m: [x, y, wysokość] albo null
+function snap(x: number, y: number): [number, number, number] | null {
+  let best: [number, number, number] | null = null, bd = 30
+  const gx = Math.floor(x / CELL), gy = Math.floor(y / CELL)
+  for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+    for (const sg of grid.get(`${gx + i},${gy + j}`) ?? []) {
+      const dx = sg.bx - sg.ax, dy = sg.by - sg.ay
+      const f = Math.max(0, Math.min(1, ((x - sg.ax) * dx + (y - sg.ay) * dy) / (dx * dx + dy * dy || 1)))
+      const px = sg.ax + dx * f, py = sg.ay + dy * f
+      const d = Math.hypot(px - x, py - y)
+      if (d < bd) { bd = d; best = [px, py, sg.z] }
+    }
+  }
+  return best
+}
+
+// trasa: zagęszczona co 4 m i przyciągnięta do torów; zapis [x, y, z, x, y, z, ...]
 const shapeIdx = new Map<string, number>()
 const shapes: number[][] = []
+let snapped = 0, total = 0
 for (const [id, list] of pts) {
   list.sort((a, b) => a[0] - b[0])
-  shapeIdx.set(id, shapes.push(list.flatMap(([, x, y]) => [x, y])) - 1)
+  const out: number[] = []
+  for (let i = 0; i < list.length; i++) {
+    const [, x1, y1] = list[i]
+    const [, x0, y0] = list[Math.max(0, i - 1)]
+    const n = i === 0 ? 1 : Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 4))
+    for (let k = i === 0 ? 0 : 1; k <= n; k++) {
+      const x = x0 + ((x1 - x0) * k) / n, y = y0 + ((y1 - y0) * k) / n
+      const s2 = snap(x, y)
+      total++
+      if (s2) snapped++
+      const [sx, sy, sz] = s2 ?? [x, y, 0.2]
+      out.push(r1(sx), r1(sy), sz)
+    }
+  }
+  shapeIdx.set(id, shapes.push(simplify(out, 0.5)) - 1)
 }
+
+// Douglas–Peucker na punktach [x, y, z]: zostawia tylko miejsca, gdzie tor skręca albo zmienia wysokość.
+function simplify(p: number[], tol: number): number[] {
+  const n = p.length / 3
+  if (n < 3) return p
+  const keep = new Uint8Array(n)
+  keep[0] = keep[n - 1] = 1
+  const stack: [number, number][] = [[0, n - 1]]
+  while (stack.length) {
+    const [a, b] = stack.pop()!
+    const ax = p[a * 3], ay = p[a * 3 + 1], bx = p[b * 3], by = p[b * 3 + 1]
+    const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1
+    let far = -1, fd = tol
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs((p[i * 3] - ax) * dy - (p[i * 3 + 1] - ay) * dx) / L
+      const dz = p[i * 3 + 2] !== p[a * 3 + 2] || p[i * 3 + 2] !== p[b * 3 + 2] ? tol * 2 : 0
+      if (Math.max(d, dz) > fd) { fd = Math.max(d, dz); far = i }
+    }
+    if (far >= 0) { keep[far] = 1; stack.push([a, far], [far, b]) }
+  }
+  const out: number[] = []
+  for (let i = 0; i < n; i++) if (keep[i]) out.push(p[i * 3], p[i * 3 + 1], p[i * 3 + 2])
+  return out
+}
+console.log(`przyciągnięte do torów: ${((snapped / total) * 100).toFixed(1)}% punktów`)
 
 const heads: string[] = []
 const headIdx = new Map<string, number>()

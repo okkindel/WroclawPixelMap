@@ -101,4 +101,5 @@ export interface WorldMeta extends Pick<World, 'origin' | 'bounds' | 'cityWalls'
 // public/data/trams.json — rozkład tramwajów z GTFS MPK
 // kurs: [linia, trasa, kierunek, dni (bit 0 = pn … 6 = nd), odjazd (s od północy), czas przejazdu (s)]
 export type TramTrip = [line: number, shape: number, head: number, days: number, dep: number, dur: number]
+// trasy: [x, y, z, ...] przyciągnięte do torów z OSM
 export interface TramSchedule { lines: string[]; heads: string[]; shapes: number[][]; trips: TramTrip[] }

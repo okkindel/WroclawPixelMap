@@ -36,6 +36,10 @@ export function initPanel(h: PanelHandlers) {
     drawer.hidden = !drawer.hidden
     btn.setAttribute('aria-expanded', String(!drawer.hidden))
   })
+  const about = document.getElementById('about') as HTMLDialogElement
+  document.getElementById('btn-about')!.addEventListener('click', () => about.showModal())
+  about.querySelector('.close')!.addEventListener('click', () => about.close())
+  about.addEventListener('click', (e) => { if (e.target === about) about.close() })
   const card = document.getElementById('info')!
   const fold = card.querySelector<HTMLButtonElement>('.fold')!
   fold.addEventListener('click', () => {

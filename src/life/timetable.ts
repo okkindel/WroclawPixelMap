@@ -25,7 +25,8 @@ export class Timetable {
     this.data = data
     this.shapes = data.shapes.map((p) => {
       const cum = [0]
-      for (let i = 2; i < p.length; i += 2) cum.push(cum[cum.length - 1] + Math.hypot(p[i] - p[i - 2], p[i + 1] - p[i - 1]))
+      // punkty trasy: [x, y, z] (z = wysokość toru, np. na moście)
+      for (let i = 3; i < p.length; i += 3) cum.push(cum[cum.length - 1] + Math.hypot(p[i] - p[i - 3], p[i + 1] - p[i - 2]))
       return { p, cum, len: cum[cum.length - 1] }
     })
     this.mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true }), MAX * CARS)
@@ -55,8 +56,9 @@ export class Timetable {
     const i = lo
     const f = (s - sh.cum[i - 1]) / (sh.cum[i] - sh.cum[i - 1] || 1)
     const p = sh.p
-    const ax = p[(i - 1) * 2], ay = p[(i - 1) * 2 + 1], bx = p[i * 2], by = p[i * 2 + 1]
-    return [ax + (bx - ax) * f, ay + (by - ay) * f, Math.atan2(by - ay, bx - ax)]
+    const a = (i - 1) * 3, b = i * 3
+    const ax = p[a], ay = p[a + 1], bx = p[b], by = p[b + 1]
+    return [ax + (bx - ax) * f, ay + (by - ay) * f, Math.atan2(by - ay, bx - ax), p[a + 2] + (p[b + 2] - p[a + 2]) * f]
   }
 
   update(date: Date) {
@@ -68,8 +70,8 @@ export class Timetable {
       const k = (((t - dep + 86400) % 86400) / dur)
       const s = k * sh.len
       for (let c = 0; c < CARS; c++) {
-        const [x, y, ang] = this.at(sh, s - c * CAR_GAP)
-        this.v.set(x, 0.2, -y)
+        const [x, y, ang, z] = this.at(sh, s - c * CAR_GAP)
+        this.v.set(x, z, -y)
         this.q.setFromAxisAngle(this.up, ang)
         this.m.compose(this.v, this.q, this.one)
         this.mesh.setMatrixAt(n++, this.m)

@@ -25,6 +25,7 @@
       <div class="dwarf-badge" title="Znalezione krasnale: kliknij krasnala na mapie">
         <img src="/favicon.svg" alt="" width="20" height="20" /><b id="dwarf-found">0</b><span>/<span id="dwarf-total">0</span></span>
       </div>
+      <button id="btn-about" class="icon" title="O mapie">i</button>
       <button id="btn-settings" class="icon" title="Ustawienia" aria-expanded="false">☰</button>
     </header>
 
@@ -85,6 +86,31 @@
       <button class="close" aria-label="Zamknij">×</button>
       <div id="popup-body"></div>
     </div>
+    <dialog id="about">
+      <button class="close" aria-label="Zamknij">×</button>
+      <h2>Wrocław w pikselach</h2>
+      <p>Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś. To ilustracja do oglądania i poznawania
+        historii miasta, nie mapa do nawigacji. Wygląd dawnych epok jest przybliżony.</p>
+      <h3>Dane i licencje</h3>
+      <ul>
+        <li>© współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>,
+          licencja <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>.
+          Dane mapy (katalog <code>public/data</code>) są bazą pochodną udostępnioną na tej samej licencji.</li>
+        <li>Ortofotomapa: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>,
+          <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone (kolory dachów).</li>
+        <li>Rozkład jazdy tramwajów: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a>
+          (GTFS MPK Wrocław, kopia <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); dane przetworzone.</li>
+        <li>Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.</li>
+        <li>Ciekawostki: opracowanie własne na podstawie źródeł podanych przy każdej z nich.</li>
+        <li>Fonty: VT323 i Work Sans (SIL Open Font License).</li>
+      </ul>
+      <h3>Inspiracje</h3>
+      <p>Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a>
+        Michała Pietralika, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>,
+        <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> i <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>.
+        Kod, grafika i teksty tej mapy powstały od zera.</p>
+    </dialog>
+    <div id="attrib">© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ortofoto © GUGiK · rozkład MPK Wrocław</div>
     <div id="toast" hidden></div>
     <div id="loading"><img src="/favicon.svg" alt="" width="64" height="64" />Wczytuję Wrocław…</div>
     <div id="progress" hidden></div>

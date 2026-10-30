@@ -135,6 +135,16 @@ kbd { font: 16px var(--head); background: var(--paper2); border: 1px solid var(-
 #loading.done { display: none; }
 #progress { position: fixed; right: 80px; bottom: 112px; font: 16px var(--head); background: var(--paper); box-shadow: var(--shadow); padding: 4px 8px; }
 
+#about { width: min(560px, calc(100vw - 32px)); max-height: 80vh; padding: 16px 20px; border: 0; background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+#about::backdrop { background: rgb(29 35 64 / 0.5); }
+#about h2 { font: 26px var(--head); color: var(--red); margin: 0 0 6px; }
+#about h3 { font: 17px var(--head); color: var(--odra); text-transform: uppercase; margin: 14px 0 4px; }
+#about ul { padding-left: 18px; margin: 0; }
+#about li { margin: 4px 0; }
+#about a { color: var(--odra); }
+#about .close { position: absolute; top: 6px; right: 10px; background: none; border: 0; font-size: 24px; color: var(--ink2); }
+#attrib { position: fixed; right: 14px; bottom: 98px; font-size: 11px; color: var(--ink); background: color-mix(in srgb, var(--paper) 85%, transparent); padding: 2px 6px; }
+#attrib a { color: var(--odra); }
 body.hide-ui #topbar, body.hide-ui #info, body.hide-ui #drawer, body.hide-ui #timeline, body.hide-ui #tools { display: none; }
 
 @media (max-width: 760px) {
