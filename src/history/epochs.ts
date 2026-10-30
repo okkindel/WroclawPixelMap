@@ -117,19 +117,23 @@ function floodMesh(world: World) {
 }
 
 // Dym nad ruinami: instancje sześcianów unoszących się i rosnących.
+// Dym nad ruinami: kilka słupów dymu, każdy z kłębów, które rosną, unoszą się z wiatrem i znikają.
 function smoke(world: World, count: number) {
-  const ruins = world.buildings.filter((_, i) => hash(i, 41) < 0.03)
-  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), lambert('#3d3f58', { transparent: true, opacity: 0.75 }), count)
+  const fires = world.buildings.filter((b, i) => hash(i, 41) < 0.004 && b.H > 8).slice(0, 14)
+  const mesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), lambert('#8f877d', { transparent: true, opacity: 0.55, depthWrite: false }), count)
   mesh.frustumCulled = false
-  const seeds = Array.from({ length: count }, (_, i) => ({ b: ruins[i % ruins.length], t: hash(i, 3) * 20 }))
+  const LIFE = 14
+  const seeds = Array.from({ length: count }, (_, i) => ({ b: fires[i % Math.max(1, fires.length)], t: hash(i, 3) * LIFE }))
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3()
   const update = (dt: number) => {
     seeds.forEach((sd, i) => {
-      sd.t = (sd.t + dt) % 20
+      if (!sd.b) return
+      sd.t = (sd.t + dt) % LIFE
       const [x, y] = center(sd.b)
-      const k = sd.t / 20
-      v.set(x + Math.sin(sd.t + i) * 3 + k * 60, 8 + k * 140, -y - k * 20)
-      s.setScalar(4 + k * 22)
+      const k = sd.t / LIFE
+      v.set(x + Math.sin(sd.t * 0.7 + i) * 4 + k * 70, sd.b.H + 4 + k * 120, -y - k * 25)
+      // rośnie, a pod koniec maleje — kłąb „rozpływa się” zamiast znikać nagle
+      s.setScalar((5 + k * 26) * Math.min(1, (1 - k) * 4))
       m.compose(v, q, s)
       mesh.setMatrixAt(i, m)
     })
@@ -204,7 +208,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
       const g = wallAlong(p, 70, 0.3, '#a4a9bd')
       extras.add(g)
     }
-    const s = smoke(world, 120)
+    const s = smoke(world, 140)
     extras.add(s.mesh)
     update = s.update
     const opts: BuildOpts = {

@@ -179,7 +179,7 @@ export async function startApp() {
     openPopup({ title: tr.title, sub: { miejsce: t('sub.trivia'), uczelnia: t('sub.uni'), kultowe: t('sub.cult') }[tr.category], text: tr.text, link: { href: tr.source, label: t('source') } })
   for (const t of TRIVIA) {
     if (t.category === 'uczelnia') labels.addLabel(t.title, t.lat, t.lon, 0.9, () => showTrivia(t), 'uni')
-    else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1945)
+    else if (t.category === 'kultowe') labels.addMarker(t, () => showTrivia(t), '', 'cult', 1950)
     else labels.addMarker(t, () => showTrivia(t))
   }
   // ciekawostki przy neonach (galeria przy Ruskiej jako jeden znacznik)
@@ -200,7 +200,7 @@ export async function startApp() {
     if (landmarkXY.some(([lx, ly]) => Math.hypot(lx - x, ly - y) < 150)) continue
     const [lat, lon] = toLatLon(x, y)
     // bez daty w OSM: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1945 r.
-    const from = kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1945
+    const from = kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1950
     labels.addLabel(name, lat, lon, kind === 'church' ? 1.5 : rank === 1 ? 0.3 : 1.2, () => openPopup({ title: name, sub: POI_SUB[kind], link: wiki ? { href: wiki, label: wiki.includes('wikipedia') ? 'Wikipedia' : 'Wikidata' } : undefined }), kind === 'church' ? 'poi church' : `poi poi-${kind}`, from)
   }
   for (const st of meta.stadiums) {
