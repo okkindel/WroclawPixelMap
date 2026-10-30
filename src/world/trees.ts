@@ -10,7 +10,10 @@ export function buildTrees(trees: Flat, palette: string[], seed = 0) {
   geo.translate(0, 1.6, 0)
   const n = trees.length / 2
   const mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial(), n)
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3()
+  const m = new THREE.Matrix4(),
+    q = new THREE.Quaternion(),
+    s = new THREE.Vector3(),
+    p = new THREE.Vector3()
   for (let i = 0; i < n; i++) {
     const r = 2.6 + hash(i + seed, 3) * 2.2
     s.set(r, r * 1.05, r)
@@ -24,7 +27,10 @@ export function buildTrees(trees: Flat, palette: string[], seed = 0) {
   const trunkGeo = new THREE.CylinderGeometry(0.09, 0.12, 1.4, 5)
   trunkGeo.translate(0, 0.15, 0)
   const trunks = new THREE.InstancedMesh(trunkGeo, new THREE.MeshLambertMaterial({ color: '#5a2e22' }), n)
-  for (let i = 0; i < n; i++) { mesh.getMatrixAt(i, m); trunks.setMatrixAt(i, m) }
+  for (let i = 0; i < n; i++) {
+    mesh.getMatrixAt(i, m)
+    trunks.setMatrixAt(i, m)
+  }
   trunks.castShadow = true
   mesh.add(trunks)
   mesh.castShadow = true

@@ -1,6 +1,5 @@
-// Tryb oszczędny: gdy przez kilka sekund rysujemy za wolno, kolejno obniżamy jakość.
-const WINDOW_S = 4 // okno pomiaru [s]
-const MIN_FPS = 24
+// Tryb oszczędny: gdy przez kilka sekund rysujemy za wolno, kolejno obniżamy jakość (progi: src/rules/render.ts).
+import { SAVER_MIN_FPS as MIN_FPS, SAVER_WINDOW_S as WINDOW_S } from '../rules/render.ts'
 
 export class PowerSaver {
   private acc = 0
@@ -21,6 +20,6 @@ export class PowerSaver {
     this.acc = this.frames = 0
     if (fps >= MIN_FPS || document.hidden) return
     const step = this.steps[this.step]
-    if (step && step()) this.step++
+    if (step?.()) this.step++
   }
 }

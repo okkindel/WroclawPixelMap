@@ -7,7 +7,11 @@ const CARS = 3
 const CAR_GAP = 10.4
 const MAX = 400
 
-interface Shape { p: number[]; cum: number[]; len: number }
+interface Shape {
+  p: number[]
+  cum: number[]
+  len: number
+}
 
 export class Timetable {
   mesh: THREE.InstancedMesh
@@ -51,23 +55,35 @@ export class Timetable {
 
   private at(sh: Shape, s: number) {
     s = Math.max(0, Math.min(sh.len, s))
-    let lo = 1, hi = sh.cum.length - 1
-    while (lo < hi) { const mid = (lo + hi) >> 1; if (sh.cum[mid] < s) lo = mid + 1; else hi = mid }
+    let lo = 1,
+      hi = sh.cum.length - 1
+    while (lo < hi) {
+      const mid = (lo + hi) >> 1
+      if (sh.cum[mid] < s) lo = mid + 1
+      else hi = mid
+    }
     const i = lo
     const f = (s - sh.cum[i - 1]) / (sh.cum[i] - sh.cum[i - 1] || 1)
     const p = sh.p
-    const a = (i - 1) * 3, b = i * 3
-    const ax = p[a], ay = p[a + 1], bx = p[b], by = p[b + 1]
+    const a = (i - 1) * 3,
+      b = i * 3
+    const ax = p[a],
+      ay = p[a + 1],
+      bx = p[b],
+      by = p[b + 1]
     return [ax + (bx - ax) * f, ay + (by - ay) * f, Math.atan2(by - ay, bx - ax), p[a + 2] + (p[b + 2] - p[a + 2]) * f]
   }
 
   update(date: Date) {
     const t = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds() / 1000
-    if (Math.abs(t - this.lastScan) > 1) { this.scan(date, t); this.lastScan = t }
+    if (Math.abs(t - this.lastScan) > 1) {
+      this.scan(date, t)
+      this.lastScan = t
+    }
     let n = 0
     for (const [, shape, , , dep, dur] of this.active) {
       const sh = this.shapes[shape]
-      const k = (((t - dep + 86400) % 86400) / dur)
+      const k = ((t - dep + 86400) % 86400) / dur
       const s = k * sh.len
       for (let c = 0; c < CARS; c++) {
         const [x, y, ang, z] = this.at(sh, s - c * CAR_GAP)

@@ -1,9 +1,9 @@
 // Smaczki: scenki zależne od daty, pory dnia i epoki (jarmark, sylwester, Odra, latarnik) oraz dźwięki miasta.
-// Dane z public/data/scenes.json (scripts/bake-scenes.ts); bez nich zostają tylko scenki, które da się zbudować z World.
+// Dane z public/data/scenes.json (scripts/bake/bake-scenes.ts); bez nich zostają tylko scenki, które da się zbudować z World.
 import * as THREE from 'three'
 import { Football, matchOn } from './football.ts'
 import { Speedway, raceOn } from './speedway.ts'
-import { SINCE } from '../history/milestones.ts'
+import { SINCE } from '../rules/milestones.ts'
 import { bbox, toLocal } from '../engine/geo.ts'
 import type { Flat, World } from '../types/world.ts'
 import { Boats, type BoatKind } from './boats.ts'
@@ -41,7 +41,8 @@ const TEXT = {
   },
 }
 
-export type SceneName = 'market' | 'fireworks' | 'lamplighter' | 'match' | 'speedway'
+export const SCENE_NAMES = ['market', 'fireworks', 'lamplighter', 'match', 'speedway'] as const
+export type SceneName = (typeof SCENE_NAMES)[number]
 
 export class Scenes {
   group = new THREE.Group()
@@ -69,9 +70,7 @@ export class Scenes {
     // fajerwerki startują z płyty Rynku (bez danych: kwadrat wokół środka Rynku)
     const [rx, ry] = toLocal(51.1099, 17.0326)
     const sq = data?.rynek.square
-    const area: [number, number, number, number] = sq?.length
-      ? bboxOf(sq, 30)
-      : [rx - 60, ry - 50, rx + 60, ry + 50]
+    const area: [number, number, number, number] = sq?.length ? bboxOf(sq, 30) : [rx - 60, ry - 50, rx + 60, ry + 50]
     this.fireworks = new Fireworks(area)
     this.group.add(this.fireworks.mesh)
 
@@ -137,9 +136,7 @@ export class Scenes {
       // wymuszony latarnik: zmierzch, żeby szedł zapalać latarnie
       if (this.lamplighter.group.visible) this.lamplighter.update(dt, lamp ? Math.max(night, 0.6) : night)
     }
-
   }
-
 
   hit(ray: THREE.Raycaster): { title: string; text: string } | null {
     if (this.lamplighter?.group.visible && this.lamplighter.hit(ray)) return TEXT.lamplighter
@@ -164,7 +161,11 @@ function alternate(p: Flat, step: number, side: number): Flat {
   const out: Flat = []
   let k = 0
   for (let i = 2; i < p.length; i += 2) {
-    const ax = p[i - 2], ay = p[i - 1], dx = p[i] - ax, dy = p[i + 1] - ay, L = Math.hypot(dx, dy) || 1
+    const ax = p[i - 2],
+      ay = p[i - 1],
+      dx = p[i] - ax,
+      dy = p[i + 1] - ay,
+      L = Math.hypot(dx, dy) || 1
     for (let t = step / 2; t < L; t += step, k++) {
       const o = k % 2 ? side : -side
       out.push(ax + (dx * t) / L + (dy / L) * o, ay + (dy * t) / L - (dx / L) * o)

@@ -2,7 +2,8 @@
 // Zmienne w tekstach: {nazwa}. Klucze *.html zawierają zaufany, statyczny HTML.
 export const PL = {
   'meta.title': 'Wrocław w pikselach',
-  'meta.description': 'Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami.',
+  'meta.description':
+    'Interaktywna pikselowa mapa 3D Wrocławia: od grodu na Ostrowie Tumskim po dziś, z osią czasu, krasnalami i ciekawostkami.',
   'meta.locale': 'pl_PL',
 
   'lang.switch': 'EN',
@@ -14,7 +15,7 @@ export const PL = {
   'top.about': 'O mapie',
   'top.settings': 'Ustawienia',
   'info.fold': 'Zwiń',
-  'close': 'Zamknij',
+  close: 'Zamknij',
 
   'drawer.time': 'Pora',
   'time.now': 'Teraz',
@@ -56,42 +57,54 @@ export const PL = {
   'scene.lamplighter': 'Latarnik',
   'scene.match': 'Mecz',
   'scene.speedway': 'Żużel',
-  'scene.hint': 'Scenki pojawiają się same w swoim czasie (jarmark w grudniu, fajerwerki w sylwestra, mecze i żużel w terminach zawodów); tu włączysz je od razu.',
+  'scene.hint':
+    'Scenki pojawiają się same w swoim czasie (jarmark w grudniu, fajerwerki w sylwestra, mecze i żużel w terminach zawodów); tu włączysz je od razu.',
   'btn.link': 'Kopiuj link',
   'btn.photo': 'Zrób zdjęcie',
-  'drawer.hint.html': 'Przeciągnij, żeby przesunąć · prawy przycisk obraca i pochyla · kompas wraca do widoku z góry · <kbd>Q</kbd>/<kbd>E</kbd> obrót · <kbd>H</kbd> chowa interfejs',
-  'drawer.credits.html': 'Dane © współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · ortofotomapa © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)',
+  'drawer.hint.html':
+    'Przeciągnij, żeby przesunąć · prawy przycisk obraca i pochyla · kompas wraca do widoku z góry · <kbd>Q</kbd>/<kbd>E</kbd> obrót · <kbd>H</kbd> chowa interfejs',
+  'drawer.credits.html':
+    'Dane © współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> (ODbL) · ortofotomapa © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)',
 
   'tools.rotL': 'Obróć w lewo (Q)',
   'tools.rotR': 'Obróć w prawo (E)',
   'tools.compass': 'Domyślny widok: północ u góry',
-  'timeline': 'Oś czasu',
+  timeline: 'Oś czasu',
 
-  'about.intro': 'Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś. To ilustracja do oglądania i poznawania historii miasta, nie mapa do nawigacji. Wygląd dawnych epok jest przybliżony.',
+  'about.intro':
+    'Interaktywna pikselowa mapa Wrocławia: od grodu na Ostrowie Tumskim po dziś. To ilustracja do oglądania i poznawania historii miasta, nie mapa do nawigacji. Wygląd dawnych epok jest przybliżony.',
   'about.data': 'Dane i licencje',
-  'about.osm.html': '© współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, licencja <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Dane mapy (katalog <code>public/data</code>) są bazą pochodną udostępnioną na tej samej licencji.',
-  'about.ortho.html': 'Ortofotomapa: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone (kolory dachów).',
-  'about.gtfs.html': 'Rozkład jazdy tramwajów: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a> (GTFS MPK Wrocław, kopia <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); dane przetworzone.',
-  'about.lod1.html': 'Wysokości budynków: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">Modele 3D budynków LoD1 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone.',
-  'about.plan1732.html': 'Plan miasta z ok. 1732 r. (epoki 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pl" target="_blank" rel="noopener">CC BY-SA 4.0</a>; kafle przetworzone, udostępnione na tej samej licencji.',
+  'about.osm.html':
+    '© współtwórcy <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, licencja <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. Dane mapy (katalog <code>public/data</code>) są bazą pochodną udostępnioną na tej samej licencji.',
+  'about.ortho.html':
+    'Ortofotomapa: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone (kolory dachów).',
+  'about.gtfs.html':
+    'Rozkład jazdy tramwajów: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a> (GTFS MPK Wrocław, kopia <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); dane przetworzone.',
+  'about.lod1.html':
+    'Wysokości budynków: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">Modele 3D budynków LoD1 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone.',
+  'about.plan1732.html':
+    'Plan miasta z ok. 1732 r. (epoki 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pl" target="_blank" rel="noopener">CC BY-SA 4.0</a>; kafle przetworzone, udostępnione na tej samej licencji.',
   'about.nid': 'Daty budowy zabytków: rejestr zabytków nieruchomych, Narodowy Instytut Dziedzictwa (dane.gov.pl); dane przetworzone.',
   'about.dwarfs': 'Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.',
   'about.monuments.html': 'Pomniki: dane z OpenStreetMap i Wikidanych; zdjęcia z Wikimedia Commons (autor i licencja przy zdjęciu).',
   'about.trivia': 'Ciekawostki: opracowanie własne na podstawie źródeł podanych przy każdej z nich.',
   'about.fonts': 'Fonty: VT323 i Work Sans (SIL Open Font License).',
   'about.inspirations': 'Inspiracje',
-  'about.author.html': 'Autor: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
-  'about.thanks.html': 'Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> Michała Pietralika, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> i <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. Kod, grafika i teksty tej mapy powstały od zera.',
-  'attrib.html': '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ortofoto © GUGiK · rozkład MPK Wrocław',
-  'loading': 'Wczytuję Wrocław…',
-  'loadError': 'Nie udało się wczytać mapy :(',
+  'about.author.html':
+    'Autor: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
+  'about.thanks.html':
+    'Dziękujemy autorom podobnych map za pomysł: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> Michała Pietralika, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> i <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. Kod, grafika i teksty tej mapy powstały od zera.',
+  'attrib.html':
+    '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · ortofoto © GUGiK · rozkład MPK Wrocław',
+  loading: 'Wczytuję Wrocław…',
+  loadError: 'Nie udało się wczytać mapy :(',
 
   // teksty z app.ts
   'sub.trivia': 'Ciekawostka',
   'sub.uni': 'Uczelnia',
   'sub.cult': 'Kultowe miejsce',
   'sub.stadium': 'Stadion',
-  'source': 'Źródło',
+  source: 'Źródło',
   'poi.mall': 'Galeria handlowa',
   'poi.culture': 'Kultura',
   'poi.church': 'Świątynia',
@@ -112,7 +125,8 @@ export const PL = {
   'tram.sub': 'kierunek: {head}',
   'tram.text': 'Kurs {dep}–{arr} według rozkładu MPK Wrocław.',
   'speedway.title': 'Żużel na Olimpijskim',
-  'speedway.text': 'Na Stadionie Olimpijskim ścigają się żużlowcy Sparty Wrocław. Cztery okrążenia, same lewe zakręty i motocykle bez hamulców: zwalnia się, kładąc maszynę w łuk.',
+  'speedway.text':
+    'Na Stadionie Olimpijskim ścigają się żużlowcy Sparty Wrocław. Cztery okrążenia, same lewe zakręty i motocykle bez hamulców: zwalnia się, kładąc maszynę w łuk.',
   'building.built': 'zbudowany {y}',
   'dwarf.author': 'autor: {a}',
   'dwarf.since': 'od {d}',
@@ -120,7 +134,7 @@ export const PL = {
   'dwarf.osm': 'Zobacz w OpenStreetMap',
   'toast.newDwarf': 'Nowy krasnal! {n}/{total}',
   'toast.allDwarfs': 'Wszystkie krasnale znalezione. Jesteś Papą Krasnalem!',
-  'progress': 'Wczytuję dzielnice… {done}/{total}',
+  progress: 'Wczytuję dzielnice… {done}/{total}',
   'saver.pixel': 'Tryb oszczędny: większy piksel',
   'saver.shadows': 'Tryb oszczędny: bez cieni',
 }
@@ -129,7 +143,8 @@ export type Key = keyof typeof PL
 
 export const EN: Record<Key, string> = {
   'meta.title': 'Wrocław in pixels',
-  'meta.description': 'An interactive 3D pixel-art map of Wrocław, Poland: from the stronghold on Ostrów Tumski to today, with a timeline, dwarfs and local trivia.',
+  'meta.description':
+    'An interactive 3D pixel-art map of Wrocław, Poland: from the stronghold on Ostrów Tumski to today, with a timeline, dwarfs and local trivia.',
   'meta.locale': 'en_GB',
 
   'lang.switch': 'PL',
@@ -141,7 +156,7 @@ export const EN: Record<Key, string> = {
   'top.about': 'About the map',
   'top.settings': 'Settings',
   'info.fold': 'Collapse',
-  'close': 'Close',
+  close: 'Close',
 
   'drawer.time': 'Time of day',
   'time.now': 'Now',
@@ -183,41 +198,55 @@ export const EN: Record<Key, string> = {
   'scene.lamplighter': 'Lamplighter',
   'scene.match': 'Match',
   'scene.speedway': 'Speedway',
-  'scene.hint': 'Scenes appear on their own at the right time (the market in December, fireworks on New Year’s Eve, matches and speedway on race days); switch them on here any time.',
+  'scene.hint':
+    'Scenes appear on their own at the right time (the market in December, fireworks on New Year’s Eve, matches and speedway on race days); switch them on here any time.',
   'btn.link': 'Copy link',
   'btn.photo': 'Take a photo',
-  'drawer.hint.html': 'Drag to pan · right button rotates and tilts · the compass returns to the top-down view · <kbd>Q</kbd>/<kbd>E</kbd> rotate · <kbd>H</kbd> hides the interface',
-  'drawer.credits.html': 'Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · orthophoto © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)',
+  'drawer.hint.html':
+    'Drag to pan · right button rotates and tilts · the compass returns to the top-down view · <kbd>Q</kbd>/<kbd>E</kbd> rotate · <kbd>H</kbd> hides the interface',
+  'drawer.credits.html':
+    'Data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors (ODbL) · orthophoto © <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a> (CC BY 4.0)',
 
   'tools.rotL': 'Rotate left (Q)',
   'tools.rotR': 'Rotate right (E)',
   'tools.compass': 'Default view: north up',
-  'timeline': 'Timeline',
+  timeline: 'Timeline',
 
-  'about.intro': 'An interactive pixel-art map of Wrocław: from the stronghold on Ostrów Tumski to today. It is an illustration for exploring the city and its history, not a map for navigation. The look of past eras is approximate.',
+  'about.intro':
+    'An interactive pixel-art map of Wrocław: from the stronghold on Ostrów Tumski to today. It is an illustration for exploring the city and its history, not a map for navigation. The look of past eras is approximate.',
   'about.data': 'Data and licences',
-  'about.osm.html': '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, licensed under <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. The map data (the <code>public/data</code> directory) is a derivative database shared under the same licence.',
-  'about.ortho.html': 'Orthophoto: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; processed data (roof colours).',
-  'about.gtfs.html': 'Tram timetable: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a> (Wrocław Open Data; GTFS of MPK Wrocław, mirrored by <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); processed data.',
-  'about.lod1.html': 'Building heights: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">LoD1 3D building models 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; processed data.',
-  'about.plan1732.html': 'City plan of c. 1732 (epochs 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>; processed tiles shared under the same licence.',
-  'about.nid': 'Construction dates of historic buildings: register of immovable monuments, National Heritage Board of Poland (Narodowy Instytut Dziedzictwa, dane.gov.pl); processed data.',
+  'about.osm.html':
+    '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, licensed under <a href="https://opendatacommons.org/licenses/odbl/1-0/" target="_blank" rel="noopener">ODbL 1.0</a>. The map data (the <code>public/data</code> directory) is a derivative database shared under the same licence.',
+  'about.ortho.html':
+    'Orthophoto: <a href="https://www.geoportal.gov.pl" target="_blank" rel="noopener">GUGiK</a>, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; processed data (roof colours).',
+  'about.gtfs.html':
+    'Tram timetable: <a href="https://www.wroclaw.pl/dla-mieszkanca/otwarte-dane-open-data-wroclaw" target="_blank" rel="noopener">Otwarte Dane Wrocław</a> (Wrocław Open Data; GTFS of MPK Wrocław, mirrored by <a href="https://mobilitydatabase.org" target="_blank" rel="noopener">Mobility Database</a>); processed data.',
+  'about.lod1.html':
+    'Building heights: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">LoD1 3D building models 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; processed data.',
+  'about.plan1732.html':
+    'City plan of c. 1732 (epochs 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>; processed tiles shared under the same licence.',
+  'about.nid':
+    'Construction dates of historic buildings: register of immovable monuments, National Heritage Board of Poland (Narodowy Instytut Dziedzictwa, dane.gov.pl); processed data.',
   'about.dwarfs': 'Dwarfs: data from OpenStreetMap; photos belong to their authors and are shown from their original addresses.',
-  'about.monuments.html': 'Monuments: data from OpenStreetMap and Wikidata; photos from Wikimedia Commons (author and licence shown with each photo).',
+  'about.monuments.html':
+    'Monuments: data from OpenStreetMap and Wikidata; photos from Wikimedia Commons (author and licence shown with each photo).',
   'about.trivia': 'Trivia: our own write-ups based on the sources linked from each item.',
   'about.fonts': 'Fonts: VT323 and Work Sans (SIL Open Font License).',
   'about.inspirations': 'Inspirations',
-  'about.author.html': 'Author: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
-  'about.thanks.html': 'Thanks to the authors of similar maps for the idea: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> by Michał Pietralik, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> and <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. The code, graphics and texts of this map were made from scratch.',
-  'attrib.html': '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · orthophoto © GUGiK · timetable MPK Wrocław',
-  'loading': 'Loading Wrocław…',
-  'loadError': 'Could not load the map :(',
+  'about.author.html':
+    'Author: <a href="https://okkindel.github.io/" target="_blank" rel="noopener">Maciej Hajduk (okkindel)</a> · <a href="https://github.com/okkindel/WroclawPixelMap" target="_blank" rel="noopener">GitHub</a>',
+  'about.thanks.html':
+    'Thanks to the authors of similar maps for the idea: <a href="https://michalpietralik.pl/cracowpixelmap/" target="_blank" rel="noopener">Cracow Pixel Map</a> by Michał Pietralik, <a href="https://bedirhanyildirim.com/warsaw-izo/" target="_blank" rel="noopener">Isometric Warsaw</a>, <a href="https://isometric.nyc/" target="_blank" rel="noopener">isometric.nyc</a> and <a href="https://tiny.london/" target="_blank" rel="noopener">tiny.london</a>. The code, graphics and texts of this map were made from scratch.',
+  'attrib.html':
+    '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · orthophoto © GUGiK · timetable MPK Wrocław',
+  loading: 'Loading Wrocław…',
+  loadError: 'Could not load the map :(',
 
   'sub.trivia': 'Trivia',
   'sub.uni': 'University',
   'sub.cult': 'Iconic spot',
   'sub.stadium': 'Stadium',
-  'source': 'Source',
+  source: 'Source',
   'poi.mall': 'Shopping mall',
   'poi.culture': 'Culture',
   'poi.church': 'Place of worship',
@@ -238,7 +267,8 @@ export const EN: Record<Key, string> = {
   'tram.sub': 'towards: {head}',
   'tram.text': 'Trip {dep}–{arr} according to the MPK Wrocław timetable.',
   'speedway.title': 'Speedway at the Olympic Stadium',
-  'speedway.text': 'Sparta Wrocław’s speedway riders race at the Olympic Stadium. Four laps, nothing but left turns and bikes without brakes: you slow down by laying the bike into the bend.',
+  'speedway.text':
+    'Sparta Wrocław’s speedway riders race at the Olympic Stadium. Four laps, nothing but left turns and bikes without brakes: you slow down by laying the bike into the bend.',
   'building.built': 'built {y}',
   'dwarf.author': 'by {a}',
   'dwarf.since': 'since {d}',
@@ -246,7 +276,7 @@ export const EN: Record<Key, string> = {
   'dwarf.osm': 'View on OpenStreetMap',
   'toast.newDwarf': 'New dwarf! {n}/{total}',
   'toast.allDwarfs': 'All dwarfs found. You are Papa Krasnal!',
-  'progress': 'Loading districts… {done}/{total}',
+  progress: 'Loading districts… {done}/{total}',
   'saver.pixel': 'Power saving: bigger pixels',
   'saver.shadows': 'Power saving: no shadows',
 }

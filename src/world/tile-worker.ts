@@ -9,10 +9,15 @@ self.onmessage = async (e: MessageEvent<{ url: string; key: string; seed: number
   const data = decodeTile(await (await fetch(url)).arrayBuffer())
   const g = buildGround(data)
   const out = {
-    key, data,
-    ground: pack(g.ground), water: pack(g.water), roads: pack(g.roads), bridges: pack(g.bridges),
+    key,
+    data,
+    ground: pack(g.ground),
+    water: pack(g.water),
+    roads: pack(g.roads),
+    bridges: pack(g.bridges),
     buildings: pack(buildBuildings(data.buildings, {}, seed)),
     simple: pack(buildBuildings(data.buildings, { simple: true }, seed)),
   }
-  ;(self as unknown as Worker).postMessage(out, transfers(out.ground, out.water, out.roads, out.bridges, out.buildings, out.simple))
+  // przekazanie buforów bez kopiowania (wariant z opcjami pasuje i do typów okna, i wątku)
+  self.postMessage(out, { transfer: transfers(out.ground, out.water, out.roads, out.bridges, out.buildings, out.simple) })
 }

@@ -13,24 +13,34 @@ import { spawn, execFileSync } from 'node:child_process'
 import { createReadStream } from 'node:fs'
 import { mkdir, readdir, writeFile } from 'node:fs/promises'
 import { ShapeUtils, Vector2 } from 'three'
-import { BBOX, ORIGIN as ORIGIN0 } from './config.ts'
+import { BBOX } from '../lib/config.ts'
+import { projection, r1, r2 } from '../lib/geo.ts'
+import { UA } from '../lib/http.ts'
 
 const DIR = 'data/lod2'
 const SRC_URL = process.env.LOD_URL ?? 'https://opendata.geoportal.gov.pl/InneDane/Budynki3D/LOD1/2024/02/0264.zip'
 const SRC_ZIP = `${DIR}/0264_lod1_2024.zip`
 
 // ---------- PUWG 1992 (EPSG:2180) → WGS84: odwrotne odwzorowanie Gaussa-Krügera (szeregi Krügera) ----------
-const A_AX = 6378137, F = 1 / 298.257222101 // GRS80
-const K0 = 0.9993, LON0 = (19 * Math.PI) / 180, FE = 500000, FN = -5300000
-const n = F / (2 - F), n2 = n * n, n3 = n2 * n
+const A_AX = 6378137,
+  F = 1 / 298.257222101 // GRS80
+const K0 = 0.9993,
+  LON0 = (19 * Math.PI) / 180,
+  FE = 500000,
+  FN = -5300000
+const n = F / (2 - F),
+  n2 = n * n,
+  n3 = n2 * n
 const AR = (A_AX / (1 + n)) * (1 + n2 / 4 + (n2 * n2) / 64) // promień prostujący
 const BETA = [n / 2 - (2 * n2) / 3 + (37 * n3) / 96, n2 / 48 + n3 / 15, (17 * n3) / 480]
 const DELTA = [2 * n - (2 * n2) / 3 - 2 * n3, (7 * n2) / 3 - (8 * n3) / 5, (56 * n3) / 15]
 
 /** [lat, lon] w stopniach z (easting, northing) EPSG:2180. */
 export function puwg92ToWgs(e: number, nn: number): [number, number] {
-  const xi0 = (nn - FN) / (K0 * AR), eta0 = (e - FE) / (K0 * AR)
-  let xi = xi0, eta = eta0
+  const xi0 = (nn - FN) / (K0 * AR),
+    eta0 = (e - FE) / (K0 * AR)
+  let xi = xi0,
+    eta = eta0
   for (let j = 1; j <= 3; j++) {
     const b = BETA[j - 1]
     xi -= b * Math.sin(2 * j * xi0) * Math.cosh(2 * j * eta0)
@@ -43,18 +53,20 @@ export function puwg92ToWgs(e: number, nn: number): [number, number] {
   return [(phi * 180) / Math.PI, (lam * 180) / Math.PI]
 }
 
-// ---------- metry lokalne projektu (jak w scripts/bake.ts) ----------
+// ---------- metry lokalne projektu (scripts/lib/geo.ts) ----------
 const [S, W, N, E] = BBOX
-const ORIGIN: [number, number] = [ORIGIN0[0], ORIGIN0[1]]
-const KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
-const KY = 110540
-const r1 = (v: number) => Math.round(v * 10) / 10
-const r2 = (v: number) => Math.round(v * 100) / 100
+const { local, toLatLon } = projection()
 
 // ---------- typy ----------
 type Sem = 'roof' | 'wall' | 'ground' | 'other' | null
-interface Ring { p: number[] } // płasko x, y, z (x,y lokalne w metrach, z n.p.m.), bez powtórzonego ostatniego punktu
-interface Poly { sem: Sem; ext: Ring; holes: Ring[] }
+interface Ring {
+  p: number[]
+} // płasko x, y, z (x,y lokalne w metrach, z n.p.m.), bez powtórzonego ostatniego punktu
+interface Poly {
+  sem: Sem
+  ext: Ring
+  holes: Ring[]
+}
 
 export interface Lod2Building {
   id: string
@@ -72,10 +84,15 @@ export interface Lod2Building {
 
 // ---------- parsowanie jednego bldg:Building ----------
 const SEM_OF: Record<string, Sem> = {
-  RoofSurface: 'roof', WallSurface: 'wall', GroundSurface: 'ground',
-  ClosureSurface: 'other', OuterCeilingSurface: 'other', OuterFloorSurface: 'other',
+  RoofSurface: 'roof',
+  WallSurface: 'wall',
+  GroundSurface: 'ground',
+  ClosureSurface: 'other',
+  OuterCeilingSurface: 'other',
+  OuterFloorSurface: 'other',
 }
-const TOKEN = /<(\/?)bldg:(RoofSurface|WallSurface|GroundSurface|ClosureSurface|OuterCeilingSurface|OuterFloorSurface)[\s>]|<gml:Polygon[\s>][\s\S]*?<\/gml:Polygon>/g
+const TOKEN =
+  /<(\/?)bldg:(RoofSurface|WallSurface|GroundSurface|ClosureSurface|OuterCeilingSurface|OuterFloorSurface)[\s>]|<gml:Polygon[\s>][\s\S]*?<\/gml:Polygon>/g
 const RING = /<gml:(exterior|interior)>[\s\S]*?<\/gml:\1>/g
 
 function parseRing(xml: string): Ring | null {
@@ -86,8 +103,8 @@ function parseRing(xml: string): Ring | null {
   if (nums.length < 9) return null
   const p: number[] = []
   for (let i = 0; i + 2 < nums.length; i += 3) {
-    const [lat, lon] = puwg92ToWgs(nums[i], nums[i + 1])
-    p.push((lon - ORIGIN[1]) * KX, (lat - ORIGIN[0]) * KY, nums[i + 2])
+    const [x, y] = local(...puwg92ToWgs(nums[i], nums[i + 1]))
+    p.push(x, y, nums[i + 2])
   }
   const k = p.length
   if (k >= 6 && p[0] === p[k - 3] && p[1] === p[k - 2] && p[2] === p[k - 1]) p.length = k - 3
@@ -96,7 +113,9 @@ function parseRing(xml: string): Ring | null {
 
 /** Normalna Newella (nie znormalizowana). */
 function normal(p: number[]): [number, number, number] {
-  let nx = 0, ny = 0, nz = 0
+  let nx = 0,
+    ny = 0,
+    nz = 0
   for (let i = 0, k = p.length; i < k; i += 3) {
     const j = (i + 3) % k
     nx += (p[i + 1] - p[j + 1]) * (p[i + 2] + p[j + 2])
@@ -121,7 +140,10 @@ const PITCHED_SHARE = 0.15 // dach spadzisty, jeśli >15% pola dachu ma nachylen
 const COS_FLAT = Math.cos((FLAT_DEG * Math.PI) / 180)
 const COS_VERTICAL = Math.cos((80 * Math.PI) / 180)
 
-interface Parsed { b: Lod2Building; tris: number[] }
+interface Parsed {
+  b: Lod2Building
+  tris: number[]
+}
 
 function parseBuilding(xml: string): Parsed | null {
   // szybkie odrzucenie: pierwszy punkt poza BBOX (z zapasem ~300 m)
@@ -137,13 +159,18 @@ function parseBuilding(xml: string): Parsed | null {
   const polys: Poly[] = []
   const stack: Sem[] = []
   for (const m of xml.matchAll(TOKEN)) {
-    if (m[2]) { if (m[1]) stack.pop(); else stack.push(SEM_OF[m[2]]); continue }
+    if (m[2]) {
+      if (m[1]) stack.pop()
+      else stack.push(SEM_OF[m[2]])
+      continue
+    }
     let ext: Ring | null = null
     const holes: Ring[] = []
     for (const r of m[0].matchAll(RING)) {
       const ring = parseRing(r[0])
       if (!ring) continue
-      if (r[1] === 'exterior') ext = ring; else holes.push(ring)
+      if (r[1] === 'exterior') ext = ring
+      else holes.push(ring)
     }
     if (ext) polys.push({ sem: stack.length ? stack[stack.length - 1] : null, ext, holes })
   }
@@ -170,10 +197,15 @@ function parseBuilding(xml: string): Parsed | null {
 
   let g = Infinity
   for (const p of grounds.length ? grounds : list) for (let i = 2; i < p.ext.p.length; i += 3) g = Math.min(g, p.ext.p[i])
-  let top = -Infinity, eaveZ = Infinity
-  let roofArea = 0, pitchedArea = 0
+  let top = -Infinity,
+    eaveZ = Infinity
+  let roofArea = 0,
+    pitchedArea = 0
   for (const p of roofs) {
-    for (let i = 2; i < p.ext.p.length; i += 3) { top = Math.max(top, p.ext.p[i]); eaveZ = Math.min(eaveZ, p.ext.p[i]) }
+    for (let i = 2; i < p.ext.p.length; i += 3) {
+      top = Math.max(top, p.ext.p[i])
+      eaveZ = Math.min(eaveZ, p.ext.p[i])
+    }
     const ar = Math.abs(area2d(p.ext.p)) - p.holes.reduce((s, h) => s + Math.abs(area2d(h.p)), 0)
     roofArea += ar
     if (cosOf(normal(p.ext.p)) < COS_FLAT) pitchedArea += ar
@@ -181,32 +213,53 @@ function parseBuilding(xml: string): Parsed | null {
 
   // obrys: GroundSurface, a gdy brak — rzut dachów
   if (!grounds.length) grounds = roofs.filter((p) => cosOf(normal(p.ext.p)) >= COS_VERTICAL)
-  let a = 0, cx = 0, cy = 0, best: Poly | null = null, bestA = 0
+  let a = 0,
+    cx = 0,
+    cy = 0,
+    best: Poly | null = null,
+    bestA = 0
   for (const p of grounds) {
     const ae = Math.abs(area2d(p.ext.p))
     const ah = p.holes.reduce((s, h) => s + Math.abs(area2d(h.p)), 0)
     const ar = ae - ah
     // środek: średnia wierzchołków ważona polem wielokąta (wystarcza do dopasowania)
-    let sx = 0, sy = 0
+    let sx = 0,
+      sy = 0
     const k = p.ext.p.length / 3
-    for (let i = 0; i < p.ext.p.length; i += 3) { sx += p.ext.p[i]; sy += p.ext.p[i + 1] }
-    cx += (sx / k) * ar; cy += (sy / k) * ar; a += ar
-    if (ae > bestA) { bestA = ae; best = p }
+    for (let i = 0; i < p.ext.p.length; i += 3) {
+      sx += p.ext.p[i]
+      sy += p.ext.p[i + 1]
+    }
+    cx += (sx / k) * ar
+    cy += (sy / k) * ar
+    a += ar
+    if (ae > bestA) {
+      bestA = ae
+      best = p
+    }
   }
   if (!best || a <= 0) return null
-  cx /= a; cy /= a
+  cx /= a
+  cy /= a
   // dokładniejszy środek: centroid największego wielokąta, jeśli dominuje
   if (bestA > 0.9 * a) {
     const p = best.ext.p
-    let s = 0, x = 0, y = 0
+    let s = 0,
+      x = 0,
+      y = 0
     for (let i = 0, k = p.length; i < k; i += 3) {
       const j = (i + 3) % k
       const cr = p[i] * p[j + 1] - p[j] * p[i + 1]
-      s += cr; x += (p[i] + p[j]) * cr; y += (p[i + 1] + p[j + 1]) * cr
+      s += cr
+      x += (p[i] + p[j]) * cr
+      y += (p[i + 1] + p[j + 1]) * cr
     }
-    if (Math.abs(s) > 1e-6) { cx = x / (3 * s); cy = y / (3 * s) }
+    if (Math.abs(s) > 1e-6) {
+      cx = x / (3 * s)
+      cy = y / (3 * s)
+    }
   }
-  const cLat = cy / KY + ORIGIN[0], cLon = cx / KX + ORIGIN[1]
+  const [cLat, cLon] = toLatLon(cx, cy)
   if (cLat < S || cLat > N || cLon < W || cLon > E) return null
 
   const o: number[] = []
@@ -217,12 +270,20 @@ function parseBuilding(xml: string): Parsed | null {
   for (const p of roofs) {
     if (cosOf(normal(p.ext.p)) < COS_VERTICAL) continue
     const pts = [p.ext, ...p.holes].map((r) => {
-      const v: Vector2[] = [], z: number[] = []
-      for (let i = 0; i < r.p.length; i += 3) { v.push(new Vector2(r.p[i], r.p[i + 1])); z.push(r.p[i + 2] - g) }
+      const v: Vector2[] = [],
+        z: number[] = []
+      for (let i = 0; i < r.p.length; i += 3) {
+        v.push(new Vector2(r.p[i], r.p[i + 1]))
+        z.push(r.p[i + 2] - g)
+      }
       return { v, z }
     })
-    const zs = pts.flatMap((q) => q.z), vs = pts.flatMap((q) => q.v)
-    for (const t of ShapeUtils.triangulateShape(pts[0].v, pts.slice(1).map((q) => q.v))) {
+    const zs = pts.flatMap((q) => q.z),
+      vs = pts.flatMap((q) => q.v)
+    for (const t of ShapeUtils.triangulateShape(
+      pts[0].v,
+      pts.slice(1).map((q) => q.v),
+    )) {
       for (const i of t) tris.push(vs[i].x, vs[i].y, zs[i])
     }
   }
@@ -255,9 +316,15 @@ async function scan(stream: AsyncIterable<string | Buffer>, on: (xml: string) =>
     for (;;) {
       OPEN.lastIndex = pos
       const m = OPEN.exec(buf)
-      if (!m) { pos = Math.max(pos, buf.length - 20); break }
+      if (!m) {
+        pos = Math.max(pos, buf.length - 20)
+        break
+      }
       const end = buf.indexOf(CLOSE, m.index)
-      if (end < 0) { pos = m.index; break }
+      if (end < 0) {
+        pos = m.index
+        break
+      }
       on(buf.slice(m.index, end + CLOSE.length))
       pos = end + CLOSE.length
     }
@@ -277,10 +344,10 @@ async function listGml(dir: string): Promise<string[]> {
 
 await mkdir(DIR, { recursive: true })
 let zips = (await readdir(DIR)).filter((f) => /\.zip$/i.test(f)).map((f) => `${DIR}/${f}`)
-let gmls = await listGml(DIR)
+const gmls = await listGml(DIR)
 if (!zips.length && !gmls.length) {
   console.log(`pobieram ${SRC_URL}`)
-  const res = await fetch(SRC_URL, { headers: { 'User-Agent': 'wroclaw-pixel-map/0.1' } })
+  const res = await fetch(SRC_URL, { headers: { 'User-Agent': UA } })
   if (!res.ok) throw new Error(`HTTP ${res.status} dla ${SRC_URL}`)
   await writeFile(SRC_ZIP, Buffer.from(await res.arrayBuffer()))
   zips = [SRC_ZIP]
@@ -306,7 +373,9 @@ const onXml = (xml: string) => {
 }
 
 for (const zip of zips) {
-  const entries = execFileSync('unzip', ['-Z1', zip], { encoding: 'utf8' }).split('\n').filter((f) => /\.gml$/i.test(f))
+  const entries = execFileSync('unzip', ['-Z1', zip], { encoding: 'utf8' })
+    .split('\n')
+    .filter((f) => /\.gml$/i.test(f))
   for (const entry of entries) {
     const before = out.length
     const proc = spawn('unzip', ['-p', zip, entry], { stdio: ['ignore', 'pipe', 'inherit'] })

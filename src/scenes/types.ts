@@ -1,4 +1,4 @@
-// Format public/data/scenes.json (scripts/bake-scenes.ts). Współrzędne w metrach lokalnych, płaskie [x, y, ...].
+// Format public/data/scenes.json (scripts/bake/bake-scenes.ts). Współrzędne w metrach lokalnych, płaskie [x, y, ...].
 import type { Flat } from '../types/world.ts'
 
 export interface ScenesData {

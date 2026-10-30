@@ -37,7 +37,8 @@ function treeGeometry() {
 }
 
 export function marketOpen(now: Date, epochYear: number) {
-  const m = now.getMonth(), d = now.getDate()
+  const m = now.getMonth(),
+    d = now.getDate()
   return epochYear >= 2000 && ((m === 10 && d >= 21) || m === 11 || (m === 0 && d <= 7))
 }
 
@@ -54,7 +55,7 @@ export class Market {
   constructor(stalls: Stall[], tree: [number, number]) {
     const m = new THREE.Matrix4()
     this.stalls = new THREE.InstancedMesh(stallGeometry(), vertexLambert(), stalls.length)
-    stalls.forEach(([x, y, a], i) => this.stalls.setMatrixAt(i, place(m, x, y, 0, a)))
+    for (const [i, [x, y, a]] of stalls.entries()) this.stalls.setMatrixAt(i, place(m, x, y, 0, a))
     this.stalls.castShadow = this.stalls.receiveShadow = true
 
     this.tree = new THREE.Mesh(treeGeometry(), vertexLambert())
@@ -65,8 +66,14 @@ export class Market {
     this.star.rotation.set(0, 0, Math.PI / 4)
 
     // światełka: po trzy na okapie każdej budki i spirala na choince
-    this.bulbs = new THREE.InstancedMesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), new THREE.MeshBasicMaterial(), stalls.length * PER_STALL + TREE_BULBS)
-    const v = new THREE.Vector3(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1)
+    this.bulbs = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(0.6, 0.6, 0.6),
+      new THREE.MeshBasicMaterial(),
+      stalls.length * PER_STALL + TREE_BULBS,
+    )
+    const v = new THREE.Vector3(),
+      q = new THREE.Quaternion(),
+      one = new THREE.Vector3(1, 1, 1)
     let k = 0
     for (const [x, y, a] of stalls) {
       for (let j = 0; j < PER_STALL; j++) {
@@ -77,7 +84,10 @@ export class Market {
       }
     }
     for (let j = 0; j < TREE_BULBS; j++) {
-      const f = j / TREE_BULBS, h = 2.5 + f * 15.5, r = (1 - f) * 4.6 + 0.5, ang = j * 2.4
+      const f = j / TREE_BULBS,
+        h = 2.5 + f * 15.5,
+        r = (1 - f) * 4.6 + 0.5,
+        ang = j * 2.4
       v.set(tree[0] + Math.cos(ang) * r, h, -(tree[1] + Math.sin(ang) * r))
       this.bulbs.setMatrixAt(k++, m.compose(v, q, one))
     }

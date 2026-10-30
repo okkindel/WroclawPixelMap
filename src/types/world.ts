@@ -1,4 +1,4 @@
-// Format public/data/world.json (wspólny dla scripts/bake.ts i aplikacji).
+// Format public/data/world.json (wspólny dla scripts/bake/bake.ts i aplikacji).
 // Współrzędne w metrach, płaskie tablice [x, y, x, y, ...].
 
 export type Flat = number[]
@@ -81,9 +81,23 @@ export type TileData = Pick<World, 'buildings' | 'water' | 'green' | 'plazas' | 
 // public/data/meta.json: wszystko, co nie jest kaflowane
 // Konstrukcje, które nie są budynkami: wieże, maszty, iglice, wieże ciśnień.
 // k: 'light' = maszt oświetleniowy (jupiter), az = kierunek reflektorów [rad]
-export interface Structure { x: number; y: number; H: number; r: number; k: 'needle' | 'tower' | 'mast' | 'water' | 'light'; n?: string; yr?: number; az?: number }
+export interface Structure {
+  x: number
+  y: number
+  H: number
+  r: number
+  k: 'needle' | 'tower' | 'mast' | 'water' | 'light'
+  n?: string
+  yr?: number
+  az?: number
+}
 // Kolej linowa: trasa i słupy (x, y, wysokość)
-export interface Aerialway { p: Flat; pylons: [number, number, number][]; n?: string; yr?: number }
+export interface Aerialway {
+  p: Flat
+  pylons: [number, number, number][]
+  n?: string
+  yr?: number
+}
 
 // Rozpoznawalny obiekt z OSM do napisu: nazwa, położenie, kategoria, ranga (1 = z daleka, 2 = po przybliżeniu)
 export type PoiKind = 'mall' | 'culture' | 'church' | 'edu' | 'health' | 'sport' | 'notable'
@@ -107,4 +121,9 @@ export interface WorldMeta extends Pick<World, 'origin' | 'bounds' | 'cityWalls'
 // kurs: [linia, trasa, kierunek, dni (bit 0 = pn … 6 = nd), odjazd (s od północy), czas przejazdu (s)]
 export type TramTrip = [line: number, shape: number, head: number, days: number, dep: number, dur: number]
 // trasy: [x, y, z, ...] przyciągnięte do torów z OSM
-export interface TramSchedule { lines: string[]; heads: string[]; shapes: number[][]; trips: TramTrip[] }
+export interface TramSchedule {
+  lines: string[]
+  heads: string[]
+  shapes: number[][]
+  trips: TramTrip[]
+}

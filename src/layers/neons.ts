@@ -17,36 +17,116 @@ const SPRITES: Record<string, { rows: string[]; pal: Record<string, string> }> =
   // pan uchylający kapelusza, z kwiatkiem w drugiej ręce
   gent: {
     rows: [
-      '.......HHH..', '......HHHHH.', '..WWW....W..', '..WWW....W..', '...W....W...', '.WWWWWWWW...', 'W.WWWWW.....', 'R..WWWW.....',
-      'RR.WWWW.....', 'G..WWWW.....', 'G..W..W.....', '...W..W.....', '...W..W.....', '..WW..WW....',
+      '.......HHH..',
+      '......HHHHH.',
+      '..WWW....W..',
+      '..WWW....W..',
+      '...W....W...',
+      '.WWWWWWWW...',
+      'W.WWWWW.....',
+      'R..WWWW.....',
+      'RR.WWWW.....',
+      'G..WWWW.....',
+      'G..W..W.....',
+      '...W..W.....',
+      '...W..W.....',
+      '..WW..WW....',
     ],
     pal: { W: '#e8f4ff', H: '#e8f4ff', R: '#ff3b5c', G: '#5dff8a' },
   },
   lion: {
     rows: [
-      '..OOO..........', '.OOOOO.........', 'OOYYYOO........', 'OOY.YOOYYYYYY..', 'OOYYYOOYYYYYYYY', '.OOOOOYYYYYYY.Y',
-      '..OOO.YYYYYYY..', '......Y.Y..Y.Y.', '......Y.Y..Y.Y.',
+      '..OOO..........',
+      '.OOOOO.........',
+      'OOYYYOO........',
+      'OOY.YOOYYYYYY..',
+      'OOYYYOOYYYYYYYY',
+      '.OOOOOYYYYYYY.Y',
+      '..OOO.YYYYYYY..',
+      '......Y.Y..Y.Y.',
+      '......Y.Y..Y.Y.',
     ],
     pal: { Y: '#ffd23c', O: '#ff9a1f' },
   },
 }
 // Złodzieje PZU: cztery konturowe sylwetki — kuca, skrada się, wspina, ucieka.
 const THIEVES = [
-  ['.........', '.........', '.........', '.........', '.........', '....WWW..', '....W.W..', '....WWW..', '..WWWW...', '.W..W.W..', 'W..W..W..', '...WW.W..', '..W..WW..', '.WW...WW.'],
-  ['.........', '.........', '.........', '.....WWW.', '.....W.W.', '.....WWW.', '...WWWW..', '..W.WW.W.', '.W..W...W', '...W.W...', '...W..W..', '..W....W.', '..W....W.', '.WW...WW.'],
-  ['.W.....W.', '.W.....W.', '..W.WWW..', '...WW.W..', '....WWW..', '....WW...', '....WW...', '....WW...', '....W.W..', '...W..W..', '...W...W.', '..W....W.', '..W.....W', '.WW.....W'],
-  ['.....WWW.', '.....W.W.', '.....WWW.', '....WW...', '..WW.WW..', '.W..WW.WW', '....WW...', '....W.W..', '...W...W.', '..W.....W', '.W.......', 'W........', '.........', '.........'],
+  [
+    '.........',
+    '.........',
+    '.........',
+    '.........',
+    '.........',
+    '....WWW..',
+    '....W.W..',
+    '....WWW..',
+    '..WWWW...',
+    '.W..W.W..',
+    'W..W..W..',
+    '...WW.W..',
+    '..W..WW..',
+    '.WW...WW.',
+  ],
+  [
+    '.........',
+    '.........',
+    '.........',
+    '.....WWW.',
+    '.....W.W.',
+    '.....WWW.',
+    '...WWWW..',
+    '..W.WW.W.',
+    '.W..W...W',
+    '...W.W...',
+    '...W..W..',
+    '..W....W.',
+    '..W....W.',
+    '.WW...WW.',
+  ],
+  [
+    '.W.....W.',
+    '.W.....W.',
+    '..W.WWW..',
+    '...WW.W..',
+    '....WWW..',
+    '....WW...',
+    '....WW...',
+    '....WW...',
+    '....W.W..',
+    '...W..W..',
+    '...W...W.',
+    '..W....W.',
+    '..W.....W',
+    '.WW.....W',
+  ],
+  [
+    '.....WWW.',
+    '.....W.W.',
+    '.....WWW.',
+    '....WW...',
+    '..WW.WW..',
+    '.W..WW.WW',
+    '....WW...',
+    '....W.W..',
+    '...W...W.',
+    '..W.....W',
+    '.W.......',
+    'W........',
+    '.........',
+    '.........',
+  ],
 ]
 const THIEF_W = 9
 
 const canvas = (w: number, h: number) => Object.assign(document.createElement('canvas'), { width: w, height: h })
 
 function drawSprite(ctx: CanvasRenderingContext2D, rows: string[], pal: Record<string, string>, x: number, y: number) {
-  rows.forEach((row, j) => [...row].forEach((ch, i) => {
-    if (!pal[ch]) return
-    ctx.fillStyle = pal[ch]
-    ctx.fillRect(x + i, y + j, 1, 1)
-  }))
+  for (const [j, row] of rows.entries())
+    for (const [i, ch] of [...row].entries()) {
+      if (!pal[ch]) continue
+      ctx.fillStyle = pal[ch]
+      ctx.fillRect(x + i, y + j, 1, 1)
+    }
 }
 
 // Twarde krawędzie: kanał alfa 0 albo 255 (bez wygładzania czcionki).
@@ -65,16 +145,22 @@ function glowOf(srcs: HTMLCanvasElement[], w: number, h: number) {
   const img = ctx.createImageData(w, h)
   for (const src of srcs) {
     const d = src.getContext('2d')!.getImageData(0, 0, w, h).data
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = (y * w + x) * 4
-      if (!d[i + 3]) continue
-      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-        const X = x + dx, Y = y + dy
-        if (X < 0 || Y < 0 || X >= w || Y >= h) continue
-        const o = (Y * w + X) * 4
-        img.data[o] = d[i]; img.data[o + 1] = d[i + 1]; img.data[o + 2] = d[i + 2]; img.data[o + 3] = 255
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const i = (y * w + x) * 4
+        if (!d[i + 3]) continue
+        for (let dy = -1; dy <= 1; dy++)
+          for (let dx = -1; dx <= 1; dx++) {
+            const X = x + dx,
+              Y = y + dy
+            if (X < 0 || Y < 0 || X >= w || Y >= h) continue
+            const o = (Y * w + X) * 4
+            img.data[o] = d[i]
+            img.data[o + 1] = d[i + 1]
+            img.data[o + 2] = d[i + 2]
+            img.data[o + 3] = 255
+          }
       }
-    }
   }
   ctx.putImageData(img, 0, 0)
   return out
@@ -142,10 +228,14 @@ function paint(s: NeonSpec, seed: number): Layers {
   all.forEach((c, i) => {
     const color = c.acc ? s.accent![1] : s.colors ? s.colors[n % s.colors.length] : s.color
     if (c.ch !== ' ') n++
-    const x = textX + (textW - widths[c.li]) / 2 + c.x, y = ty + c.li * LH + LH / 2
+    const x = textX + (textW - widths[c.li]) / 2 + c.x,
+      y = ty + c.li * LH + LH / 2
     // wyróżnienie na osobnej warstwie tylko przy animacji (błyska na końcu pętli)
     const target = flickSet.has(i) ? flick : c.acc && s.thief ? accent : base
-    for (const [cv, col] of [[target, color], [day, s.day]] as const) {
+    for (const [cv, col] of [
+      [target, color],
+      [day, s.day],
+    ] as const) {
       if (!cv || !col) continue
       const ctx = cv.getContext('2d')!
       ctx.font = fontOf(c.acc)
@@ -157,12 +247,13 @@ function paint(s: NeonSpec, seed: number): Layers {
   // złodzieje po prawej stronie napisu, każdy na własnej warstwie
   const thieves = s.thief
     ? THIEVES.map((rows, j) => {
-      const c = mk()
-      const x = textX + textW + 3 + j * (THIEF_W + 2), y = Math.round((h - rows.length) / 2)
-      drawSprite(c.getContext('2d')!, rows, { W: '#f4f8ff' }, x, y)
-      if (day) drawSprite(day.getContext('2d')!, rows, { W: '#dfe7f2' }, x, y)
-      return c
-    })
+        const c = mk()
+        const x = textX + textW + 3 + j * (THIEF_W + 2),
+          y = Math.round((h - rows.length) / 2)
+        drawSprite(c.getContext('2d')!, rows, { W: '#f4f8ff' }, x, y)
+        if (day) drawSprite(day.getContext('2d')!, rows, { W: '#dfe7f2' }, x, y)
+        return c
+      })
     : []
   for (const c of [base, flick, accent, ...thieves, ...(day ? [day] : [])]) harden(c)
   const glow = glowOf([base, flick, accent, ...thieves], w, h)
@@ -195,7 +286,7 @@ interface Sign {
   flick: THREE.MeshBasicMaterial
   accent: THREE.MeshBasicMaterial
   thieves: THREE.MeshBasicMaterial[]
-  glow: THREE.Mesh
+  glow: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>
   hit: THREE.Mesh
   thr: number // próg zmroku, przy którym się zapala
   lit: number
@@ -209,14 +300,15 @@ export class Neons {
   private t = 0
 
   constructor() {
-    NEONS.forEach((s, i) => this.signs.push(this.build(s, i)))
+    for (const [i, s] of NEONS.entries()) this.signs.push(this.build(s, i))
   }
 
   private build(s: NeonSpec, i: number): Sign {
     const L = paint(s, i)
     // metry na piksel tekstury; napis nie może być dłuższy niż krawędź, na której stoi
     const k = Math.min(s.letter / LH, s.span / L.w)
-    const W = L.w * k, H = L.h * k
+    const W = L.w * k,
+      H = L.h * k
     const plane = (tex: THREE.Texture, z: number, extra: Partial<THREE.MeshBasicMaterialParameters> = {}) => {
       const g = new THREE.PlaneGeometry(W, H)
       g.translate(0, H / 2, z)
@@ -273,12 +365,23 @@ export class Neons {
       body.add(back)
     }
 
-    base.userData.i = i
     this.group.add(root)
-    const mat = (o: THREE.Mesh) => o.material as THREE.MeshBasicMaterial
+    const mat = (o: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>) => o.material
     return {
-      spec: s, root, night, dayMesh, base: mat(base), flick: mat(flick), accent: mat(accent), thieves: thieves.map(mat), glow, hit: base,
-      thr: 0.25 + hash(i, 3) * 0.2, lit: 0, flickOn: true, flickT: hash(i, 5) * 3,
+      spec: s,
+      root,
+      night,
+      dayMesh,
+      base: mat(base),
+      flick: mat(flick),
+      accent: mat(accent),
+      thieves: thieves.map(mat),
+      glow,
+      hit: base,
+      thr: 0.25 + hash(i, 3) * 0.2,
+      lit: 0,
+      flickOn: true,
+      flickT: hash(i, 5) * 3,
     }
   }
 
@@ -302,7 +405,7 @@ export class Neons {
       const b = s.dayMesh ? 1 : DIM + (1 - DIM) * s.lit
       s.base.color.setScalar(b)
       s.accent.color.setScalar(b)
-      ;(s.glow.material as THREE.MeshBasicMaterial).opacity = 0.5 * s.lit
+      s.glow.material.opacity = 0.5 * s.lit
       s.glow.visible = s.lit > 0.05
 
       // zużyta rura: litera gaśnie na ułamek sekundy, czasem dwa razy z rzędu
@@ -316,7 +419,7 @@ export class Neons {
       // złodzieje zapalają się kolejno (1→4), potem dwa razy błyska „PZU”, pętla
       if (s.thieves.length) {
         const ph = (this.t % 6) / 0.7
-        s.thieves.forEach((m, j) => m.color.setScalar(!on || ph >= j ? b : 0.15))
+        for (const [j, m] of s.thieves.entries()) m.color.setScalar(!on || ph >= j ? b : 0.15)
         const blink = on && ph >= 4 && ph < 7 && Math.floor((ph - 4) * 2) % 2 === 1
         s.accent.color.setScalar(blink ? 0.25 : b)
       }
@@ -328,7 +431,8 @@ export class Neons {
     const meshes = this.signs.filter((s) => s.root.visible).map((s) => s.hit)
     const h = ray.intersectObjects(meshes, false)[0]
     if (!h) return null
-    const s = NEONS[h.object.userData.i as number]
+    const s = this.signs.find((sign) => sign.hit === h.object)?.spec
+    if (!s) return null
     const l = lang()
     return { title: s.title[l], text: s.text[l], source: s.source }
   }

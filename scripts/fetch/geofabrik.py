@@ -1,8 +1,8 @@
 # Zastępcze źródło danych OSM: wycina obszar mapy z pliku województwa z Geofabrik
 # (data/geofabrik/dolnoslaskie-latest.osm.pbf) do data/raw/world-geofabrik.json w formacie Overpass (`out geom`).
-# Te same filtry co zapytanie `world` w scripts/fetch-osm.ts. Wymaga: pip install osmium
+# Te same filtry co zapytanie `world` w scripts/fetch/fetch-osm.ts. Wymaga: pip install osmium
 #   curl -L -o data/geofabrik/dolnoslaskie-latest.osm.pbf https://download.geofabrik.de/europe/poland/dolnoslaskie-latest.osm.pbf
-#   python3 scripts/geofabrik.py
+#   python3 scripts/fetch/geofabrik.py
 import json
 import re
 import sys
@@ -11,7 +11,7 @@ import osmium
 
 PBF = 'data/geofabrik/dolnoslaskie-latest.osm.pbf'
 OUT = 'data/raw/world-geofabrik.json'
-S, W, N, E = 51.075, 16.917011, 51.15, 17.14  # jak BBOX w scripts/config.ts
+S, W, N, E = 51.075, 16.917011, 51.15, 17.14  # jak BBOX w scripts/lib/config.ts
 
 
 def way_match(t):

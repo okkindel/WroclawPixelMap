@@ -22,7 +22,16 @@ export const NEONS = neonsJson as NeonSpec[]
 export const WALLS = wallsJson as Walls
 
 export const epochs = (): Epoch[] =>
-  EPOCHS.map(({ id, year, city, flag, mode, [lang()]: l }) => ({ id, year, label: l.label, state: l.state, city, flag, mode, text: l.text }))
+  EPOCHS.map(({ id, year, city, flag, mode, [lang()]: l }) => ({
+    id,
+    year,
+    label: l.label,
+    state: l.state,
+    city,
+    flag,
+    mode,
+    text: l.text,
+  }))
 
 export const landmarks = (): Landmark[] =>
   LANDMARKS.map(({ lat, lon, year, [lang()]: l }) => ({ name: l.name, lat, lon, year: (year ?? l.year)!, text: l.text }))
@@ -35,6 +44,15 @@ export const eggs = (): Egg[] =>
   EGGS.map(({ id, lat, lon, trigger, [lang()]: l }) => ({ id, lat, lon, title: l.title, text: l.text, trigger }))
 
 export const trivia = (): Trivia[] =>
-  TRIVIA.map(({ id, lat, lon, trigger, category, source, [lang()]: l }) => ({ id, lat, lon, title: l.title, text: l.text, trigger, category, source }))
+  TRIVIA.map(({ id, lat, lon, trigger, category, source, [lang()]: l }) => ({
+    id,
+    lat,
+    lon,
+    title: l.title,
+    text: l.text,
+    trigger,
+    category,
+    source,
+  }))
 
 export const dwarfFacts = (): string[] => dwarfFactsJson[lang()]

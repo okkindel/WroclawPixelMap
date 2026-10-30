@@ -15,14 +15,22 @@ let current: Lang | null = null
 export function lang(): Lang {
   if (current) return current
   let stored: string | null = null
-  try { stored = localStorage.getItem(STORE) } catch { /* brak dostępu */ }
+  try {
+    stored = localStorage.getItem(STORE)
+  } catch {
+    /* brak dostępu */
+  }
   current = ok(new URLSearchParams(location.search).get('lang')) ?? ok(stored) ?? 'pl' // domyślnie polski (wersja angielska: ?lang=en albo przełącznik)
   return current
 }
 
 // Zapamiętuje wybór i przeładowuje stronę z ?lang=… (hash z widokiem mapy zostaje).
 export function setLang(l: Lang) {
-  try { localStorage.setItem(STORE, l) } catch { /* brak dostępu */ }
+  try {
+    localStorage.setItem(STORE, l)
+  } catch {
+    /* brak dostępu */
+  }
   location.href = langUrl(l)
 }
 
@@ -43,11 +51,12 @@ export function t(key: Key | (string & {}), vars?: Record<string, string | numbe
 export function applyI18n(root: ParentNode = document) {
   const l = lang()
   document.documentElement.lang = l
-  root.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => (el.textContent = t(el.dataset.i18n!)))
-  root.querySelectorAll<HTMLElement>('[data-i18n-html]').forEach((el) => (el.innerHTML = t(el.dataset.i18nHtml!)))
-  root.querySelectorAll<HTMLElement>('[data-i18n-placeholder]').forEach((el) => el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder!)))
-  root.querySelectorAll<HTMLElement>('[data-i18n-title]').forEach((el) => (el.title = t(el.dataset.i18nTitle!)))
-  root.querySelectorAll<HTMLElement>('[data-i18n-aria]').forEach((el) => el.setAttribute('aria-label', t(el.dataset.i18nAria!)))
+  for (const el of root.querySelectorAll<HTMLElement>('[data-i18n]')) el.textContent = t(el.dataset.i18n!)
+  for (const el of root.querySelectorAll<HTMLElement>('[data-i18n-html]')) el.innerHTML = t(el.dataset.i18nHtml!)
+  for (const el of root.querySelectorAll<HTMLElement>('[data-i18n-placeholder]'))
+    el.setAttribute('placeholder', t(el.dataset.i18nPlaceholder!))
+  for (const el of root.querySelectorAll<HTMLElement>('[data-i18n-title]')) el.title = t(el.dataset.i18nTitle!)
+  for (const el of root.querySelectorAll<HTMLElement>('[data-i18n-aria]')) el.setAttribute('aria-label', t(el.dataset.i18nAria!))
 
   document.title = t('meta.title')
   const meta = (sel: string, v: string) => document.head.querySelector(sel)?.setAttribute('content', v)
@@ -63,11 +72,14 @@ export function applyI18n(root: ParentNode = document) {
   document.head.querySelector('link[rel="canonical"]')?.setAttribute('href', url)
 
   // przełącznik to zwykły link do drugiej wersji (czytelny też dla robotów)
-  const sw = document.getElementById('btn-lang') as HTMLAnchorElement | null
+  const sw = document.querySelector<HTMLAnchorElement>('#btn-lang')
   if (sw) {
     const other: Lang = l === 'en' ? 'pl' : 'en'
     sw.hreflang = other
     sw.href = `?lang=${other}`
-    sw.onclick = (e) => { e.preventDefault(); setLang(other) }
+    sw.onclick = (e) => {
+      e.preventDefault()
+      setLang(other)
+    }
   }
 }

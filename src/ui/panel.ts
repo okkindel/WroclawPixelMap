@@ -1,17 +1,37 @@
 // Panel ustawień, oś czasu i karta informacyjna epoki.
 import type { Epoch } from '../content/index.ts'
 import { lang } from '../i18n/index.ts'
-import { byId } from './dom.ts'
+import { SEASONS, type Season, TIME_PRESETS, type TimePreset } from '../engine/sun.ts'
+import { byId, oneOf } from './dom.ts'
 
-export type Layer =
-  | 'dwarfs' | 'neons' | 'monuments' | 'trams' | 'trains' | 'boats' | 'cars' | 'people' | 'birds' | 'clouds' | 'trees'
+export const LAYERS = [
+  'dwarfs',
+  'neons',
+  'monuments',
+  'trams',
+  'trains',
+  'boats',
+  'cars',
+  'people',
+  'birds',
+  'clouds',
+  'trees',
   // znaczniki: główny przełącznik i grupy (PinGroup w layers/labels.ts)
-  | 'markers' | 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'
-export type LookOpt = 'palette' | 'outline' | 'dither'
+  'markers',
+  'labels',
+  'places',
+  'pois',
+  'unis',
+  'eggs',
+  'cult',
+] as const
+export type Layer = (typeof LAYERS)[number]
+export const LOOK_OPTS = ['palette', 'outline', 'dither'] as const
+export type LookOpt = (typeof LOOK_OPTS)[number]
 
 export interface PanelHandlers {
-  time: (v: string) => void
-  season: (v: string) => void
+  time: (v: TimePreset) => void
+  season: (v: Season) => void
   pixel: (v: number) => void
   look: (opt: LookOpt, on: boolean) => void
   layer: (layer: Layer, on: boolean) => void
@@ -20,11 +40,17 @@ export interface PanelHandlers {
 export function initPanel(h: PanelHandlers) {
   document.querySelectorAll<HTMLElement>('.seg').forEach((seg) => {
     seg.addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest('button')
+      const b = e.target instanceof Element ? e.target.closest('button') : null
       if (!b) return
-      seg.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b))
-      const group = seg.dataset.group as 'time' | 'season'
-      h[group](b.dataset.v!)
+      for (const x of seg.querySelectorAll('button')) x.classList.toggle('on', x === b)
+      const v = b.dataset.v
+      if (seg.dataset.group === 'time') {
+        const p = oneOf(TIME_PRESETS, v)
+        if (p) h.time(p)
+      } else if (seg.dataset.group === 'season') {
+        const s = oneOf(SEASONS, v)
+        if (s) h.season(s)
+      }
     })
   })
   const px = byId<HTMLInputElement>('pixel')
@@ -32,14 +58,20 @@ export function initPanel(h: PanelHandlers) {
     byId('pixel-v').textContent = px.value
     h.pixel(+px.value)
   })
-  document.querySelectorAll<HTMLInputElement>('input[data-opt]').forEach((i) => i.addEventListener('change', () => h.look(i.dataset.opt as LookOpt, i.checked)))
-  document.querySelectorAll<HTMLInputElement>('input[data-layer]').forEach((i) => i.addEventListener('change', () => {
-    // główny przełącznik znaczników wygasza pozostałe (ich stan zostaje)
-    if (i.dataset.layer === 'markers') {
-      document.querySelectorAll<HTMLInputElement>('input[data-marker]').forEach((m) => (m.disabled = !i.checked))
-    }
-    h.layer(i.dataset.layer as Layer, i.checked)
-  }))
+  for (const i of document.querySelectorAll<HTMLInputElement>('input[data-opt]')) {
+    const opt = oneOf(LOOK_OPTS, i.dataset.opt)
+    if (opt) i.addEventListener('change', () => h.look(opt, i.checked))
+  }
+  for (const i of document.querySelectorAll<HTMLInputElement>('input[data-layer]')) {
+    i.addEventListener('change', () => {
+      // główny przełącznik znaczników wygasza pozostałe (ich stan zostaje)
+      if (i.dataset.layer === 'markers') {
+        for (const m of document.querySelectorAll<HTMLInputElement>('input[data-marker]')) m.disabled = !i.checked
+      }
+      const layer = oneOf(LAYERS, i.dataset.layer)
+      if (layer) h.layer(layer, i.checked)
+    })
+  }
 
   const drawer = byId('drawer')
   const btn = byId('btn-settings')
@@ -56,7 +88,9 @@ export function initPanel(h: PanelHandlers) {
   const about = byId<HTMLDialogElement>('about')
   byId('btn-about').addEventListener('click', () => about.showModal())
   about.querySelector('.close')!.addEventListener('click', () => about.close())
-  about.addEventListener('click', (e) => { if (e.target === about) about.close() })
+  about.addEventListener('click', (e) => {
+    if (e.target === about) about.close()
+  })
   const card = byId('info')
   const foldBtn = card.querySelector<HTMLButtonElement>('.fold')!
   foldBtn.addEventListener('click', () => {
@@ -81,11 +115,12 @@ export function initTimeline(epochs: Epoch[], onPick: (e: Epoch) => void) {
     rail.appendChild(b)
     return b
   })
-  return (e: Epoch) => buttons.forEach((b, i) => {
-    const on = epochs[i] === e
-    b.classList.toggle('on', on)
-    if (on) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
-  })
+  return (e: Epoch) =>
+    buttons.forEach((b, i) => {
+      const on = epochs[i] === e
+      b.classList.toggle('on', on)
+      if (on) b.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+    })
 }
 
 export function setCompass(azimuth: number) {

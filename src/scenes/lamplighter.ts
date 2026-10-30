@@ -9,7 +9,8 @@ const WALK = 1.4 // m/s
 const PAUSE = 1.6 // s przy każdej latarni
 const POST_H = 4.6
 const SCALE = 1.6 // postać i latarnie powiększone, żeby było je widać w pikselach
-const LIT = '#ffe9a6', UNLIT = '#3d3f58'
+const LIT = '#ffe9a6',
+  UNLIT = '#3d3f58'
 
 function lampGeometry() {
   return merge([
@@ -19,15 +20,20 @@ function lampGeometry() {
   ])
 }
 
-function figure() {
+function figure(): { g: THREE.Group; pole: THREE.Group } {
   const g = new THREE.Group()
-  g.add(new THREE.Mesh(merge([
-    [box(0.4, 0.8, 0.45), '#1c1c2e'], // nogi
-    [box(0.75, 1.1, 0.85, 0, 0.7), '#0f0f1b'], // peleryna
-    [box(0.38, 0.38, 0.38, 0, 1.8), '#e8a074'],
-    [box(0.62, 0.06, 0.62, 0, 2.15), '#0f0f1b'], // rondo cylindra
-    [box(0.4, 0.5, 0.4, 0, 2.2), '#0f0f1b'],
-  ]), vertexLambert()))
+  g.add(
+    new THREE.Mesh(
+      merge([
+        [box(0.4, 0.8, 0.45), '#1c1c2e'], // nogi
+        [box(0.75, 1.1, 0.85, 0, 0.7), '#0f0f1b'], // peleryna
+        [box(0.38, 0.38, 0.38, 0, 1.8), '#e8a074'],
+        [box(0.62, 0.06, 0.62, 0, 2.15), '#0f0f1b'], // rondo cylindra
+        [box(0.4, 0.5, 0.4, 0, 2.2), '#0f0f1b'],
+      ]),
+      vertexLambert(),
+    ),
+  )
   // tyczka z płomykiem na końcu; obraca się w barku
   const pole = new THREE.Group()
   pole.position.set(0.1, 1.4, 0.45)
@@ -35,15 +41,18 @@ function figure() {
   const flame = new THREE.Mesh(box(0.2, 0.25, 0.2, 0, 3.2), new THREE.MeshBasicMaterial({ color: '#f2d16b' }))
   pole.add(flame)
   g.add(pole)
-  g.userData.pole = pole
   g.scale.setScalar(SCALE)
-  g.traverse((o) => (o.castShadow = true))
-  return g
+  g.traverse((o) => {
+    o.castShadow = true
+  })
+  return { g, pole }
 }
 
 export class Lamplighter {
   group = new THREE.Group()
   walker: THREE.Group
+  // tyczka latarnika (obraca się w barku)
+  private pole: THREE.Group
   posts: THREE.InstancedMesh
   heads: THREE.InstancedMesh
   private glow: THREE.InstancedMesh
@@ -64,9 +73,14 @@ export class Lamplighter {
     this.heads = new THREE.InstancedMesh(new THREE.BoxGeometry(0.8, 0.9, 0.8), new THREE.MeshBasicMaterial(), n)
     // plama ciepłego światła na bruku pod zapaloną latarnią
     const glowGeo = new THREE.CircleGeometry(4, 8).rotateX(-Math.PI / 2)
-    this.glow = new THREE.InstancedMesh(glowGeo, new THREE.MeshBasicMaterial({ color: '#c98f2c', transparent: true, opacity: 0.35, depthWrite: false }), n)
+    this.glow = new THREE.InstancedMesh(
+      glowGeo,
+      new THREE.MeshBasicMaterial({ color: '#c98f2c', transparent: true, opacity: 0.35, depthWrite: false }),
+      n,
+    )
     for (let i = 0; i < n; i++) {
-      const x = lamps[i * 2], y = lamps[i * 2 + 1]
+      const x = lamps[i * 2],
+        y = lamps[i * 2 + 1]
       this.posts.setMatrixAt(i, place(this.m, x, y, 0, 0, SCALE))
       this.heads.setMatrixAt(i, place(this.m, x, y, (POST_H + 0.4) * SCALE, Math.PI / 4, SCALE))
       this.heads.setColorAt(i, this.c.set(UNLIT))
@@ -74,18 +88,24 @@ export class Lamplighter {
     }
     this.posts.castShadow = true
     this.glow.count = 0
-    this.walker = figure()
+    const fig = figure()
+    this.walker = fig.g
+    this.pole = fig.pole
     this.walker.visible = false
     this.group.add(this.posts, this.heads, this.glow, this.walker)
   }
 
   // droga wzdłuż trasy do punktu najbliższego latarni
   private project(x: number, y: number) {
-    let best = Infinity, at = 0
+    let best = Infinity,
+      at = 0
     for (let s = 0; s <= this.path.len; s += 1) {
       const [px, py] = this.path.at(s)
       const d = Math.hypot(px - x, py - y)
-      if (d < best) { best = d; at = s }
+      if (d < best) {
+        best = d
+        at = s
+      }
     }
     return at
   }
@@ -100,15 +120,21 @@ export class Lamplighter {
     }
     const next = this.lit.findIndex((l) => l !== want)
     const w = this.walker
-    const pole = w.userData.pole as THREE.Group
+    const pole = this.pole
     if (next < 0) {
       // obchód skończony: dochodzi do końca ulicy i znika
       if (!w.visible) return
       this.s += WALK * dt
-      if (this.s >= this.path.len) { w.visible = false; return }
+      if (this.s >= this.path.len) {
+        w.visible = false
+        return
+      }
       pole.rotation.z = -0.5
     } else {
-      if (!w.visible) { w.visible = true; this.s = 0 }
+      if (!w.visible) {
+        w.visible = true
+        this.s = 0
+      }
       const target = this.lampS[next]
       if (this.s < target - 0.2) {
         this.s = Math.min(target, this.s + WALK * dt)

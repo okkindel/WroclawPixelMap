@@ -10,24 +10,27 @@ import { buildStands } from './world/stadiums.ts'
 import { Structures } from './world/structures.ts'
 import { HistoryLayer } from './world/history.ts'
 import { FOG_COLOR, buildCloudEdge } from './world/edge.ts'
-import { Scenes, type SceneName } from './scenes/index.ts'
+import { SCENE_NAMES, Scenes, type SceneName } from './scenes/index.ts'
 import { waterShader } from './world/water.ts'
 import { windowShader } from './world/windows.ts'
 import { Life, tramGeometry } from './life/life.ts'
 import { Timetable } from './life/timetable.ts'
 import { Dwarfs } from './layers/dwarfs.ts'
 import { Neons } from './layers/neons.ts'
-import { Monuments } from './layers/monuments.ts'
+import { type Monument, Monuments } from './layers/monuments.ts'
 import type { PinGroup } from './layers/labels.ts'
 import { WALLS, type Epoch } from './content/index.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
-import { SINCE } from './history/milestones.ts'
+import { SINCE } from './rules/milestones.ts'
+import { FAR_ZOOM, MONUMENTS_MIN_ZOOM, PIXEL_DEFAULT, PIXEL_SAVER_MAX, PIXEL_SAVER_STEP, TREES_MIN_ZOOM } from './rules/render.ts'
 import { dwarfFacts, eggs, epochs, landmarkRank, landmarks, t, trivia } from './i18n/index.ts'
 import { initPanel, initTimeline, setClock, setCompass, setDwarfCount, showEpoch, type Layer } from './ui/panel.ts'
 import { toast } from './ui/popup.ts'
 import { initSearch } from './ui/search.ts'
-import { byId } from './ui/dom.ts'
-import type { WorldMeta } from './types/world.ts'
+import { byId, oneOf } from './ui/dom.ts'
+import type { TramSchedule, WorldMeta } from './types/world.ts'
+import { loadJson } from './engine/data.ts'
+import type { ScenesData } from './scenes/types.ts'
 import { View } from './app/view.ts'
 import { buildLabels } from './app/labels.ts'
 import { initPicking } from './app/picking.ts'
@@ -46,13 +49,6 @@ const DWARF_FACTS = dwarfFacts()
 
 // widok startowy bez linku: Rynek
 const START = { lat: 51.1099, lon: 17.0326 }
-// wielkość piksela: domyślna i największa, do której schodzi tryb oszczędny
-const PIXEL_DEFAULT = 1.5
-const PIXEL_SAVER_MAX = 3
-const PIXEL_SAVER_STEP = 0.5
-// daleko (zoom poniżej): ludzie, auta i drzewa są mniejsze niż piksel — nie liczymy ich i nie rysujemy
-const FAR_ZOOM = 0.55
-const TREES_MIN_ZOOM = 0.35
 // cienie i napisy przeliczamy po zmianie widoku albo co tyle sekund (ruchome obiekty)
 const SHADOW_REFRESH_S = 0.15
 const LABELS_REFRESH_S = 0.5
@@ -62,16 +58,12 @@ const MAX_FRAME_DT = 0.1
 const SHADOW_EXTENT_MAX = 2600
 // neony liczą rozmiar dla piksela ok. 2 — przeliczamy powiększenie na bieżący piksel
 const NEON_PIXEL = 2
-// pomniki chowamy z daleka (są mniejsze niż piksel)
-const MONUMENTS_MIN_ZOOM = 0.3
 // grupy znaczników (każda z własnym przełącznikiem, wszystkie pod głównym „markers”)
 const PIN_GROUPS: PinGroup[] = ['labels', 'places', 'pois', 'unis', 'eggs', 'cult']
 
-const dataUrl = (file: string) => `${import.meta.env.BASE_URL}data/${file}`
-
 export async function startApp() {
-  const res = await fetch(dataUrl('meta.json'))
-  const meta: WorldMeta = await res.json()
+  const meta = await loadJson<WorldMeta>('meta.json')
+  if (!meta) throw new Error('brak public/data/meta.json (npm run bake)')
   setOrigin(meta.origin)
 
   const canvas = byId<HTMLCanvasElement>('map')
@@ -114,22 +106,23 @@ export async function startApp() {
   let scenes: Scenes | null = null
   const forcedScenes = new Set<SceneName>()
   // stan początkowy z HTML (mecz i żużel włączone domyślnie)
-  document.querySelectorAll<HTMLInputElement>('input[data-scene]').forEach((i) => { if (i.checked) forcedScenes.add(i.dataset.scene as SceneName) })
-  document.querySelectorAll<HTMLInputElement>('input[data-scene]').forEach((i) => i.addEventListener('change', () => {
-    const n = i.dataset.scene as SceneName
+  for (const i of document.querySelectorAll<HTMLInputElement>('input[data-scene]')) {
+    const n = oneOf(SCENE_NAMES, i.dataset.scene)
+    if (!n) continue
     if (i.checked) forcedScenes.add(n)
-    else forcedScenes.delete(n)
-  }))
+    i.addEventListener('change', () => {
+      if (i.checked) forcedScenes.add(n)
+      else forcedScenes.delete(n)
+    })
+  }
   // rozkład tramwajów (GTFS MPK); brak pliku = tramwaje losowo po torach
   // tramwaje z rozkładu startują od razu, bez czekania na kafle
   let timetable: Timetable | null = null
-  try {
-    const r = await fetch(dataUrl('trams.json'))
-    if (r.ok) {
-      timetable = new Timetable(await r.json(), tramGeometry())
-      scene.add(timetable.mesh)
-    }
-  } catch { /* brak rozkładu */ }
+  const trams = await loadJson<TramSchedule>('trams.json')
+  if (trams) {
+    timetable = new Timetable(trams, tramGeometry())
+    scene.add(timetable.mesh)
+  }
 
   const stands = buildStands(meta.stadiums)
   scene.add(stands)
@@ -139,15 +132,13 @@ export async function startApp() {
   scene.add(historyLayer.group)
   const neons = new Neons()
   scene.add(neons.group)
-  // pomniki (scripts/bake-monuments.ts); brak pliku = brak warstwy
+  // pomniki (scripts/bake/bake-monuments.ts); brak pliku = brak warstwy
   let monuments: Monuments | null = null
-  try {
-    const r = await fetch(dataUrl('monuments.json'))
-    if (r.ok) {
-      monuments = new Monuments(await r.json())
-      scene.add(monuments.group)
-    }
-  } catch { /* brak pomników */ }
+  const monumentData = await loadJson<Monument[]>('monuments.json')
+  if (monumentData) {
+    monuments = new Monuments(monumentData)
+    scene.add(monuments.group)
+  }
 
   const dwarfs = new Dwarfs(meta.dwarfs)
   scene.add(dwarfs.mesh)
@@ -160,9 +151,24 @@ export async function startApp() {
   let epoch: Epoch = EPOCHS[EPOCHS.length - 1]
   let epochState: EpochScene | null = null
   const layers: Record<Layer, boolean> = {
-    dwarfs: true, neons: true, monuments: true, trams: true, trains: true, boats: true, cars: true,
-    people: true, birds: true, clouds: true, trees: true,
-    markers: true, labels: true, places: true, pois: true, unis: true, eggs: true, cult: true,
+    dwarfs: true,
+    neons: true,
+    monuments: true,
+    trams: true,
+    trains: true,
+    boats: true,
+    cars: true,
+    people: true,
+    birds: true,
+    clouds: true,
+    trees: true,
+    markers: true,
+    labels: true,
+    places: true,
+    pois: true,
+    unis: true,
+    eggs: true,
+    cult: true,
   }
 
   const markEpoch = initTimeline(EPOCHS, (e) => setEpoch(e))
@@ -216,8 +222,10 @@ export async function startApp() {
   // --- piksel i rozmiar ---
   let px = PIXEL_DEFAULT
   function resize() {
-    const W = innerWidth, H = innerHeight
-    const w = Math.ceil(W / px), h = Math.ceil(H / px)
+    const W = innerWidth,
+      H = innerHeight
+    const w = Math.ceil(W / px),
+      h = Math.ceil(H / px)
     renderer.setSize(w, h, false)
     pixel.setSize(w, h)
     view.resize(W, H)
@@ -225,15 +233,23 @@ export async function startApp() {
   addEventListener('resize', resize)
 
   initPanel({
-    time: (v) => (timePreset = v as TimePreset),
-    season: (v) => setSeason(v as Season),
-    pixel: (v) => { px = v; resize() },
+    time: (v) => {
+      timePreset = v
+    },
+    season: (v) => setSeason(v),
+    pixel: (v) => {
+      px = v
+      resize()
+    },
     look: (opt, on) => {
       const u = pixel.material.uniforms
       const uniform = { palette: u.uPalette, outline: u.uOutline, dither: u.uDither }[opt]
       uniform.value = on ? 1 : 0
     },
-    layer: (l, on) => { layers[l] = on; applyLayers() },
+    layer: (l, on) => {
+      layers[l] = on
+      applyLayers()
+    },
   })
 
   // --- kamera: obrót, kompas, link ---
@@ -244,7 +260,7 @@ export async function startApp() {
 
   function saveHash() {
     const p = new URLSearchParams({ e: epoch.id, ...view.hashParams() })
-    history.replaceState(null, '', '#' + p)
+    history.replaceState(null, '', `#${p}`)
   }
   view.controls.addEventListener('end', saveHash)
   byId('btn-link').onclick = async () => {
@@ -265,7 +281,17 @@ export async function startApp() {
     if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
     if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
-  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf, highlight: pixel.highlight, openerFor: (n, x, y) => labels.openerFor(n, x, y) })
+  initPicking(canvas, camera, {
+    dwarfs,
+    timetable,
+    monuments,
+    neons,
+    tiles,
+    scenes: () => scenes,
+    onDwarf: clickDwarf,
+    highlight: pixel.highlight,
+    openerFor: (n, x, y) => labels.openerFor(n, x, y),
+  })
 
   // --- skróty i easter eggi z klawiatury ---
   initKeys({
@@ -306,15 +332,12 @@ export async function startApp() {
       life = new Life(world.roads, world.trams, world.rails, world.bounds, !!timetable)
       scene.add(life.group)
       // smaczki (jarmark, fajerwerki, statki, latarnik) potrzebują wczytanego miasta
-      fetch(dataUrl('scenes.json'))
-        .then((r) => (r.ok ? r.json() : undefined))
-        .catch(() => undefined)
-        .then((data) => {
-          scenes = new Scenes(world, data, meta.speedway)
-          scenes.forced = forcedScenes
-          scenes.boatsOn = layers.boats
-          scene.add(scenes.group)
-        })
+      loadJson<ScenesData>('scenes.json').then((data) => {
+        scenes = new Scenes(world, data ?? undefined, meta.speedway)
+        scenes.forced = forcedScenes
+        scenes.boatsOn = layers.boats
+        scene.add(scenes.group)
+      })
       // przebuduj epokę na pełnych danych (powódź, dym, pas startowy potrzebują całego miasta)
       setEpoch(epoch)
       setSeason(season)
@@ -333,8 +356,7 @@ export async function startApp() {
       renderer.shadowMap.enabled = false
       // materiały trzeba przekompilować bez cieni
       scene.traverse((o) => {
-        const material = (o as Partial<THREE.Mesh>).material as THREE.Material | undefined
-        if (material) material.needsUpdate = true
+        if ('material' in o && o.material instanceof THREE.Material) o.material.needsUpdate = true
       })
       toast(t('saver.shadows'))
       return true
@@ -342,7 +364,9 @@ export async function startApp() {
   ])
 
   const clock = new THREE.Clock()
-  let lastSig = '', sinceShadow = 1, sinceLabels = 1
+  let lastSig = '',
+    sinceShadow = 1,
+    sinceLabels = 1
   let lastClock = 0
   renderer.setAnimationLoop(() => {
     const dt = Math.min(clock.getDelta(), MAX_FRAME_DT)
@@ -357,7 +381,10 @@ export async function startApp() {
     uTime.value += dt
     // metry na piksel renderu (do progu konturów)
     pixel.material.uniforms.uMpp.value = px / camera.zoom
-    if (performance.now() - lastClock > CLOCK_REFRESH_MS) { setClock(now); lastClock = performance.now() }
+    if (performance.now() - lastClock > CLOCK_REFRESH_MS) {
+      setClock(now)
+      lastClock = performance.now()
+    }
 
     const far = camera.zoom < FAR_ZOOM
     if (life) {
@@ -387,15 +414,27 @@ export async function startApp() {
     // napisy i cienie przeliczamy, gdy widok się zmienił (albo co jakiś czas dla ruchomych obiektów)
     const p = camera.position
     const sig = [
-      p.x.toFixed(1), p.y.toFixed(1), p.z.toFixed(1), camera.zoom.toFixed(3),
-      innerWidth, innerHeight, epoch.year, ...PIN_GROUPS.map((g) => labels.show[g]),
+      p.x.toFixed(1),
+      p.y.toFixed(1),
+      p.z.toFixed(1),
+      camera.zoom.toFixed(3),
+      innerWidth,
+      innerHeight,
+      epoch.year,
+      ...PIN_GROUPS.map((g) => labels.show[g]),
     ].join()
     const moved = sig !== lastSig
     lastSig = sig
     sinceShadow += dt
     sinceLabels += dt
-    if (moved || sinceShadow > SHADOW_REFRESH_S) { renderer.shadowMap.needsUpdate = true; sinceShadow = 0 }
-    if (moved || sinceLabels > LABELS_REFRESH_S) { labels.update(camera, innerWidth, innerHeight); sinceLabels = 0 }
+    if (moved || sinceShadow > SHADOW_REFRESH_S) {
+      renderer.shadowMap.needsUpdate = true
+      sinceShadow = 0
+    }
+    if (moved || sinceLabels > LABELS_REFRESH_S) {
+      labels.update(camera, innerWidth, innerHeight)
+      sinceLabels = 0
+    }
     setCompass(view.azimuth)
   })
 }

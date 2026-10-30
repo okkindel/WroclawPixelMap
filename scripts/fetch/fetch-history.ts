@@ -4,11 +4,13 @@
 // więc z 4 Messtischblätter powstaje jedna mozaika. Rzutowanie lokalne jest liniowe w lon/lat → BBOX w EPSG:4326.
 // Licencja (AccessConstraints WMS): mapy sprzed 1900 — CC BY-SA 4.0; młodsze — „rights reserved” wg SLUB
 // (autor anonimowy/urzędowy, >70 lat od wydania — prawdopodobnie domena publiczna, ale do potwierdzenia).
-// Użycie: node scripts/fetch-history.ts [promień_km=3 | all] [rok…]   (istniejące pliki pomija)
+// Użycie: node scripts/fetch/fetch-history.ts [promień_km=3 | all] [rok…]   (istniejące pliki pomija)
 import { existsSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import jpeg from 'jpeg-js'
-import type { WorldMeta } from '../src/types/world.ts'
+import { projection } from '../lib/geo.ts'
+import { fetchBuffer, isJpeg, withRetry } from '../lib/http.ts'
+import { readMeta } from '../lib/json.ts'
 
 const PX = 1000
 const RYNEK = [51.1099, 17.0326] // środek wyboru kafli
@@ -17,13 +19,24 @@ interface Sheet {
   id: number // id mapy w Kartenforum (https://wms.kartenforum.slub-dresden.de/map/<id>)
   layer: string // nazwa warstwy WMS
   title: string
-  box?: [number, number, number, number] // ramka arkusza [w, s, e, n] w stopniach; brak = cały obraz
+  box?: Box // ramka arkusza [w, s, e, n] w stopniach; brak = cały obraz
 }
 
 // Ramki Messtischblätter (siatka 10' × 6', po georeferencji SLUB)
-const W = 16.8311, M = 16.9977, E = 17.1644, S = 50.9988, C = 51.0988, N = 51.1988
-const box = { lissa: [W, C, M, N], nord: [M, C, E, N], schmolz: [W, S, M, C], sued: [M, S, E, C] } as const
-const mtb = (id: number, layer: string, title: string, b: readonly number[]): Sheet => ({ id, layer, title, box: b as Sheet['box'] })
+const W = 16.8311,
+  M = 16.9977,
+  E = 17.1644,
+  S = 50.9988,
+  C = 51.0988,
+  N = 51.1988
+type Box = [number, number, number, number]
+const box: Record<'lissa' | 'nord' | 'schmolz' | 'sued', Box> = {
+  lissa: [W, C, M, N],
+  nord: [M, C, E, N],
+  schmolz: [W, S, M, C],
+  sued: [M, S, E, C],
+}
+const mtb = (id: number, layer: string, title: string, b: Box): Sheet => ({ id, layer, title, box: b })
 
 export const EPOCHS: Record<string, { label: string; license: string; sheets: Sheet[] }> = {
   // Twierdza: ręczny plan z ok. 1732 r. (tylko Stare Miasto z fortyfikacjami, georeferencja ±30–60 m)
@@ -67,45 +80,49 @@ export const EPOCHS: Record<string, { label: string; license: string; sheets: Sh
   },
 }
 
-const meta: WorldMeta = JSON.parse(await readFile('public/data/meta.json', 'utf8'))
+const meta = await readMeta()
+const { KX, KY } = projection(meta.origin)
 const [lat0, lon0] = meta.origin
-const KX = Math.cos((lat0 * Math.PI) / 180) * 111320
-const KY = 110540
 
 const arg = process.argv[2] ?? '3'
 const years = process.argv.length > 3 ? process.argv.slice(3) : Object.keys(EPOCHS)
-const rx = (RYNEK[1] - lon0) * KX, ry = (RYNEK[0] - lat0) * KY
+const rx = (RYNEK[1] - lon0) * KX,
+  ry = (RYNEK[0] - lat0) * KY
 const tileBox = (k: string) => {
   const [i, j] = k.split('_').map(Number)
-  const x0 = meta.bounds[0] + i * meta.tile, y0 = meta.bounds[1] + j * meta.tile
-  return { w: x0 / KX + lon0, e: (x0 + meta.tile) / KX + lon0, s: y0 / KY + lat0, n: (y0 + meta.tile) / KY + lat0, cx: x0 + meta.tile / 2, cy: y0 + meta.tile / 2 }
+  const x0 = meta.bounds[0] + i * meta.tile,
+    y0 = meta.bounds[1] + j * meta.tile
+  return {
+    w: x0 / KX + lon0,
+    e: (x0 + meta.tile) / KX + lon0,
+    s: y0 / KY + lat0,
+    n: (y0 + meta.tile) / KY + lat0,
+    cx: x0 + meta.tile / 2,
+    cy: y0 + meta.tile / 2,
+  }
 }
-const tiles = meta.tiles.map((t) => t.k).filter((k) => {
-  if (arg === 'all') return true
-  const b = tileBox(k)
-  return Math.hypot(b.cx - rx, b.cy - ry) <= Number(arg) * 1000
-})
+const tiles = meta.tiles
+  .map((t) => t.k)
+  .filter((k) => {
+    if (arg === 'all') return true
+    const b = tileBox(k)
+    return Math.hypot(b.cx - rx, b.cy - ry) <= Number(arg) * 1000
+  })
 
 const overlaps = (sh: Sheet, b: ReturnType<typeof tileBox>) =>
   !sh.box || (sh.box[0] < b.e && sh.box[2] > b.w && sh.box[1] < b.n && sh.box[3] > b.s)
-const isJpeg = (buf: Buffer) => buf[0] === 0xff && buf[1] === 0xd8
 
 async function getMap(sh: Sheet, b: ReturnType<typeof tileBox>): Promise<Buffer | null> {
   // WMS 1.3.0 + EPSG:4326: kolejność osi lat, lon
-  const url = `https://wms.kartenforum.slub-dresden.de/map/${sh.id}?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${sh.layer}` +
+  const url =
+    `https://wms.kartenforum.slub-dresden.de/map/${sh.id}?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=${sh.layer}` +
     `&STYLES=&CRS=EPSG:4326&BBOX=${b.s},${b.w},${b.n},${b.e}&WIDTH=${PX}&HEIGHT=${PX}&FORMAT=image/jpeg`
-  for (let attempt = 1; attempt <= 5; attempt++) {
-    try {
-      const res = await fetch(url, { headers: { 'User-Agent': 'wroclaw-pixel-map/0.1' } })
-      const buf = Buffer.from(await res.arrayBuffer())
-      if (res.ok && isJpeg(buf)) return buf
-      console.log(`${sh.layer}: HTTP ${res.status}`)
-    } catch (err) {
-      console.log(`${sh.layer}: ${(err as Error).message}`)
-    }
-    await new Promise((r) => setTimeout(r, 3000 * attempt))
-  }
-  return null
+  return withRetry(
+    sh.layer,
+    5,
+    (attempt) => 3000 * attempt,
+    () => fetchBuffer(url, (buf, res) => res.ok && isJpeg(buf)),
+  )
 }
 
 // Mozaika: piksel (c, r) → lon/lat → pierwszy arkusz z ramką zawierającą punkt
@@ -133,7 +150,10 @@ async function one(year: string, k: string): Promise<string> {
         const bx = sheets[s].box
         if (bx && !(lon >= bx[0] && lon < bx[2] && lat >= bx[1] && lat < bx[3])) continue
         if (pick < 0) pick = s
-        if (!white(imgs[s], p)) { pick = s; break }
+        if (!white(imgs[s], p)) {
+          pick = s
+          break
+        }
       }
       if (pick < 0) pick = sheets.length - 1
       out.set(imgs[pick].subarray(p, p + 4), p)
@@ -159,5 +179,11 @@ await Promise.all(
 )
 await writeFile(
   'data/history/index.json',
-  JSON.stringify(Object.fromEntries(Object.entries(EPOCHS).map(([y, e]) => [y, { label: e.label, license: e.license, sheets: e.sheets.map((s) => s.title) }])), null, 1),
+  JSON.stringify(
+    Object.fromEntries(
+      Object.entries(EPOCHS).map(([y, e]) => [y, { label: e.label, license: e.license, sheets: e.sheets.map((s) => s.title) }]),
+    ),
+    null,
+    1,
+  ),
 )

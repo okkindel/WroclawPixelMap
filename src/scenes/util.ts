@@ -26,23 +26,32 @@ export class Path {
   // [x, y, kierunek (rad, 0 = wschód)]; offset > 0 przesuwa w prawo względem kierunku jazdy
   at(s: number, offset = 0): [number, number, number] {
     s = Math.max(0, Math.min(this.len, s))
-    let lo = 1, hi = this.cum.length - 1
+    let lo = 1,
+      hi = this.cum.length - 1
     while (lo < hi) {
       const mid = (lo + hi) >> 1
       if (this.cum[mid] < s) lo = mid + 1
       else hi = mid
     }
-    const i = lo, p = this.pts
-    const ax = p[(i - 1) * 2], ay = p[(i - 1) * 2 + 1], bx = p[i * 2], by = p[i * 2 + 1]
+    const i = lo,
+      p = this.pts
+    const ax = p[(i - 1) * 2],
+      ay = p[(i - 1) * 2 + 1],
+      bx = p[i * 2],
+      by = p[i * 2 + 1]
     const L = this.cum[i] - this.cum[i - 1] || 1
     const t = (s - this.cum[i - 1]) / L
-    const dx = (bx - ax) / L, dy = (by - ay) / L
+    const dx = (bx - ax) / L,
+      dy = (by - ay) / L
     return [ax + (bx - ax) * t + dy * offset, ay + (by - ay) * t - dx * offset, Math.atan2(dy, dx)]
   }
 }
 
 // Instancja w punkcie mapy (x, y) na wysokości h, obrócona o kąt (0 = wschód, przeciwnie do zegara).
-const _q = new THREE.Quaternion(), _v = new THREE.Vector3(), _s = new THREE.Vector3(), _up = new THREE.Vector3(0, 1, 0)
+const _q = new THREE.Quaternion(),
+  _v = new THREE.Vector3(),
+  _s = new THREE.Vector3(),
+  _up = new THREE.Vector3(0, 1, 0)
 export function place(m: THREE.Matrix4, x: number, y: number, h: number, angle: number, scale = 1) {
   _q.setFromAxisAngle(_up, angle)
   return m.compose(_v.set(x, h, -y), _q, _s.setScalar(scale))

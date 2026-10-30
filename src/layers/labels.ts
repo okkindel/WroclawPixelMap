@@ -2,6 +2,7 @@
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Egg, Landmark } from '../content/index.ts'
+import { PLACE_ZOOM, SACRED, landmarkMinZoom, markerMinZoom, yearOf } from '../rules/labels.ts'
 
 // Grupy znaczników (osobne przełączniki w panelu „Znaczniki”).
 export type PinGroup = 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'
@@ -17,21 +18,6 @@ interface Pin {
   fromYear?: number
 }
 
-// Rok z opisu zabytku: pierwszy czterocyfrowy rok albo wiek rzymski (XIII w. → 1250).
-export function yearOf(text: string): number | undefined {
-  const y = text.match(/\d{4}/)
-  if (y) return +y[0]
-  // angielskie „14th c.”
-  const o = text.match(/\b(\d{1,2})(?:st|nd|rd|th)\b/)
-  if (o) return (+o[1] - 1) * 100 + 50
-  const c = text.match(/\b([IVX]+)\s*w/)
-  if (!c) return undefined
-  const R: Record<string, number> = { I: 1, V: 5, X: 10 }
-  let n = 0
-  for (let i = 0; i < c[1].length; i++) { const v = R[c[1][i]], w = R[c[1][i + 1]] ?? 0; n += v < w ? -v : v }
-  return (n - 1) * 100 + 50
-}
-
 export class Labels {
   root: HTMLElement
   pins: Pin[] = []
@@ -44,13 +30,10 @@ export class Labels {
 
   constructor(root: HTMLElement, landmarks: Landmark[], rank: Record<string, 1 | 2>, onLandmark: (l: Landmark) => void) {
     this.root = root
-    // ranga 1 widoczna z daleka, 2 przy średnim przybliżeniu, reszta po przybliżeniu;
-    // kolejność = pierwszeństwo przy nachodzeniu napisów
-    const zoomFor = (l: Landmark) => ({ 1: 0, 2: 0.9 })[rank[l.name] as 1 | 2] ?? 1.6
-    // świątynie dostają osobny kolor napisu
-    const sacred = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic|Church|Cathedral|Collegiate|Synagogue|Chapel/
+    // próg przybliżenia wg rangi (src/rules/labels.ts); kolejność = pierwszeństwo przy nachodzeniu napisów
+    const zoomFor = (l: Landmark) => landmarkMinZoom(rank[l.name])
     for (const l of [...landmarks].sort((a, b) => zoomFor(a) - zoomFor(b))) {
-      this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), sacred.test(l.name) ? 'church' : '', yearOf(l.year))
+      this.addLabel(l.name, l.lat, l.lon, zoomFor(l), () => onLandmark(l), SACRED.test(l.name) ? 'church' : '', yearOf(l.year))
     }
   }
 
@@ -61,7 +44,16 @@ export class Labels {
     return this.openers.find((o) => o.name === name && Math.hypot(o.x - x, o.y - y) < radius)?.open
   }
 
-  addLabel(name: string, lat: number, lon: number, minZoom: number, onClick: () => void, cls = '', fromYear?: number, group: PinGroup = 'labels') {
+  addLabel(
+    name: string,
+    lat: number,
+    lon: number,
+    minZoom: number,
+    onClick: () => void,
+    cls = '',
+    fromYear?: number,
+    group: PinGroup = 'labels',
+  ) {
     const [x, y] = toLocal(lat, lon)
     this.openers.push({ name, x, y, open: onClick })
     const el = document.createElement('button')
@@ -78,7 +70,13 @@ export class Labels {
     el.className = `place place-${rank}`
     el.textContent = name
     this.root.appendChild(el)
-    this.placePins.push({ el, pos: new THREE.Vector3(x, 0, -y), group: 'places', minZoom: [0, 0.6, 1.1][rank], maxZoom: [1.4, 2.2, 3][rank] })
+    this.placePins.push({
+      el,
+      pos: new THREE.Vector3(x, 0, -y),
+      group: 'places',
+      minZoom: PLACE_ZOOM.min[rank],
+      maxZoom: PLACE_ZOOM.max[rank],
+    })
   }
 
   // Okrągły znacznik: „?” dla ciekawostek, „★” dla kultowych miejsc.
@@ -91,7 +89,7 @@ export class Labels {
     el.textContent = icon
     el.onclick = onClick
     this.root.appendChild(el)
-    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), group, minZoom: e.trigger === 'zoom' ? 3 : 0.75, fromYear })
+    this.eggPins.push({ el, pos: new THREE.Vector3(x, 12, -y), group, minZoom: markerMinZoom(e.trigger), fromYear })
   }
 
   update(camera: THREE.OrthographicCamera, w: number, h: number) {
@@ -99,17 +97,27 @@ export class Labels {
     // Napis, który nachodziłby na już postawiony, chowamy.
     const placed: [number, number, number, number][] = []
     const place = (p: Pin) => {
-      const hidden = !this.show[p.group] || (p.fromYear ?? 0) > this.year
-        || camera.zoom < p.minZoom || camera.zoom > (p.maxZoom ?? Infinity)
-      if (hidden) { p.el.style.display = 'none'; return }
+      const hidden =
+        !this.show[p.group] || (p.fromYear ?? 0) > this.year || camera.zoom < p.minZoom || camera.zoom > (p.maxZoom ?? Infinity)
+      if (hidden) {
+        p.el.style.display = 'none'
+        return
+      }
       this.v.copy(p.pos).project(camera)
-      if (Math.abs(this.v.x) > 1.05 || Math.abs(this.v.y) > 1.05) { p.el.style.display = 'none'; return }
-      const x = ((this.v.x + 1) / 2) * w, y = ((1 - this.v.y) / 2) * h
+      if (Math.abs(this.v.x) > 1.05 || Math.abs(this.v.y) > 1.05) {
+        p.el.style.display = 'none'
+        return
+      }
+      const x = ((this.v.x + 1) / 2) * w,
+        y = ((1 - this.v.y) / 2) * h
       p.el.style.display = ''
       // rozmiar mierzymy raz (offsetWidth wymusza przeliczenie układu strony)
       const [bw, bh] = (p.size ??= [p.el.offsetWidth + 6, p.el.offsetHeight + 4])
       const r: [number, number, number, number] = [x - bw / 2, y - bh, x + bw / 2, y]
-      if (placed.some((q) => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1])) { p.el.style.display = 'none'; return }
+      if (placed.some((q) => r[0] < q[2] && r[2] > q[0] && r[1] < q[3] && r[3] > q[1])) {
+        p.el.style.display = 'none'
+        return
+      }
       placed.push(r)
       p.el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -100%)`
     }

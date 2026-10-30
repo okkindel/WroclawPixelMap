@@ -42,7 +42,9 @@ function structureMesh(s: Structure) {
     m = new THREE.Mesh(new THREE.CylinderGeometry(s.r * 0.8, s.r, s.H, 8), lambert('#a4a9bd'))
     m.position.y = s.H / 2
   }
-  m.traverse((o) => { o.castShadow = o.receiveShadow = true })
+  m.traverse((o) => {
+    o.castShadow = o.receiveShadow = true
+  })
   const holder = new THREE.Group()
   holder.add(m)
   holder.position.set(s.x, 0, -s.y)
@@ -87,7 +89,8 @@ class Ropeway {
     }
     // lina
     for (let i = 1; i < this.pts.length; i++) {
-      const a0 = this.pts[i - 1], b0 = this.pts[i]
+      const a0 = this.pts[i - 1],
+        b0 = this.pts[i]
       const L = a0.distanceTo(b0)
       const rope = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, L), lambert('#1d2340'))
       rope.position.copy(a0).add(b0).multiplyScalar(0.5)
@@ -102,7 +105,9 @@ class Ropeway {
       const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 2.2, 0.3), steel)
       arm.position.y = -1.1
       car.add(body, arm)
-      car.traverse((o) => { o.castShadow = true })
+      car.traverse((o) => {
+        o.castShadow = true
+      })
       this.cars.push(car)
       this.group.add(car)
     }

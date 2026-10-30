@@ -4,8 +4,10 @@ import * as THREE from 'three'
 const LAT = (51.11 * Math.PI) / 180
 const LON = 17.03
 
-export type TimePreset = 'now' | 'day' | 'dusk' | 'night'
-export type Season = 'summer' | 'spring' | 'autumn' | 'winter'
+export const TIME_PRESETS = ['now', 'day', 'dusk', 'night'] as const
+export type TimePreset = (typeof TIME_PRESETS)[number]
+export const SEASONS = ['summer', 'spring', 'autumn', 'winter'] as const
+export type Season = (typeof SEASONS)[number]
 
 export function clockFor(preset: TimePreset, now = new Date()): Date {
   const d = new Date(now)
@@ -18,7 +20,7 @@ export function clockFor(preset: TimePreset, now = new Date()): Date {
 // Wysokość i azymut słońca (radiany), przybliżenie wystarczające do cieni.
 export function sunPosition(date: Date) {
   const day = (Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()) - Date.UTC(date.getUTCFullYear(), 0, 0)) / 864e5
-  const decl = (-23.44 * Math.PI) / 180 * Math.cos(((2 * Math.PI) / 365) * (day + 10))
+  const decl = ((-23.44 * Math.PI) / 180) * Math.cos(((2 * Math.PI) / 365) * (day + 10))
   const utcH = date.getUTCHours() + date.getUTCMinutes() / 60
   const solarH = utcH + LON / 15
   const ha = ((solarH - 12) * 15 * Math.PI) / 180
@@ -51,7 +53,10 @@ export class Sun {
     this.light.position.copy(target).addScaledVector(dir, 1500)
     this.light.target.position.copy(target)
     const golden = 1 - THREE.MathUtils.smoothstep(e, 0.05, 0.45)
-    this.light.color.set('#fff4e0').lerp(new THREE.Color('#ff9a52'), golden * dayK).lerp(new THREE.Color('#8fa8ff'), 1 - dayK)
+    this.light.color
+      .set('#fff4e0')
+      .lerp(new THREE.Color('#ff9a52'), golden * dayK)
+      .lerp(new THREE.Color('#8fa8ff'), 1 - dayK)
     this.light.intensity = 0.4 + dayK * 2.8
     this.hemi.intensity = 0.3 + dayK * 1.5
     this.hemi.color.set('#cfe3ff').lerp(new THREE.Color('#2a3a7a'), 1 - dayK)

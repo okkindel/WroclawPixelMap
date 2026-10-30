@@ -35,6 +35,8 @@ export class Life {
   people: Movers
   // głowy ludzi (osobna bryła o stałym kolorze)
   heads: THREE.InstancedMesh
+  // zakres x, w którym przesuwają się chmury
+  private cloudSpan: [number, number] = [0, 0]
   birds: THREE.InstancedMesh
   clouds: THREE.Group
   layers = { trams: true, trains: true, cars: true, people: true, birds: true, clouds: true }
@@ -47,15 +49,21 @@ export class Life {
     // Wrocławskie tramwaje MPK są niebieskie: niebieskie pudło, ciemny pas okien, jasny dach.
     // z rozkładem GTFS tramwaje jeżdżą osobno (Timetable); bez niego — losowo po torach z OSM
     this.trams = new Movers(tramGraph, withTimetable ? 0 : RANDOM_TRAMS, tramGeometry(), ['#ffffff'], [7, 10], {
-      segments: 3, gap: 10.4, seed: 101, vertexColors: true,
+      segments: 3,
+      gap: 10.4,
+      seed: 101,
+      vertexColors: true,
     })
     const carGraph = new Graph(roads.filter((r) => r.car))
     this.cars = new Movers(carGraph, 1600, box(4.4, 1.9, 1.5), CAR_COLORS, [6, 12], { offset: 2.2, seed: 202 })
     const walkGraph = new Graph(roads.filter((r) => WALKABLE.includes(r.k)))
     this.people = new Movers(walkGraph, 5000, box(0.8, 0.8, 1.5), PEOPLE_COLORS, [0.9, 1.6], {
-      offset: 0.6, seed: 303, extra: [box(0.55, 0.55, 0.5, 1.5), '#e8a074'],
+      offset: 0.6,
+      seed: 303,
+      extra: [box(0.55, 0.55, 0.5, 1.5), '#e8a074'],
     })
-    this.heads = this.people.extra as THREE.InstancedMesh
+    // extra (głowy) istnieje, bo przekazaliśmy opts.extra
+    this.heads = this.people.extra!
     // Pociągi po torach z OSM: dalekobieżne (białe z niebieskim), regionalne (żółte), towarowe (długie, brązowe).
     const railGraph = new Graph(rails)
     this.trains = [
@@ -68,7 +76,10 @@ export class Life {
 
     // Ptaki: płaskie „V” krążące stadami nad miastem.
     const wing = new THREE.BufferGeometry()
-    wing.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, -1.2, 0.5, -1.6, -0.6, 0, 0, 0, 0, 0, -0.6, 0, 0, -1.2, 0.5, 1.6], 3))
+    wing.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute([0, 0, 0, -1.2, 0.5, -1.6, -0.6, 0, 0, 0, 0, 0, -0.6, 0, 0, -1.2, 0.5, 1.6], 3),
+    )
     wing.computeVertexNormals()
     this.birds = new THREE.InstancedMesh(wing, new THREE.MeshBasicMaterial({ color: '#1c1c2e', side: THREE.DoubleSide }), 60)
     this.birds.frustumCulled = false
@@ -91,7 +102,7 @@ export class Life {
       c.position.set(x0 + hash(i, 1) * (x1 - x0), 380, -(y0 + hash(i, 2) * (y1 - y0)))
       this.clouds.add(c)
     }
-    this.clouds.userData.bounds = bounds
+    this.cloudSpan = [x0, x1]
     this.group.add(this.clouds)
   }
 
@@ -112,10 +123,14 @@ export class Life {
     this.clouds.visible = this.layers.clouds
 
     if (this.layers.birds) {
-      const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3()
+      const m = new THREE.Matrix4(),
+        q = new THREE.Quaternion(),
+        v = new THREE.Vector3(),
+        s = new THREE.Vector3()
       for (let i = 0; i < this.birds.count; i++) {
         const flock = i % 6
-        const cx = (hash(flock, 1) - 0.5) * 3000, cy = (hash(flock, 2) - 0.5) * 2000
+        const cx = (hash(flock, 1) - 0.5) * 3000,
+          cy = (hash(flock, 2) - 0.5) * 2000
         const R = 150 + hash(flock, 3) * 250
         const ang = this.t * (0.05 + hash(flock, 4) * 0.05) + hash(flock, 5) * 6.28 - (i / 6) * 0.03
         const jitter = (hash(i, 9) - 0.5) * 30
@@ -130,7 +145,7 @@ export class Life {
     }
 
     if (this.layers.clouds) {
-      const [x0, , x1] = this.clouds.userData.bounds as number[]
+      const [x0, x1] = this.cloudSpan
       for (const c of this.clouds.children) {
         c.position.x += dt * 6
         if (c.position.x > x1 + 400) c.position.x = x0 - 400

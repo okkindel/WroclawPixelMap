@@ -8,10 +8,8 @@ import { buildTrees, recolorTrees } from './trees.ts'
 import { unpack, type Packed } from './packed.ts'
 import { decodeTile } from './tilecodec.ts'
 
-// Próg uproszczonych brył (z histerezą, żeby nie migało przy powiększeniu w okolicy progu).
-const LOD_IN = 0.55, LOD_OUT = 0.65
-// ile wersji budynków wolno dobudować w jednej klatce przy przełączaniu
-const LOD_BUDGET = 4
+// progi uproszczonych brył (z histerezą) i budżet przebudowy na klatkę
+import { LOD_BUDGET, LOD_IN, LOD_OUT } from '../rules/render.ts'
 
 export interface Materials {
   ground: THREE.Material
@@ -33,7 +31,16 @@ export interface Tile {
   trees: THREE.InstancedMesh | null
 }
 
-interface WorkerResult { key: string; data: TileData; ground: Packed; water: Packed; roads: Packed; bridges: Packed; buildings: Packed; simple: Packed }
+interface WorkerResult {
+  key: string
+  data: TileData
+  ground: Packed
+  water: Packed
+  roads: Packed
+  bridges: Packed
+  buildings: Packed
+  simple: Packed
+}
 
 export class Tiles {
   meta: WorldMeta
@@ -63,9 +70,7 @@ export class Tiles {
       const [i, j] = k.split('_').map(Number)
       return [bounds[0] + (i + 0.5) * tile, bounds[1] + (j + 0.5) * tile]
     }
-    const queue = this.meta.tiles
-      .map((t) => ({ ...t, d: Math.hypot(center(t.k)[0] - x, center(t.k)[1] - y) }))
-      .sort((a, b) => a.d - b.d)
+    const queue = this.meta.tiles.map((t) => ({ ...t, d: Math.hypot(center(t.k)[0] - x, center(t.k)[1] - y) })).sort((a, b) => a.d - b.d)
     let done = 0
     const url = (k: string) => new URL(`${import.meta.env.BASE_URL}data/tiles/${k}.bin`, location.href).href
     // kilka wątków roboczych buduje siatki równolegle; bez obsługi Workerów — budowa w głównym wątku
@@ -89,12 +94,23 @@ export class Tiles {
       }
       w?.terminate()
     }
-    const make = () => { try { return new Worker(new URL('./tile-worker.ts', import.meta.url), { type: 'module' }) } catch { return null } }
+    const make = () => {
+      try {
+        return new Worker(new URL('./tile-worker.ts', import.meta.url), { type: 'module' })
+      } catch {
+        return null
+      }
+    }
     await Promise.all(Array.from({ length: threads }, () => run(make())))
     if (import.meta.env.DEV) {
       const tris = (m: THREE.Mesh) => m.geometry.getAttribute('position').count / 3
-      let full = 0, simple = 0
-      for (const t of this.list) if (!t.stale.full && !t.stale.simple) { full += tris(t.buildings); simple += tris(t.simple) }
+      let full = 0,
+        simple = 0
+      for (const t of this.list)
+        if (!t.stale.full && !t.stale.simple) {
+          full += tris(t.buildings)
+          simple += tris(t.simple)
+        }
       console.info(`budynki: ${full} trójkątów pełnych, ${simple} uproszczonych (${((simple / full) * 100).toFixed(0)}%)`)
     }
   }
@@ -102,7 +118,9 @@ export class Tiles {
   private seeds = 0
 
   private add(key: string, data: TileData, seed: number, pre?: WorkerResult) {
-    const ground = pre ? { ground: unpack(pre.ground), water: unpack(pre.water), roads: unpack(pre.roads), bridges: unpack(pre.bridges) } : buildGround(data)
+    const ground = pre
+      ? { ground: unpack(pre.ground), water: unpack(pre.water), roads: unpack(pre.roads), bridges: unpack(pre.bridges) }
+      : buildGround(data)
     const group = new THREE.Group()
     const mesh = (g: THREE.BufferGeometry, m: THREE.Material) => {
       const x = new THREE.Mesh(g, m)
@@ -115,10 +133,17 @@ export class Tiles {
     mesh(ground.roads, this.mats.roads)
     mesh(ground.bridges, this.mats.roads).castShadow = true
     // z wątku przychodzą obie wersje w wyglądzie „dziś”; inaczej budujemy tylko widoczną, drugą przy pierwszym pokazaniu
-    const ready = !!pre && this.defaultOpts, far = this.far
+    const ready = !!pre && this.defaultOpts,
+      far = this.far
     const empty = () => new THREE.BufferGeometry()
-    const buildings = mesh(ready ? unpack(pre.buildings) : far ? empty() : buildBuildings(data.buildings, this.opts, seed), this.mats.buildings)
-    const simple = mesh(ready ? unpack(pre.simple) : far ? buildBuildings(data.buildings, { ...this.opts, simple: true }, seed) : empty(), this.mats.buildings)
+    const buildings = mesh(
+      ready ? unpack(pre.buildings) : far ? empty() : buildBuildings(data.buildings, this.opts, seed),
+      this.mats.buildings,
+    )
+    const simple = mesh(
+      ready ? unpack(pre.simple) : far ? buildBuildings(data.buildings, { ...this.opts, simple: true }, seed) : empty(),
+      this.mats.buildings,
+    )
     buildings.castShadow = simple.castShadow = true
     buildings.visible = !far
     simple.visible = far
@@ -197,8 +222,9 @@ export class Tiles {
     if (hit?.faceIndex == null) return undefined
     const tile = this.list.find((t) => t.buildings === hit.object || t.simple === hit.object)
     if (!tile) return undefined
+    const mesh = tile.buildings === hit.object ? tile.buildings : tile.simple
     // indeks budynku dla każdego trójkąta (Geo.build / unpack)
-    const owners: Int32Array = (hit.object as THREE.Mesh).geometry.userData.owners
+    const owners: Int32Array = mesh.geometry.userData.owners
     return tile.data.buildings[owners[hit.faceIndex]]
   }
 }

@@ -30,7 +30,13 @@ function rider(helmet: string, kevlar: string) {
   return g
 }
 
-interface Racer { bike: THREE.Group; s: number; speed: number; lane: number; dustNext: number }
+interface Racer {
+  bike: THREE.Group
+  s: number
+  speed: number
+  lane: number
+  dustNext: number
+}
 
 export class Speedway {
   group = new THREE.Group()
@@ -55,7 +61,11 @@ export class Speedway {
       this.group.add(bike)
       return { bike, s: -i * 4, speed: r.speed, lane: r.lane, dustNext: 0 }
     })
-    this.dust = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshLambertMaterial({ color: '#c2a67e', transparent: true, opacity: 0.7 }), 160)
+    this.dust = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(1, 1, 1),
+      new THREE.MeshLambertMaterial({ color: '#c2a67e', transparent: true, opacity: 0.7 }),
+      160,
+    )
     this.dust.frustumCulled = false
     this.group.add(this.dust)
   }
@@ -95,7 +105,9 @@ export class Speedway {
       }
     }
     // pył: rośnie, unosi się i znika
-    const q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3()
+    const q = new THREE.Quaternion(),
+      v = new THREE.Vector3(),
+      sc = new THREE.Vector3()
     this.dustLife.forEach((d, i) => {
       d.t += dt
       const k = Math.min(d.t / 2, 1)
@@ -122,6 +134,8 @@ function reversePts(p: Flat): Flat {
 
 // Zawody żużlowe na Olimpijskim: sezon kwiecień–wrzesień, niedzielne popołudnia i piątkowe wieczory.
 export function raceOn(now: Date) {
-  const day = now.getDay(), h = now.getHours() + now.getMinutes() / 60, month = now.getMonth()
+  const day = now.getDay(),
+    h = now.getHours() + now.getMinutes() / 60,
+    month = now.getMonth()
   return month >= 3 && month <= 8 && ((day === 0 && h >= 16 && h < 19) || (day === 5 && h >= 18 && h < 21))
 }

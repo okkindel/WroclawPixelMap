@@ -15,7 +15,10 @@ function tilt(l: number, h: number, w: number, x: number, y: number, z: number, 
 // Aleksander Fredro (Rynek, L. Marconi 1897): siedzi w fotelu, brąz z zieloną patyną na wysokim cokole
 // z czerwonego piaskowca; stoi przy południowej pierzei, przodem na południe.
 function fredro() {
-  const S = '#8e5446', S2 = '#7a4639', B = '#5f9e8c', B2 = '#4c8070'
+  const S = '#8e5446',
+    S2 = '#7a4639',
+    B = '#5f9e8c',
+    B2 = '#4c8070'
   const p: Part[] = [
     [box(3.4, 0.3, 3.4, 0, 0), '#9b968c'], // płyta z ogrodzeniem
     [box(2.6, 0.6, 2.6, 0, 0.3), S2],
@@ -27,10 +30,12 @@ function fredro() {
     [box(1.6, 0.15, 1.4, 0, 3.9), B2],
     [box(0.9, 0.9, 1.3, -0.3, 4.05), B2], // fotel z opadającą czamarą
     [box(0.25, 1.5, 1.2, -0.72, 4.05), B2], // oparcie
-    [box(0.3, 0.9, 0.3, 0.4, 4.05, -0.2), B], [box(0.3, 0.9, 0.3, 0.4, 4.05, 0.2), B], // goleni
+    [box(0.3, 0.9, 0.3, 0.4, 4.05, -0.2), B],
+    [box(0.3, 0.9, 0.3, 0.4, 4.05, 0.2), B], // goleni
     [box(0.85, 0.3, 0.75, 0.15, 4.9), B], // uda
     [box(0.5, 0.95, 0.75, -0.3, 5.15), B], // tułów
-    [box(0.55, 0.2, 0.18, 0.1, 5.2, 0.44), B], [box(0.55, 0.2, 0.18, 0.1, 5.2, -0.44), B], // przedramiona na kolanach
+    [box(0.55, 0.2, 0.18, 0.1, 5.2, 0.44), B],
+    [box(0.55, 0.2, 0.18, 0.1, 5.2, -0.44), B], // przedramiona na kolanach
     [box(0.18, 0.5, 0.18, 0.3, 5.3, 0.44), B2], // zwój papieru w dłoni
     [box(0.18, 0.1, 0.18, -0.28, 6.1), B],
     [box(0.32, 0.38, 0.32, -0.25, 6.2), B], // głowa
@@ -41,24 +46,30 @@ function fredro() {
 // Bolesław Chrobry (2007): pomnik konny, ciemny brąz na szarym granitowym cokole z brązową wstęgą,
 // prawa przednia noga konia uniesiona, król z włócznią; ok. 10 m z cokołem.
 function chrobry() {
-  const G = '#a3a29c', G2 = '#8c8b85', B = '#4a4843', B2 = '#3a3935'
+  const G = '#a3a29c',
+    G2 = '#8c8b85',
+    B = '#4a4843',
+    B2 = '#3a3935'
   const p: Part[] = [
     [box(6.2, 0.4, 3.4, 0, 0), G2],
     [box(5.4, 3.6, 2.6, 0, 0.4), G],
     [box(5.46, 0.6, 2.66, 0, 2.7), B2], // wstęga z brązu z płaskorzeźbami
     [box(5.7, 0.3, 2.9, 0, 4.0), G2],
     // koń
-    [box(0.38, 2.1, 0.38, -1.35, 4.3, -0.42), B], [box(0.38, 2.1, 0.38, -1.35, 4.3, 0.42), B], // tylne nogi
+    [box(0.38, 2.1, 0.38, -1.35, 4.3, -0.42), B],
+    [box(0.38, 2.1, 0.38, -1.35, 4.3, 0.42), B], // tylne nogi
     [box(0.38, 2.1, 0.38, 1.3, 4.3, -0.42), B], // lewa przednia
     [box(0.36, 0.9, 0.36, 1.35, 5.5, 0.42), B], // prawa przednia uniesiona: ramię…
     [tilt(0.8, 0.32, 0.34, 1.75, 5.5, 0.42, 0.5), B], // …i zgięta pęcina
     [box(3.5, 1.45, 1.35, 0, 6.15), B], // tułów
     [tilt(0.8, 1.9, 0.75, 1.85, 7.8, 0, -0.5), B], // szyja
     [tilt(1.15, 0.52, 0.55, 2.55, 8.6, 0, -0.55), B], // łeb
-    [box(0.15, 0.3, 0.12, 2.15, 9.0, -0.15), B], [box(0.15, 0.3, 0.12, 2.15, 9.0, 0.15), B], // uszy
+    [box(0.15, 0.3, 0.12, 2.15, 9.0, -0.15), B],
+    [box(0.15, 0.3, 0.12, 2.15, 9.0, 0.15), B], // uszy
     [tilt(0.35, 1.5, 0.3, -1.95, 6.6, 0, -0.35), B2], // ogon
     // jeździec
-    [box(0.55, 1.15, 0.25, 0.15, 6.0, -0.8), B], [box(0.55, 1.15, 0.25, 0.15, 6.0, 0.8), B], // nogi wzdłuż boków konia
+    [box(0.55, 1.15, 0.25, 0.15, 6.0, -0.8), B],
+    [box(0.55, 1.15, 0.25, 0.15, 6.0, 0.8), B], // nogi wzdłuż boków konia
     [box(0.9, 0.35, 1.5, 0, 7.5), B2], // siodło z udami
     [box(0.62, 1.2, 0.85, -0.05, 7.6), B], // tułów
     [box(0.3, 1.1, 0.95, -0.42, 7.5), B2], // płaszcz na plecach
@@ -74,7 +85,9 @@ function chrobry() {
 // Mikołaj Kopernik (L. Podsiadły 1974): wysoki słup ze sztucznego kamienia z płaskorzeźbą układu
 // heliocentrycznego, zwieńczony popiersiem astronoma.
 function kopernik() {
-  const K = '#c7ae9e', K2 = '#b39787', K3 = '#d8c4b4'
+  const K = '#c7ae9e',
+    K2 = '#b39787',
+    K3 = '#d8c4b4'
   const p: Part[] = [
     [box(2.0, 0.25, 1.8, 0, 0), '#a8a39a'],
     [box(1.1, 4.0, 1.25, 0, 0.25), K],
@@ -92,7 +105,9 @@ function kopernik() {
 // Juliusz Słowacki (1984): siedząca, zamyślona postać w płaszczu oparta łokciem o blok z napisem,
 // ciemny brąz na niskim granitowym cokole stojącym na okrągłej platformie.
 function slowacki() {
-  const G = '#8f8f8a', B = '#50544f', B2 = '#40433f'
+  const G = '#8f8f8a',
+    B = '#50544f',
+    B2 = '#40433f'
   const ring = new THREE.CylinderGeometry(2.6, 2.7, 0.3, 16).translate(0, 0.15, 0)
   const p: Part[] = [
     [ring, '#b8b6ae'],
@@ -112,7 +127,10 @@ function slowacki() {
 
 // Św. Jan Paweł II (ul. Gliniana): stojąca postać w sutannie i pelerynce z pastorałem-krzyżem, na cokole.
 function janPawel() {
-  const S = '#b9b4a8', S2 = '#a19c90', B = '#6b5d45', B2 = '#5a4e3a'
+  const S = '#b9b4a8',
+    S2 = '#a19c90',
+    B = '#6b5d45',
+    B2 = '#5a4e3a'
   const p: Part[] = [
     [box(1.8, 0.3, 1.8, 0, 0), S2],
     [box(1.15, 2.2, 1.15, 0, 0.3), S],
@@ -134,12 +152,15 @@ function janPawel() {
 // przez ul. Piłsudskiego — 7 zapada się w chodnik przed jezdnią, 7 wynurza się po drugiej stronie skrzyżowania.
 // OSM ma jeden punkt (przy północno-wschodnim narożniku); przód = kierunek marszu (na południe wzdłuż Świdnickiej).
 function przechodnie() {
-  const B = '#6f7a6f', B2 = '#5c665c', P = '#8a857c'
+  const B = '#6f7a6f',
+    B2 = '#5c665c',
+    P = '#8a857c'
   type Bx = [l: number, h: number, w: number, x: number, y: number, z: number, c: string]
   const fig: Bx[] = [
     [0.26, 0.85, 0.36, 0, 0, 0, B2], // nogi
     [0.36, 0.8, 0.5, 0, 0.8, 0, B], // płaszcz
-    [0.16, 0.6, 0.12, 0.02, 0.95, 0.31, B], [0.16, 0.6, 0.12, 0.02, 0.95, -0.31, B], // ręce
+    [0.16, 0.6, 0.12, 0.02, 0.95, 0.31, B],
+    [0.16, 0.6, 0.12, 0.02, 0.95, -0.31, B], // ręce
     [0.24, 0.3, 0.12, 0.02, 0.75, 0.38, B2], // teczka/torba
     [0.12, 0.08, 0.12, 0.02, 1.6, 0, B],
     [0.24, 0.26, 0.22, 0.02, 1.66, 0, B], // głowa
@@ -149,24 +170,29 @@ function przechodnie() {
   const walker = (s: number, z: number, f: number, k: number) => {
     const sink = (1 - f) * 1.92
     for (const [l, h, w, x, y, zz, c] of fig) {
-      let y0 = y - sink, hh = h
+      let y0 = y - sink,
+        hh = h
       if (y0 + hh <= 0.02) continue
-      if (y0 < 0) { hh += y0; y0 = 0 }
+      if (y0 < 0) {
+        hh += y0
+        y0 = 0
+      }
       p.push([box(l, hh, w, s + x, y0, z + zz), c])
     }
-    if (f < 1) // wyłamane płyty chodnika wokół
+    if (f < 1)
+      // wyłamane płyty chodnika wokół
       for (let j = 0; j < 4; j++) {
-        const a = j * Math.PI / 2 + k
+        const a = (j * Math.PI) / 2 + k
         p.push([tilt(0.45, 0.08, 0.4, s + Math.cos(a) * 0.45, 0.06, z + Math.sin(a) * 0.45, 0.3 * (j % 2 ? 1 : -1)), P])
       }
   }
   const north = [1, 1, 1, 1, 0.8, 0.55, 0.35] // od najdalszej do krawężnika
   const south = [0.3, 0.5, 0.75, 1, 1, 1, 1] // od krawężnika w głąb
   const zs = [0.5, -0.4, 0.3, -0.5, 0.4, -0.3, 0.1]
-  north.forEach((f, k) => walker(-0.4 - (6 - k) * 1.5, zs[k], f, k))
+  for (const [k, f] of north.entries()) walker(-0.4 - (6 - k) * 1.5, zs[k], f, k)
   // za skrzyżowaniem (jezdnia, torowisko i łącznica mają tu ~30 m): chodnik po wschodniej stronie Świdnickiej
   // przed Arkadami, ok. (-1437, -1263) na mapie = (36.9, -4.6) w układzie modelu
-  south.forEach((f, k) => walker(36.9 + k * 1.5, -4.6 - zs[k], f, k))
+  for (const [k, f] of south.entries()) walker(36.9 + k * 1.5, -4.6 - zs[k], f, k)
   return merge(p)
 }
 

@@ -43,20 +43,36 @@ export class Dwarfs {
   }
 
   private load(): number[] {
-    try { return JSON.parse(localStorage.getItem(STORE) || '[]') } catch { return [] }
+    try {
+      return JSON.parse(localStorage.getItem(STORE) || '[]')
+    } catch {
+      return []
+    }
   }
 
   private save() {
-    try { localStorage.setItem(STORE, JSON.stringify([...this.found])) } catch { /* tryb prywatny */ }
+    try {
+      localStorage.setItem(STORE, JSON.stringify([...this.found]))
+    } catch {
+      /* tryb prywatny */
+    }
   }
 
   // Krasnale są maleńkie (ok. 30 cm), więc przy oddaleniu powiększamy je, żeby było je widać.
   setZoom(metersPerPixel: number) {
     const s = THREE.MathUtils.clamp(metersPerPixel * 1.4, 1, 5)
-    if (Math.abs(s - this.scale) > 0.05) { this.scale = s; this.layout() }
+    if (Math.abs(s - this.scale) > 0.05) {
+      this.scale = s
+      this.layout()
+    }
   }
 
-  setHover(i: number) { if (i !== this.hover) { this.hover = i; this.layout() } }
+  setHover(i: number) {
+    if (i !== this.hover) {
+      this.hover = i
+      this.layout()
+    }
+  }
 
   layout() {
     this.list.forEach((d, i) => {
@@ -80,7 +96,9 @@ export class Dwarfs {
   }
 
   // Rewolucja Krasnoludków: wszystkie krasnale rosną i skaczą przez chwilę.
-  startParty(seconds = 12) { this.party = seconds }
+  startParty(seconds = 12) {
+    this.party = seconds
+  }
 
   collect(i: number): { dwarf: Dwarf; isNew: boolean } {
     const dwarf = this.list[i]

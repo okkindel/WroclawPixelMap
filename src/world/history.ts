@@ -1,6 +1,8 @@
 // Podkład z historycznego planu miasta (np. 1732) kładziony na terenie w dawnych epokach.
 // Jasny papier planu jest przezroczysty, więc poza rysunkiem widać zwykły teren.
 import * as THREE from 'three'
+import { loadJson } from '../engine/data.ts'
+import { historyPlanFor } from '../rules/milestones.ts'
 import type { WorldMeta } from '../types/world.ts'
 
 export class HistoryLayer {
@@ -12,13 +14,11 @@ export class HistoryLayer {
 
   constructor(meta: WorldMeta) {
     this.meta = meta
-    this.index = fetch(`${import.meta.env.BASE_URL}data/history/index.json`).then((r) => (r.ok ? r.json() : {})).catch(() => ({}))
+    this.index = loadJson<Record<string, string[]>>('history/index.json').then((index) => index ?? {})
   }
 
-  // Plan dla danego roku epoki: tylko epoki, które ten plan przybliża (lokacja … Napoleon).
-  static planFor(year: number) {
-    return year >= 1242 && year <= 1807 ? '1732' : null
-  }
+  // Plan dla danego roku epoki (src/rules/milestones.ts).
+  static planFor = historyPlanFor
 
   async show(plan: string | null) {
     this.current = plan

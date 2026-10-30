@@ -18,7 +18,10 @@ export function buildStands(stadiums: (Poly & { n?: string })[]) {
   const group = new THREE.Group()
   const fans: THREE.Matrix4[] = []
   const fanColors: string[] = []
-  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3(1, 1, 1)
+  const m4 = new THREE.Matrix4(),
+    q = new THREE.Quaternion(),
+    v = new THREE.Vector3(),
+    s = new THREE.Vector3(1, 1, 1)
   for (const st of stadiums) {
     const sparta = /Olimpijski/.test(st.n ?? '')
     const mats = (sparta ? SPARTA_COLORS : DEFAULT_COLORS).map((color) => new THREE.MeshLambertMaterial({ color }))
@@ -27,13 +30,21 @@ export function buildStands(stadiums: (Poly & { n?: string })[]) {
     const n = ring.length / 2
     for (let i = 0; i < n; i++) {
       const j = (i + 1) % n
-      const ax = ring[i * 2], ay = ring[i * 2 + 1], bx = ring[j * 2], by = ring[j * 2 + 1]
+      const ax = ring[i * 2],
+        ay = ring[i * 2 + 1],
+        bx = ring[j * 2],
+        by = ring[j * 2 + 1]
       const L = Math.hypot(bx - ax, by - ay)
       if (L < 4) continue
       // normalna do środka stadionu
-      let nx = -(by - ay) / L, ny = (bx - ax) / L
-      const mx = (ax + bx) / 2, my = (ay + by) / 2
-      if ((cx - mx) * nx + (cy - my) * ny < 0) { nx = -nx; ny = -ny }
+      let nx = -(by - ay) / L,
+        ny = (bx - ax) / L
+      const mx = (ax + bx) / 2,
+        my = (ay + by) / 2
+      if ((cx - mx) * nx + (cy - my) * ny < 0) {
+        nx = -nx
+        ny = -ny
+      }
       const ang = Math.atan2(by - ay, bx - ax)
       TIERS.forEach((t, k) => {
         const m = new THREE.Mesh(new THREE.BoxGeometry(L + 1, t.h, t.depth), mats[k])
@@ -57,7 +68,10 @@ export function buildStands(stadiums: (Poly & { n?: string })[]) {
   if (fans.length) {
     const crowd = new THREE.InstancedMesh(new THREE.BoxGeometry(0.9, 1.6, 0.9), new THREE.MeshLambertMaterial(), fans.length)
     const c = new THREE.Color()
-    fans.forEach((m, i) => { crowd.setMatrixAt(i, m); crowd.setColorAt(i, c.set(fanColors[i])) })
+    fans.forEach((m, i) => {
+      crowd.setMatrixAt(i, m)
+      crowd.setColorAt(i, c.set(fanColors[i]))
+    })
     group.add(crowd)
   }
   return group

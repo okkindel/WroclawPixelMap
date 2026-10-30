@@ -44,7 +44,11 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
 
   // Co jest pod kursorem: akcja po kliknięciu i bryły do podświetlenia (albo null, gdy nic klikalnego).
   // shape() zwraca kopie brył w położeniu obiektu; dla ruchomych (live) liczone co klatkę.
-  interface Target { open: () => void; shape: () => THREE.Object3D[]; live?: boolean }
+  interface Target {
+    open: () => void
+    shape: () => THREE.Object3D[]
+    live?: boolean
+  }
   const MASK = new THREE.MeshBasicMaterial({ color: 0xffffff })
   const instanceCopy = (mesh: THREE.InstancedMesh, id: number) => {
     const m = new THREE.Matrix4()
@@ -58,11 +62,10 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     const out: THREE.Object3D[] = []
     obj.updateWorldMatrix(true, true)
     obj.traverse((o) => {
-      const mesh = o as THREE.Mesh
-      if (!mesh.isMesh || !o.visible) return
-      const copy = new THREE.Mesh(mesh.geometry, MASK)
+      if (!(o instanceof THREE.Mesh) || !o.visible) return
+      const copy = new THREE.Mesh(o.geometry, MASK)
       copy.matrixAutoUpdate = false
-      copy.matrix.copy(mesh.matrixWorld)
+      copy.matrix.copy(o.matrixWorld)
       out.push(copy)
     })
     return out
@@ -72,8 +75,8 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     const hit = ray.intersectObject(root, true)[0]
     if (!hit) return () => []
     const id = hit.instanceId
-    if (id != null && (hit.object as THREE.InstancedMesh).isInstancedMesh) {
-      const mesh = hit.object as THREE.InstancedMesh
+    const mesh = hit.object
+    if (id != null && mesh instanceof THREE.InstancedMesh) {
       return () => [instanceCopy(mesh, id)]
     }
     let top = hit.object
@@ -126,7 +129,8 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
           })
         // cały skład: wagony jednego kursu to kolejne instancje
         const first = tram.instanceId - (tram.instanceId % TRAM_CARS)
-        const shape = () => Array.from({ length: Math.min(TRAM_CARS, timetable.mesh.count - first) }, (_, k) => instanceCopy(timetable.mesh, first + k))
+        const shape = () =>
+          Array.from({ length: Math.min(TRAM_CARS, timetable.mesh.count - first) }, (_, k) => instanceCopy(timetable.mesh, first + k))
         return { open, shape, live: true }
       }
     }
@@ -135,20 +139,34 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     const neon = p.neons.group.visible ? p.neons.hit(ray) : null
     if (neon) {
       const link = neon.source ? { href: neon.source, label: t('source') } : undefined
-      return { open: () => openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link }), shape: hitShape(p.neons.group), live: true }
+      return {
+        open: () => openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link }),
+        shape: hitShape(p.neons.group),
+        live: true,
+      }
     }
     const scenes = p.scenes()
     const scene = scenes?.hit(ray)
-    if (scene && scenes) return { open: () => openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text }), shape: hitShape(scenes.group), live: true }
+    if (scene && scenes)
+      return {
+        open: () => openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text }),
+        shape: hitShape(scenes.group),
+        live: true,
+      }
     const speedway = scenes?.speedway
     if (speedway?.group.visible && speedway.hit(ray)) {
-      return { open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }), shape: hitShape(speedway.group), live: true }
+      return {
+        open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }),
+        shape: hitShape(speedway.group),
+        live: true,
+      }
     }
     const b = p.tiles.pick(ray)
     // budynek z napisem otwiera to samo okienko co napis; bez napisu — tylko gdy znamy rok budowy
     const opener = b?.n ? p.openerFor(b.n, b.o[0], b.o[1]) : undefined
     if (b?.n && (opener || b.y)) {
-      const name = b.n, year = b.y
+      const name = b.n,
+        year = b.y
       const shape = buildingShape(b)
       const open = opener ?? (() => openPopup({ title: name, sub: t('building.built', { y: year! }) }))
       return { open, shape: () => shape }
@@ -192,7 +210,10 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     canvas.style.cursor = target ? 'pointer' : ''
     showOutline(target)
   })
-  canvas.addEventListener('pointerleave', () => { hovered = null; showOutline(null) })
+  canvas.addEventListener('pointerleave', () => {
+    hovered = null
+    showOutline(null)
+  })
   // obrys ruchomych obiektów (tramwaj, łodzie, żużlowcy) jedzie razem z nimi
   const follow = () => {
     if (hovered?.live) showOutline(hovered)

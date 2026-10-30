@@ -6,7 +6,13 @@ import type { Dwarf, World } from '../types/world.ts'
 import type { SearchItem } from '../ui/search.ts'
 import { showLandmark, showTrivia } from './popups.ts'
 
-export function searchItems(landmarks: Landmark[], trivia: Trivia[], dwarfs: Dwarf[], world: World, onDwarf: (i: number) => void): SearchItem[] {
+export function searchItems(
+  landmarks: Landmark[],
+  trivia: Trivia[],
+  dwarfs: Dwarf[],
+  world: World,
+  onDwarf: (i: number) => void,
+): SearchItem[] {
   return [
     ...landmarks.map((l) => {
       const [x, y] = toLocal(l.lat, l.lon)

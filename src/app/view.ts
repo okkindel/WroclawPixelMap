@@ -29,20 +29,24 @@ export class View {
     this.controls = c
   }
 
-  get target() { return this.controls.target }
-  get zoom() { return this.camera.zoom }
-  get azimuth() { return this.controls.getAzimuthalAngle() }
-  get tilt() { return this.controls.getPolarAngle() }
+  get target() {
+    return this.controls.target
+  }
+  get zoom() {
+    return this.camera.zoom
+  }
+  get azimuth() {
+    return this.controls.getAzimuthalAngle()
+  }
+  get tilt() {
+    return this.controls.getPolarAngle()
+  }
 
   // Kamera patrzy na punkt mapy (x, y) z kierunku azimuth, nachylona o polar od pionu.
   set(x: number, y: number, zoom: number, azimuth: number, polar = DEFAULT_TILT) {
     const d = CAMERA_DISTANCE
     this.target.set(x, 0, -y)
-    this.camera.position.set(
-      x + Math.sin(azimuth) * Math.sin(polar) * d,
-      Math.cos(polar) * d,
-      -y + Math.cos(azimuth) * Math.sin(polar) * d,
-    )
+    this.camera.position.set(x + Math.sin(azimuth) * Math.sin(polar) * d, Math.cos(polar) * d, -y + Math.cos(azimuth) * Math.sin(polar) * d)
     this.camera.zoom = zoom
     this.camera.updateProjectionMatrix()
     this.controls.update()
@@ -64,7 +68,8 @@ export class View {
 
   // Widok z linku (#x=…&y=…&z=…&r=…&t=…) albo domyślny; zwraca punkt startowy.
   restore(h: URLSearchParams, fallback: [number, number]): [number, number] {
-    const x = +(h.get('x') ?? fallback[0]), y = +(h.get('y') ?? fallback[1])
+    const x = +(h.get('x') ?? fallback[0]),
+      y = +(h.get('y') ?? fallback[1])
     const tilt = Math.min(+(h.get('t') ?? DEFAULT_TILT), MAX_TILT)
     this.set(x, y, +(h.get('z') ?? 1.6), +(h.get('r') ?? 0), tilt)
     return [x, y]
@@ -94,11 +99,13 @@ export class View {
   // Nie pozwala odjechać poza mapę: przesuwamy cel i kamerę razem
   // (sam cel zmieniałby odległość kamery i dalsza część miasta wypadałaby poza zasięg widzenia).
   keepInside([bx0, by0, bx1, by1]: World['bounds']) {
-    const target = this.target, cam = this.camera
+    const target = this.target,
+      cam = this.camera
     const hw = innerWidth / 2 / cam.zoom
     const hh = innerHeight / 2 / cam.zoom / Math.max(0.5, Math.cos(this.tilt))
     const lim = (lo: number, hi: number, half: number, v: number) => {
-      const a = lo + half - EDGE_SLACK, b = hi - half + EDGE_SLACK
+      const a = lo + half - EDGE_SLACK,
+        b = hi - half + EDGE_SLACK
       return a > b ? (lo + hi) / 2 : THREE.MathUtils.clamp(v, a, b)
     }
     const cx = lim(bx0, bx1, Math.min(hw, hh * 4), target.x) - target.x

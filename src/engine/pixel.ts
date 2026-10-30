@@ -38,7 +38,7 @@ export class PixelPass {
         uDither: { value: 1 },
         uDepthRange: { value: 1 },
         uNight: { value: 0 },
-        tMask: { value: null as THREE.Texture | null },
+        tMask: { value: null }, // THREE.Texture maski podświetlenia (ustawiana przy rysowaniu)
         uHighlight: { value: 0 },
       },
       vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
@@ -89,7 +89,7 @@ export class PixelPass {
       depthWrite: false,
     })
     // paleta i obliczenia w przestrzeni sRGB (bufor sceny jest liniowy)
-    pal.forEach((c) => c.convertLinearToSRGB())
+    for (const c of pal) c.convertLinearToSRGB()
     this.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), this.material)
     this.scene = new THREE.Scene()
     this.scene.add(this.quad)

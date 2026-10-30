@@ -1,11 +1,21 @@
 // Epoki: które budynki pokazać, jak je zmienić i co dobudować (mury, bastiony, pas startowy, powódź).
 // Rekonstrukcje są przybliżone: OSM zna rok budowy tylko części budynków.
 import * as THREE from 'three'
-import { bbox, distToPolyline, hash, pointInRing, signedArea, toLocal } from '../engine/geo.ts'
+import { bbox, distToPolyline, hash, pointInRing, toLocal } from '../engine/geo.ts'
 import type { BuildOpts } from '../world/buildings.ts'
 import type { Building, Flat, World } from '../types/world.ts'
 import type { Epoch, Walls } from '../content/index.ts'
-import { SINCE } from './milestones.ts'
+import {
+  CATHEDRAL_RADIUS,
+  GROD_CHURCHES,
+  LOCATION_YEAR,
+  OLD_TOWN_MAX_H,
+  WALLED_MAX_H,
+  looksLaterThan,
+  looksPostwar,
+  prewarRadius,
+} from '../rules/epochs.ts'
+import { SINCE } from '../rules/milestones.ts'
 
 export interface EpochScene {
   opts: BuildOpts
@@ -27,7 +37,10 @@ function wallAlong(p: Flat, width: number, height: number, color: string, every 
   const tmat = lambert(towerColor)
   let acc = 0
   for (let i = 0; i + 3 < p.length; i += 2) {
-    const ax = p[i], ay = p[i + 1], bx = p[i + 2], by = p[i + 3]
+    const ax = p[i],
+      ay = p[i + 1],
+      bx = p[i + 2],
+      by = p[i + 3]
     const L = Math.hypot(bx - ax, by - ay)
     if (L < 0.5) continue
     const m = new THREE.Mesh(new THREE.BoxGeometry(L + width * 0.5, height, width), mat)
@@ -57,9 +70,16 @@ function bastion(x: number, y: number, towardX: number, towardY: number) {
   // Pięcioboczny bastion skierowany na zewnątrz (od środka miasta).
   const ang = Math.atan2(y - towardY, x - towardX)
   const shape = new THREE.Shape()
-  const pts = [[-30, -35], [15, -40], [55, 0], [15, 40], [-30, 35]]
+  const pts = [
+    [-30, -35],
+    [15, -40],
+    [55, 0],
+    [15, 40],
+    [-30, 35],
+  ]
   pts.forEach(([a, b], i) => {
-    const px = a * Math.cos(ang) - b * Math.sin(ang), py = a * Math.sin(ang) + b * Math.cos(ang)
+    const px = a * Math.cos(ang) - b * Math.sin(ang),
+      py = a * Math.sin(ang) + b * Math.cos(ang)
     i ? shape.lineTo(px, py) : shape.moveTo(px, py)
   })
   const geo = new THREE.ExtrudeGeometry(shape, { depth: 9, bevelEnabled: false })
@@ -80,34 +100,50 @@ const FLOOD_MAX_STEPS = 13 // BFS dalej nie idzie (13 × 15 m ≈ 195 m)
 function floodMesh(world: World) {
   const cell = FLOOD_CELL
   const [x0, y0, x1, y1] = world.bounds
-  const nx = Math.ceil((x1 - x0) / cell), ny = Math.ceil((y1 - y0) / cell)
+  const nx = Math.ceil((x1 - x0) / cell),
+    ny = Math.ceil((y1 - y0) / cell)
   const dist = new Int16Array(nx * ny).fill(-1)
   const queue: number[] = []
   const polys = world.water.map((w) => ({ ring: w.o, box: bbox(w.o) }))
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-    const x = x0 + (i + 0.5) * cell, y = y0 + (j + 0.5) * cell
-    if (polys.some((p) => x >= p.box[0] && x <= p.box[2] && y >= p.box[1] && y <= p.box[3] && pointInRing(x, y, p.ring))) {
-      dist[j * nx + i] = 0
-      queue.push(j * nx + i)
+  for (let j = 0; j < ny; j++)
+    for (let i = 0; i < nx; i++) {
+      const x = x0 + (i + 0.5) * cell,
+        y = y0 + (j + 0.5) * cell
+      if (polys.some((p) => x >= p.box[0] && x <= p.box[2] && y >= p.box[1] && y <= p.box[3] && pointInRing(x, y, p.ring))) {
+        dist[j * nx + i] = 0
+        queue.push(j * nx + i)
+      }
     }
-  }
   for (let q = 0; q < queue.length; q++) {
-    const id = queue[q], i = id % nx, j = (id / nx) | 0, d = dist[id]
+    const id = queue[q],
+      i = id % nx,
+      j = (id / nx) | 0,
+      d = dist[id]
     if (d >= FLOOD_MAX_STEPS) continue
-    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const a = i + di, b = j + dj
+    for (const [di, dj] of [
+      [1, 0],
+      [-1, 0],
+      [0, 1],
+      [0, -1],
+    ]) {
+      const a = i + di,
+        b = j + dj
       if (a < 0 || b < 0 || a >= nx || b >= ny || dist[b * nx + a] >= 0) continue
       dist[b * nx + a] = d + 1
       queue.push(b * nx + a)
     }
   }
   const pos: number[] = []
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
-    const d = dist[j * nx + i]
-    if (d <= 0 || d > 6 + hash(i >> 2, j >> 2) * 7) continue
-    const ax = x0 + i * cell, ay = y0 + j * cell, bx = ax + cell, by = ay + cell
-    pos.push(ax, 0, -ay, bx, 0, -ay, bx, 0, -by, ax, 0, -ay, bx, 0, -by, ax, 0, -by)
-  }
+  for (let j = 0; j < ny; j++)
+    for (let i = 0; i < nx; i++) {
+      const d = dist[j * nx + i]
+      if (d <= 0 || d > 6 + hash(i >> 2, j >> 2) * 7) continue
+      const ax = x0 + i * cell,
+        ay = y0 + j * cell,
+        bx = ax + cell,
+        by = ay + cell
+      pos.push(ax, 0, -ay, bx, 0, -ay, bx, 0, -by, ax, 0, -ay, bx, 0, -by, ax, 0, -by)
+    }
   const g = new THREE.BufferGeometry()
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
   g.computeVertexNormals()
@@ -120,11 +156,18 @@ function floodMesh(world: World) {
 // Dym nad ruinami: kilka słupów dymu, każdy z kłębów, które rosną, unoszą się z wiatrem i znikają.
 function smoke(world: World, count: number) {
   const fires = world.buildings.filter((b, i) => hash(i, 41) < 0.004 && b.H > 8).slice(0, 14)
-  const mesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), lambert('#8f877d', { transparent: true, opacity: 0.55, depthWrite: false }), count)
+  const mesh = new THREE.InstancedMesh(
+    new THREE.IcosahedronGeometry(1, 1),
+    lambert('#8f877d', { transparent: true, opacity: 0.55, depthWrite: false }),
+    count,
+  )
   mesh.frustumCulled = false
   const LIFE = 14
   const seeds = Array.from({ length: count }, (_, i) => ({ b: fires[i % Math.max(1, fires.length)], t: hash(i, 3) * LIFE }))
-  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s = new THREE.Vector3()
+  const m = new THREE.Matrix4(),
+    q = new THREE.Quaternion(),
+    v = new THREE.Vector3(),
+    s = new THREE.Vector3()
   const update = (dt: number) => {
     seeds.forEach((sd, i) => {
       if (!sd.b) return
@@ -157,16 +200,16 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
 
   if (epoch.mode === 'walls' || epoch.mode === 'medieval') {
     const medieval = epoch.mode === 'medieval'
-    const early = Y < 1242
+    const early = Y < LOCATION_YEAR
     const cathedral = toLocal(51.1142, 17.0464)
     const opts: BuildOpts = {
       keep: (b) => {
         if (b.y && b.y > Y) return false
         // w grodzie: tylko miejsca pierwszych świątyń (katedra, św. Marcin), reszta przyszła później
-        if (early) return /Archikatedra|Marcina/.test(b.n ?? '')
+        if (early) return GROD_CHURCHES.test(b.n ?? '')
         const town = inside(medieval ? inner : outer, b)
-        if (town) return b.k === 'church' || b.H < (medieval ? 18 : 24)
-        return !!b.y || (b.k === 'church' && Math.hypot(b.o[0] - cathedral[0], b.o[1] - cathedral[1]) < 900)
+        if (town) return b.k === 'church' || b.H < (medieval ? WALLED_MAX_H.medieval : WALLED_MAX_H.fortress)
+        return !!b.y || (b.k === 'church' && Math.hypot(b.o[0] - cathedral[0], b.o[1] - cathedral[1]) < CATHEDRAL_RADIUS)
       },
       mod: (b) => (b.y ? undefined : { roof: b.k === 'church' ? undefined : '#b5523a' }),
     }
@@ -179,7 +222,8 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
       for (let a = 0; a <= 32; a++) {
         const ang = (a / 32) * 6.283
         let r = 1
-        let x = 0, y = 0
+        let x = 0,
+          y = 0
         for (; r > 0.2; r -= 0.05) {
           x = grod[0] + Math.cos(ang) * 130 * r
           y = grod[1] + Math.sin(ang) * 90 * r
@@ -215,7 +259,12 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
       keep: (b) => notLater(b) && !nearRunway(b) && (!!b.y || !looksPostwar(b)),
       mod: (b, i) => {
         if (hash(i, 17) > 0.62) return undefined
-        return { H: Math.max(2, b.H * (0.12 + hash(i, 19) * 0.35)), wall: hash(i, 23) > 0.5 ? '#6b6560' : '#4a4744', roof: '#3d3f58', flat: true }
+        return {
+          H: Math.max(2, b.H * (0.12 + hash(i, 19) * 0.35)),
+          wall: hash(i, 23) > 0.5 ? '#6b6560' : '#4a4744',
+          roof: '#3d3f58',
+          flat: true,
+        }
       },
     }
     return { opts, extras, update, life: { trams: false, cars: false } }
@@ -226,13 +275,12 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   if (Y < 1945) {
     // Przed wojną: przybliżony zasięg zabudowy (odległość od Rynku) i bez brył wyglądających na powojenne.
     // Budynki z datą budowy w OSM rozstrzygają same za siebie.
-    const radius = Y < 1850 ? 0 : Y < 1905 ? 2600 : 3200
+    const radius = prewarRadius(Y)
     const keep = (b: Building) => {
       if (b.y) return b.y <= Y
-      // na Starym Mieście kamienice często nie mają tagu dachu: chowamy tylko wyraźnie wysokie bryły
-      if (inside(outer, b)) return b.H < 28 || b.k === 'church' || b.k === 'pub'
+      if (inside(outer, b)) return b.H < OLD_TOWN_MAX_H || b.k === 'church' || b.k === 'pub'
       if (looksPostwar(b)) return false
-      return near(b, cityCenter, Y < 1850 ? 1300 : radius)
+      return near(b, cityCenter, radius)
     }
     return { opts: { keep }, extras, update, life }
   }
@@ -241,25 +289,4 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   return { opts: { keep: (b) => (b.y ? b.y <= Y : !looksLaterThan(b, Y)) }, extras, update, life }
 }
 
-// Ogólna reguła dla budynków bez daty: szkło i lustra, biurowce i duże galerie handlowe
-// to w Polsce głównie lata 90. i później; ponad 100 m — dopiero XXI w. (Sky Tower 2012).
-function looksLaterThan(b: Building, Y: number) {
-  if (Y >= SINCE.today) return false
-  if (b.H > 100 && b.k !== 'chimney') return Y < 2010
-  if (Y >= 1995) return false
-  const glass = b.bm === 'glass' || b.bm === 'mirror'
-  const area = Math.abs(signedArea(b.o))
-  return glass || (b.k === 'com' && (b.H > 20 || area > 4000))
-}
-
 const near = (b: Building, [x, y]: [number, number], r: number) => Math.hypot(b.o[0] - x, b.o[1] - y) < r
-
-// Bez daty w OSM zgadujemy: płaski dach i wysokość jak blok/biurowiec, albo szkło i handel = po 1945.
-const OLD_ROOFS = new Set(['gabled', 'hipped', 'half-hipped', 'mansard', 'gambrel', 'pyramidal', 'dome', 'onion'])
-function looksPostwar(b: Building) {
-  if (b.k === 'church') return false
-  // przedwojenny Wrocław nie miał wysokościowców (poza wieżami kościołów)
-  if (b.H > 35) return true
-  if (b.rs && OLD_ROOFS.has(b.rs)) return false
-  return b.H > 17 || b.k === 'com' || (b.k === 'res' && b.H > 12)
-}

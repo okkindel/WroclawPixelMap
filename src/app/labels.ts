@@ -8,32 +8,8 @@ import type { PoiKind, WorldMeta } from '../types/world.ts'
 import { openPopup } from '../ui/popup.ts'
 import { byId } from '../ui/dom.ts'
 import { showEgg, showLandmark, showNeon, showTrivia } from './popups.ts'
+import { CULT_FROM, POI_DEDUP_RADIUS, STADIUM_MIN_ZOOM, UNI_TRIVIA_MIN_ZOOM, firstWord, poiFrom, poiLabelRule } from '../rules/labels.ts'
 import { wikiInfo } from './wiki.ts'
-
-// minimalne przybliżenie, od którego widać napis
-// (z daleka widać główny napis uczelni; ciekawostki o uczelniach i jej jednostki dopiero z bliska)
-const UNI_TRIVIA_MIN_ZOOM = 1.8
-const STADIUM_MIN_ZOOM = 0.8
-const POI_MIN_ZOOM = { church: 1.5, famous: 0.3, other: 1.2, unit: 2.2, school: 1.5 }
-// kultowe miejsca (★) to głównie PRL i później
-const CULT_FROM = 1950
-// obiekt z OSM bliżej zabytku z listy niż tyle metrów to ten sam obiekt (bez dublowania napisu)
-const POI_DEDUP_RADIUS = 150
-// pierwsze słowo nazwy bez polskich znaków, małymi literami
-const firstWord = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(/[\s(]/)[0]
-
-// Od kiedy pokazywać obiekt z OSM bez daty: galerie od lat 90., świątynie zawsze,
-// reszta (funkcje współczesne) od 1950 r.
-const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 1995 : kind === 'church' ? undefined : 1950)
-
-// Jednostki uczelni i podobne obiekty (wydziały, instytuty, kampusy…): tłok napisów na kampusach.
-const UNIT = /Wydział|Instytut|Katedra|Zakład|Pracownia|Laboratorium|Biblioteka Główna|Centrum Kształcenia|Kampus/i
-// Główny napis uczelni (kind 'edu', nie jednostka): zawsze widoczny z daleka.
-const UNIVERSITY = /^(Uniwersytet|Politechnika|Akademia|Szkoła Wyższa|Wyższa Szkoła)/i
-
-// obiekt 'edu', który jest szkołą, a nie uczelnią: tylko z bliska, z podtytułem „Szkoła”
-const SCHOOL = /Liceum|Szkoła|Technikum|Gimnazjum|Zespół Szkół/i
-
 
 export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record<string, 1 | 2>, eggs: Egg[], trivia: Trivia[]) {
   const labels = new Labels(byId('pins'), landmarks, rank, showLandmark)
@@ -69,19 +45,11 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
     notable: t('poi.notable'),
   }
   for (const [name, x, y, kind, poiRank, wiki] of meta.pois) {
-    // duplikat = blisko zabytku z listy i ta sama nazwa (np. „Hala Targowa”), a nie tylko sąsiad („Pasaż Grunwaldzki” obok „Plac Grunwaldzki”)
+    // duplikat zabytku z listy (src/rules/labels.ts)
     if (landmarkXY.some(([lx, ly, w]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && w === firstWord(name))) continue
     const [lat, lon] = toLatLon(x, y)
     const church = kind === 'church'
-    // (świątynie pomijamy: „Katedra” to tu kościół, nie katedra uczelni)
-    const unit = !church && UNIT.test(name)
-    const university = !unit && kind === 'edu' && UNIVERSITY.test(name)
-    const school = kind === 'edu' && !university && SCHOOL.test(name)
-    const minZoom = unit ? POI_MIN_ZOOM.unit
-      : school ? POI_MIN_ZOOM.school
-      : church ? POI_MIN_ZOOM.church
-      : poiRank === 1 || university ? POI_MIN_ZOOM.famous
-      : POI_MIN_ZOOM.other
+    const { minZoom, university, school } = poiLabelRule(name, kind, poiRank)
     const sub = school ? t('poi.school') : poiSub[kind]
     // opis i zdjęcie z Wikipedii (public/data/wiki.json), jeśli są; wczytywane leniwie przy pierwszym kliknięciu
     const onClick = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki)) })

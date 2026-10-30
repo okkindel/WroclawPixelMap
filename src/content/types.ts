@@ -96,7 +96,11 @@ type Loc<T> = { pl: T; en: T }
 export type EpochEntry = Omit<Epoch, 'label' | 'state' | 'text'> & Loc<Pick<Epoch, 'label' | 'state' | 'text'>>
 
 // `year` wspólny dla obu języków albo osobno w `pl`/`en`; `rank`: napis widoczny z daleka (1) lub przy średnim przybliżeniu (2).
-export type LandmarkEntry = { id: string; lat: number; lon: number; year?: string; rank?: 1 | 2 } & Loc<{ name: string; year?: string; text: string }>
+export type LandmarkEntry = { id: string; lat: number; lon: number; year?: string; rank?: 1 | 2 } & Loc<{
+  name: string
+  year?: string
+  text: string
+}>
 
 export type EggEntry = Omit<Egg, 'title' | 'text'> & Loc<Pick<Egg, 'title' | 'text'>>
 

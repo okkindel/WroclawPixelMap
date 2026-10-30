@@ -1,7 +1,13 @@
 // Wyszukiwarka: ulice i budynki z OSM, zabytki, krasnale. Dopasowanie bez polskich znaków.
 import { byId } from './dom.ts'
 
-export interface SearchItem { name: string; kind: string; x: number; y: number; onPick?: () => void }
+export interface SearchItem {
+  name: string
+  kind: string
+  x: number
+  y: number
+  onPick?: () => void
+}
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ł/g, 'l')
 
@@ -36,7 +42,11 @@ export function initSearch(items: SearchItem[], fly: (x: number, y: number) => v
   input.addEventListener('input', () => {
     const q = norm(input.value.trim())
     sel = 0
-    if (q.length < 2) { shown = []; render(); return }
+    if (q.length < 2) {
+      shown = []
+      render()
+      return
+    }
     shown = indexed
       .filter((e) => e.key.includes(q))
       .sort((a, b) => Number(!a.key.startsWith(q)) - Number(!b.key.startsWith(q)) || a.key.length - b.key.length)
@@ -45,8 +55,16 @@ export function initSearch(items: SearchItem[], fly: (x: number, y: number) => v
     render()
   })
   input.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowDown') { sel = Math.min(sel + 1, shown.length - 1); render(); e.preventDefault() }
-    if (e.key === 'ArrowUp') { sel = Math.max(sel - 1, 0); render(); e.preventDefault() }
+    if (e.key === 'ArrowDown') {
+      sel = Math.min(sel + 1, shown.length - 1)
+      render()
+      e.preventDefault()
+    }
+    if (e.key === 'ArrowUp') {
+      sel = Math.max(sel - 1, 0)
+      render()
+      e.preventDefault()
+    }
     if (e.key === 'Enter' && shown[sel]) pick(shown[sel])
   })
 }

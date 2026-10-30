@@ -27,9 +27,7 @@ export function showNeon(n: NeonSpec) {
 
 // Krasnal: autor i data odsłonięcia, napis z tabliczki albo losowa ciekawostka o krasnalach.
 export function showDwarf(dwarf: Dwarf, facts: string[]) {
-  const sub = [dwarf.a && t('dwarf.author', { a: dwarf.a }), dwarf.d && t('dwarf.since', { d: dwarf.d })]
-    .filter(Boolean)
-    .join(' · ')
+  const sub = [dwarf.a && t('dwarf.author', { a: dwarf.a }), dwarf.d && t('dwarf.since', { d: dwarf.d })].filter(Boolean).join(' · ')
   const fact = facts[Math.floor(Math.random() * facts.length)]
   openPopup({
     title: dwarf.n,

@@ -3,7 +3,11 @@ import { C } from '../engine/palette.ts'
 import type { TileData, World } from '../types/world.ts'
 import { Geo, flatPoly, strip } from './geometry.ts'
 
-const S = (k: string) => C[k] as string
+// kolor z palety C (wpis będący pojedynczym kolorem; brak = pusty napis)
+const S = (k: string) => {
+  const v = C[k]
+  return typeof v === 'string' ? v : ''
+}
 
 function roadColor(k: string, car?: 1) {
   if (k === 'service' || k === 'living_street') return S('asphaltLight')
@@ -49,7 +53,11 @@ export function buildGround(data: TileData) {
     strip(bridges, r.p, r.w, 1.12, roadColor(r.k, r.car))
   }
   for (const t of data.trams) if (t.b) strip(bridges, t.p, 1.6, 1.2, S('tramTrack'))
-  for (const r of data.rails) if (r.b) { strip(bridges, r.p, 6, 1.0, '#565a75'); strip(bridges, r.p, 3.2, 1.1, S('rail')) }
+  for (const r of data.rails)
+    if (r.b) {
+      strip(bridges, r.p, 6, 1.0, '#565a75')
+      strip(bridges, r.p, 3.2, 1.1, S('rail'))
+    }
 
   return { ground: ground.build(), water: water.build(), roads: roads.build(), bridges: bridges.build() }
 }

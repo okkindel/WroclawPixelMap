@@ -2,7 +2,14 @@
 import { cumLengths } from '../engine/geo.ts'
 import type { Flat } from '../types/world.ts'
 
-export interface Edge { p: Flat; cum: number[]; len: number; a: string; b: string; y: number }
+export interface Edge {
+  p: Flat
+  cum: number[]
+  len: number
+  a: string
+  b: string
+  y: number
+}
 
 const key = (x: number, y: number) => `${Math.round(x * 2)},${Math.round(y * 2)}`
 
@@ -29,9 +36,13 @@ export class Graph {
   sample(e: Edge, s: number, out: { x: number; y: number; dx: number; dy: number }) {
     let i = 1
     while (i < e.cum.length - 1 && e.cum[i] < s) i++
-    const s0 = e.cum[i - 1], s1 = e.cum[i]
+    const s0 = e.cum[i - 1],
+      s1 = e.cum[i]
     const t = s1 > s0 ? (s - s0) / (s1 - s0) : 0
-    const ax = e.p[(i - 1) * 2], ay = e.p[(i - 1) * 2 + 1], bx = e.p[i * 2], by = e.p[i * 2 + 1]
+    const ax = e.p[(i - 1) * 2],
+      ay = e.p[(i - 1) * 2 + 1],
+      bx = e.p[i * 2],
+      by = e.p[i * 2 + 1]
     out.x = ax + (bx - ax) * t
     out.y = ay + (by - ay) * t
     const L = Math.hypot(bx - ax, by - ay) || 1
@@ -39,4 +50,3 @@ export class Graph {
     out.dy = (by - ay) / L
   }
 }
-

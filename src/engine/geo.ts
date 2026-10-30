@@ -1,4 +1,4 @@
-// Rzutowanie lat/lon -> lokalne metry (x = wschód, y = północ), to samo co w scripts/bake.ts.
+// Rzutowanie lat/lon -> lokalne metry (x = wschód, y = północ), to samo co w scripts/lib/geo.ts.
 // W scenie three.js: X = x, Y = wysokość, Z = -y.
 let ORIGIN: [number, number] = [51.11, 17.0425]
 let KX = Math.cos((ORIGIN[0] * Math.PI) / 180) * 111320
@@ -25,25 +25,37 @@ export const pick = <T>(arr: T[], r: number): T => arr[Math.floor(r * arr.length
 export function pointInRing(x: number, y: number, ring: number[]) {
   let inside = false
   for (let i = 0, j = ring.length - 2; i < ring.length; j = i, i += 2) {
-    const xi = ring[i], yi = ring[i + 1], xj = ring[j], yj = ring[j + 1]
+    const xi = ring[i],
+      yi = ring[i + 1],
+      xj = ring[j],
+      yj = ring[j + 1]
     if (yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside
   }
   return inside
 }
 
 export function centroid(flat: number[]): [number, number] {
-  let sx = 0, sy = 0
+  let sx = 0,
+    sy = 0
   const n = flat.length / 2
-  for (let i = 0; i < flat.length; i += 2) { sx += flat[i]; sy += flat[i + 1] }
+  for (let i = 0; i < flat.length; i += 2) {
+    sx += flat[i]
+    sy += flat[i + 1]
+  }
   return [sx / n, sy / n]
 }
 
 // Prostokąt otaczający [x0, y0, x1, y1].
 export function bbox(flat: number[]): [number, number, number, number] {
-  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity
+  let x0 = Infinity,
+    y0 = Infinity,
+    x1 = -Infinity,
+    y1 = -Infinity
   for (let i = 0; i < flat.length; i += 2) {
-    x0 = Math.min(x0, flat[i]); x1 = Math.max(x1, flat[i])
-    y0 = Math.min(y0, flat[i + 1]); y1 = Math.max(y1, flat[i + 1])
+    x0 = Math.min(x0, flat[i])
+    x1 = Math.max(x1, flat[i])
+    y0 = Math.min(y0, flat[i + 1])
+    y1 = Math.max(y1, flat[i + 1])
   }
   return [x0, y0, x1, y1]
 }
@@ -65,8 +77,12 @@ export function signedArea(flat: number[]) {
 export function distToPolyline(x: number, y: number, p: number[]) {
   let best = Infinity
   for (let i = 0; i + 3 < p.length; i += 2) {
-    const ax = p[i], ay = p[i + 1], bx = p[i + 2], by = p[i + 3]
-    const dx = bx - ax, dy = by - ay
+    const ax = p[i],
+      ay = p[i + 1],
+      bx = p[i + 2],
+      by = p[i + 3]
+    const dx = bx - ax,
+      dy = by - ay
     const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1)))
     best = Math.min(best, Math.hypot(ax + dx * t - x, ay + dy * t - y))
   }

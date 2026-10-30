@@ -11,8 +11,17 @@ const HOME = { shirt: '#2e8b3a', shorts: '#f4f1e6', keeper: '#f2d16b' }
 const AWAY = { shirt: '#f4f1e6', shorts: '#1d2340', keeper: '#e05a47' }
 // ustawienie 1-4-4-2: [wzdłuż boiska 0..1 od własnej bramki, w poprzek -1..1]
 const FORMATION: [number, number][] = [
-  [0.04, 0], [0.2, -0.7], [0.18, -0.25], [0.18, 0.25], [0.2, 0.7],
-  [0.42, -0.75], [0.38, -0.25], [0.38, 0.25], [0.42, 0.75], [0.62, -0.25], [0.62, 0.25],
+  [0.04, 0],
+  [0.2, -0.7],
+  [0.18, -0.25],
+  [0.18, 0.25],
+  [0.2, 0.7],
+  [0.42, -0.75],
+  [0.38, -0.25],
+  [0.38, 0.25],
+  [0.42, 0.75],
+  [0.62, -0.25],
+  [0.62, 0.25],
 ]
 const SPEED = 6 // m/s
 const PASS_TIME = 1.4 // s lotu piłki
@@ -26,31 +35,67 @@ function player(shirt: string, shorts: string) {
   ])
 }
 
-interface Rect { cx: number; cy: number; ux: number; uy: number; vx: number; vy: number; L: number; W: number }
+interface Rect {
+  cx: number
+  cy: number
+  ux: number
+  uy: number
+  vx: number
+  vy: number
+  L: number
+  W: number
+}
 
 // Prostokąt boiska z obrysu: oś długa i krótka (z najdłuższej krawędzi).
 function pitchRect(o: Flat): Rect {
   const n = o.length / 2
-  let cx = 0, cy = 0
-  for (let i = 0; i < n; i++) { cx += o[i * 2]; cy += o[i * 2 + 1] }
-  cx /= n; cy /= n
-  let best = 0, ux = 1, uy = 0
+  let cx = 0,
+    cy = 0
+  for (let i = 0; i < n; i++) {
+    cx += o[i * 2]
+    cy += o[i * 2 + 1]
+  }
+  cx /= n
+  cy /= n
+  let best = 0,
+    ux = 1,
+    uy = 0
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n
-    const dx = o[j * 2] - o[i * 2], dy = o[j * 2 + 1] - o[i * 2 + 1], L = Math.hypot(dx, dy)
-    if (L > best) { best = L; ux = dx / L; uy = dy / L }
+    const dx = o[j * 2] - o[i * 2],
+      dy = o[j * 2 + 1] - o[i * 2 + 1],
+      L = Math.hypot(dx, dy)
+    if (L > best) {
+      best = L
+      ux = dx / L
+      uy = dy / L
+    }
   }
-  const vx = -uy, vy = ux
-  let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity
+  const vx = -uy,
+    vy = ux
+  let a0 = Infinity,
+    a1 = -Infinity,
+    b0 = Infinity,
+    b1 = -Infinity
   for (let i = 0; i < n; i++) {
-    const x = o[i * 2] - cx, y = o[i * 2 + 1] - cy
-    const a = x * ux + y * uy, b = x * vx + y * vy
-    a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b)
+    const x = o[i * 2] - cx,
+      y = o[i * 2 + 1] - cy
+    const a = x * ux + y * uy,
+      b = x * vx + y * vy
+    a0 = Math.min(a0, a)
+    a1 = Math.max(a1, a)
+    b0 = Math.min(b0, b)
+    b1 = Math.max(b1, b)
   }
   return { cx, cy, ux, uy, vx, vy, L: a1 - a0, W: b1 - b0 }
 }
 
-interface Man { x: number; y: number; home: [number, number]; team: 0 | 1 }
+interface Man {
+  x: number
+  y: number
+  home: [number, number]
+  team: 0 | 1
+}
 
 export class Football {
   group = new THREE.Group()
@@ -88,7 +133,11 @@ export class Football {
       new THREE.InstancedMesh(player(AWAY.keeper, '#2b2d42'), mats, 1),
       new THREE.InstancedMesh(player('#1c1c2e', '#1c1c2e'), mats, 1),
     ]
-    for (const mesh of this.meshes) { mesh.frustumCulled = false; mesh.castShadow = true; this.group.add(mesh) }
+    for (const mesh of this.meshes) {
+      mesh.frustumCulled = false
+      mesh.castShadow = true
+      this.group.add(mesh)
+    }
     this.ball = new THREE.Mesh(new THREE.IcosahedronGeometry(0.45, 0), new THREE.MeshLambertMaterial({ color: '#ffffff' }))
     this.group.add(this.ball)
     // bramki: białe ramy na krótkich bokach
@@ -132,17 +181,26 @@ export class Football {
       this.target = next
       this.flight = 0
     }
-    const from = this.men[this.holder], to = this.men[this.target]
+    const from = this.men[this.holder],
+      to = this.men[this.target]
     const k = Math.min(1, this.flight / PASS_TIME)
-    const bx = from.x + (to.x - from.x) * k, by = from.y + (to.y - from.y) * k
+    const bx = from.x + (to.x - from.x) * k,
+      by = from.y + (to.y - from.y) * k
     // zawodnicy: przesunięcie ustawienia w stronę piłki + najbliżsi biegną do niej
     this.men.forEach((man, i) => {
       const chase = i === this.target ? 1 : i === 22 ? 0.6 : 0.25
-      const tx = man.home[0] * 0.7 + bx * 0.3 * (1 + chase), ty = man.home[1] * 0.75 + by * 0.25 * (1 + chase)
-      const goalX = i === this.target ? to.x : tx, goalY = i === this.target ? to.y : ty
-      const dx = goalX - man.x, dy = goalY - man.y, d = Math.hypot(dx, dy)
+      const tx = man.home[0] * 0.7 + bx * 0.3 * (1 + chase),
+        ty = man.home[1] * 0.75 + by * 0.25 * (1 + chase)
+      const goalX = i === this.target ? to.x : tx,
+        goalY = i === this.target ? to.y : ty
+      const dx = goalX - man.x,
+        dy = goalY - man.y,
+        d = Math.hypot(dx, dy)
       const step = Math.min(d, SPEED * dt * (0.6 + hash(i, 5) * 0.6))
-      if (d > 0.01) { man.x += (dx / d) * step; man.y += (dy / d) * step }
+      if (d > 0.01) {
+        man.x += (dx / d) * step
+        man.y += (dy / d) * step
+      }
     })
     const counts = [0, 0, 0, 0, 0]
     this.men.forEach((man, i) => {
@@ -160,6 +218,8 @@ export class Football {
 
 // Mecz gra Śląsk Wrocław na Tarczyński Arena: w sezonie (bez lipca) w weekendowe popołudnia i wieczory.
 export function matchOn(now: Date) {
-  const day = now.getDay(), h = now.getHours() + now.getMinutes() / 60, month = now.getMonth()
+  const day = now.getDay(),
+    h = now.getHours() + now.getMinutes() / 60,
+    month = now.getMonth()
   return month !== 6 && (day === 0 || day === 6) && h >= 17.5 && h < 19.5
 }

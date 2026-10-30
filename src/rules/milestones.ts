@@ -9,3 +9,7 @@ export const SINCE = {
   // od tego roku epoka „dziś” wygląda jak współczesne dane (bez filtrowania budynków)
   today: 2020,
 } as const
+
+// Plan miasta ok. 1732 kładziemy pod epoki, które przybliża: od lokacji (1242) do Napoleona (1807).
+export const PLAN_1732 = { from: 1242, to: 1807 } as const
+export const historyPlanFor = (year: number) => (year >= PLAN_1732.from && year <= PLAN_1732.to ? '1732' : null)

@@ -10,29 +10,50 @@ const col = new THREE.Color()
 // THREE.Color.setStyle tylko ostrzega przy błędzie, więc poprawność sprawdzamy sami.
 function parseColor(c: string | undefined, fallback: string) {
   if (!c) return fallback
-  const s = c.trim().toLowerCase().replace(/^([0-9a-f]{6}|[0-9a-f]{3})$/, '#$1')
+  const s = c
+    .trim()
+    .toLowerCase()
+    .replace(/^([0-9a-f]{6}|[0-9a-f]{3})$/, '#$1')
   const ok = /^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(s) || s in THREE.Color.NAMES
   if (!ok) return fallback
   col.setStyle(s)
-  return '#' + col.getHexString()
+  return `#${col.getHexString()}`
 }
 
 // Minimalny prostokąt otaczający (po krawędziach wielokąta).
-interface Rect { area: number; ux: number; uy: number; a0: number; a1: number; b0: number; b1: number }
+interface Rect {
+  area: number
+  ux: number
+  uy: number
+  a0: number
+  a1: number
+  b0: number
+  b1: number
+}
 function minRect(ring: Flat): Rect | null {
   let best: Rect | null = null
   const n = ring.length / 2
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n
-    const ex = ring[j * 2] - ring[i * 2], ey = ring[j * 2 + 1] - ring[i * 2 + 1]
+    const ex = ring[j * 2] - ring[i * 2],
+      ey = ring[j * 2 + 1] - ring[i * 2 + 1]
     const L = Math.hypot(ex, ey)
     if (L < 0.5) continue
-    const ux = ex / L, uy = ey / L
-    let a0 = Infinity, a1 = -Infinity, b0 = Infinity, b1 = -Infinity
+    const ux = ex / L,
+      uy = ey / L
+    let a0 = Infinity,
+      a1 = -Infinity,
+      b0 = Infinity,
+      b1 = -Infinity
     for (let k = 0; k < n; k++) {
-      const x = ring[k * 2], y = ring[k * 2 + 1]
-      const a = x * ux + y * uy, b = -x * uy + y * ux
-      a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b)
+      const x = ring[k * 2],
+        y = ring[k * 2 + 1]
+      const a = x * ux + y * uy,
+        b = -x * uy + y * ux
+      a0 = Math.min(a0, a)
+      a1 = Math.max(a1, a)
+      b0 = Math.min(b0, b)
+      b1 = Math.max(b1, b)
     }
     const area = (a1 - a0) * (b1 - b0)
     if (!best || area < best.area) best = { area, ux, uy, a0, a1, b0, b1 }
@@ -40,7 +61,9 @@ function minRect(ring: Flat): Rect | null {
   return best
 }
 
-function polyArea(ring: Flat) { return Math.abs(signedArea(ring)) }
+function polyArea(ring: Flat) {
+  return Math.abs(signedArea(ring))
+}
 
 // Dach dwuspadowy / czterospadowy na prostokącie. Zwraca false, gdy kształt się nie nadaje.
 function pitchedRoof(geo: Geo, ring: Flat, top: number, shape: string, color: string) {
@@ -48,17 +71,25 @@ function pitchedRoof(geo: Geo, ring: Flat, top: number, shape: string, color: st
   if (!r || polyArea(ring) / r.area < 0.78) return false
   let { ux, uy, a0, a1, b0, b1 } = r
   // oś kalenicy wzdłuż dłuższego boku
-  if (b1 - b0 > a1 - a0) { [ux, uy] = [-uy, ux];[a0, a1, b0, b1] = [b0, b1, -a1, -a0] }
+  if (b1 - b0 > a1 - a0) {
+    ;[ux, uy] = [-uy, ux]
+    ;[a0, a1, b0, b1] = [b0, b1, -a1, -a0]
+  }
   const w = b1 - b0
   if (w > 28) return false
   const rh = Math.min(w * 0.42, 9)
   const P = (a: number, b: number, h: number): V3 => [a * ux - b * uy, top + h, -(a * uy + b * ux)]
   const bm = (b0 + b1) / 2
   const inset = shape === 'hipped' || shape === 'half-hipped' || shape === 'pyramidal' ? Math.min(w / 2, (a1 - a0) / 2) : 0
-  const r0 = P(a0 + inset, bm, rh), r1 = P(a1 - inset, bm, rh)
-  const c00 = P(a0, b0, 0), c10 = P(a1, b0, 0), c11 = P(a1, b1, 0), c01 = P(a0, b1, 0)
+  const r0 = P(a0 + inset, bm, rh),
+    r1 = P(a1 - inset, bm, rh)
+  const c00 = P(a0, b0, 0),
+    c10 = P(a1, b0, 0),
+    c11 = P(a1, b1, 0),
+    c01 = P(a0, b1, 0)
   const slopeN = (side: number): V3 => {
-    const ny = w / 2, nb = rh * side
+    const ny = w / 2,
+      nb = rh * side
     const L = Math.hypot(ny, nb)
     return [(-nb * uy) / L, ny / L, -(nb * ux) / L]
   }
@@ -77,7 +108,12 @@ function pitchedRoof(geo: Geo, ring: Flat, top: number, shape: string, color: st
 
 const TILE_ROOFS = new Set(['gabled', 'hipped', 'half-hipped', 'mansard', 'gambrel', 'pyramidal', 'skillion', 'round', 'dome', 'onion'])
 
-export interface BuildingMod { H?: number; wall?: string; roof?: string; flat?: boolean }
+export interface BuildingMod {
+  H?: number
+  wall?: string
+  roof?: string
+  flat?: boolean
+}
 export interface BuildOpts {
   keep?: (b: Building, idx: number) => boolean
   mod?: (b: Building, idx: number) => BuildingMod | undefined
@@ -91,7 +127,8 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
   buildings.forEach((b, idx) => {
     if (opts.keep && !opts.keep(b, idx)) return
     geo.owner = idx
-    const r = hash(idx + seed, 7), r2 = hash(idx + seed, 13)
+    const r = hash(idx + seed, 7),
+      r2 = hash(idx + seed, 13)
     const kind = b.k
     const old = (b.y && b.y < 1939) || (!!b.rs && TILE_ROOFS.has(b.rs))
     // pastele tylko dla starej zabudowy; nowsze mieszkalne/ogólne dostają biele i szarości
@@ -101,8 +138,10 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     // dach: kolor z OSM > zdjęcie lotnicze GUGiK > materiał z OSM > wariant typowy
     const typical = kind === 'church' ? pick(C.roofChurch, r2) : old ? pick(C.roofTile, r2) : pick(C.roofFlat, r2)
     let roof = parseColor(b.rc, b.oc || (b.rm && C.roofMaterial[b.rm]) || typical)
-    let H = b.H, base = b.m || 0, shape = b.rs
-    const m = opts.mod && opts.mod(b, idx)
+    let H = b.H,
+      base = b.m || 0,
+      shape = b.rs
+    const m = opts.mod?.(b, idx)
     if (m) {
       if (m.H != null) H = m.H
       if (m.wall) wall = m.wall
@@ -110,7 +149,7 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
       if (m.flat) shape = undefined
     }
     if (H <= base + 0.3) return
-    const win = kind === 'low' || kind === 'roof' || kind === 'ruin' || kind === 'chimney' || kind === 'tank' || (m && m.flat) ? 0 : 1
+    const win = kind === 'low' || kind === 'roof' || kind === 'ruin' || kind === 'chimney' || kind === 'tank' || m?.flat ? 0 : 1
     if (opts.simple && kind !== 'chimney') {
       // dach spadzisty → płaski w połowie jego wysokości, szpic → płaski na wysokości okapu
       let top = H
@@ -146,7 +185,8 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     // Dachówka (spadzisty dach w OSM albo ceglasty kolor na zdjęciu), a kształt nie jest prostokątem
     // albo ma dziedziniec: dach kopertowy wzdłuż wszystkich krawędzi (kamienice w kwartałach, gmachy z dziedzińcami).
     if (!pitched && !m?.flat && H - base > 6 && kind !== 'chimney' && kind !== 'tank' && tiledRoof(shape, roof)) {
-      const d = 5.5, rh = 4
+      const d = 5.5,
+        rh = 4
       wallTop = Math.max(base + 2.5, H - rh)
       pitched = ringRoof(geo, b.o, b.h, wallTop, d, H - wallTop, roof)
       if (!pitched) wallTop = H
@@ -187,11 +227,20 @@ function insetRing(ring: Flat, d: number, towardInside: boolean): Flat {
   const sign = (signedArea(ring) > 0 ? 1 : -1) * (towardInside ? 1 : -1)
   const out: Flat = []
   for (let i = 0; i < n; i++) {
-    const p = (i + n - 1) % n, q = (i + 1) % n
-    const x = ring[i * 2], y = ring[i * 2 + 1]
-    const e1x = x - ring[p * 2], e1y = y - ring[p * 2 + 1], e2x = ring[q * 2] - x, e2y = ring[q * 2 + 1] - y
-    const l1 = Math.hypot(e1x, e1y) || 1, l2 = Math.hypot(e2x, e2y) || 1
-    const n1x = (-e1y / l1) * sign, n1y = (e1x / l1) * sign, n2x = (-e2y / l2) * sign, n2y = (e2x / l2) * sign
+    const p = (i + n - 1) % n,
+      q = (i + 1) % n
+    const x = ring[i * 2],
+      y = ring[i * 2 + 1]
+    const e1x = x - ring[p * 2],
+      e1y = y - ring[p * 2 + 1],
+      e2x = ring[q * 2] - x,
+      e2y = ring[q * 2 + 1] - y
+    const l1 = Math.hypot(e1x, e1y) || 1,
+      l2 = Math.hypot(e2x, e2y) || 1
+    const n1x = (-e1y / l1) * sign,
+      n1y = (e1x / l1) * sign,
+      n2x = (-e2y / l2) * sign,
+      n2y = (e2x / l2) * sign
     const k = Math.min(3, 1 / Math.max(0.33, (1 + n1x * n2x + n1y * n2y) / 2))
     out.push(x + ((n1x + n2x) / 2) * d * k, y + ((n1y + n2y) / 2) * d * k)
   }
@@ -207,12 +256,24 @@ function ringRoof(geo: Geo, outer: Flat, holes: Flat[] | undefined, top: number,
     const n = r.length / 2
     for (let i = 0; i < n; i++) {
       const j = (i + 1) % n
-      const a: V3 = [r[i * 2], top, -r[i * 2 + 1]], b2: V3 = [r[j * 2], top, -r[j * 2 + 1]]
-      const c: V3 = [ins[j * 2], top + rh, -ins[j * 2 + 1]], e: V3 = [ins[i * 2], top + rh, -ins[i * 2 + 1]]
+      const a: V3 = [r[i * 2], top, -r[i * 2 + 1]],
+        b2: V3 = [r[j * 2], top, -r[j * 2 + 1]]
+      const c: V3 = [ins[j * 2], top + rh, -ins[j * 2 + 1]],
+        e: V3 = [ins[i * 2], top + rh, -ins[i * 2 + 1]]
       // normalna połaci z iloczynu wektorowego, skierowana w górę
-      const ux = b2[0] - a[0], uz = b2[2] - a[2], vx = e[0] - a[0], vy = rh, vz = e[2] - a[2]
-      let nx = vy * uz, ny = uz * vx - ux * vz, nz = -ux * vy
-      if (ny < 0) { nx = -nx; ny = -ny; nz = -nz }
+      const ux = b2[0] - a[0],
+        uz = b2[2] - a[2],
+        vx = e[0] - a[0],
+        vy = rh,
+        vz = e[2] - a[2]
+      let nx = vy * uz,
+        ny = uz * vx - ux * vz,
+        nz = -ux * vy
+      if (ny < 0) {
+        nx = -nx
+        ny = -ny
+        nz = -nz
+      }
       const L = Math.hypot(nx, ny, nz) || 1
       // kolejność wierzchołków zgodna z normalną w górę (inaczej połać byłaby odrzucona jako tylna ściana)
       const cy = (b2[2] - a[2]) * (c[0] - a[0]) - (b2[0] - a[0]) * (c[2] - a[2])
@@ -234,10 +295,21 @@ function spireRoof(geo: Geo, ring: Flat, top: number, apex: number, color: strin
   const P: V3 = [cx, apex, -cy]
   for (let i = 0; i < n; i++) {
     const j = (i + 1) % n
-    const a: V3 = [ring[i * 2], top, -ring[i * 2 + 1]], b: V3 = [ring[j * 2], top, -ring[j * 2 + 1]]
-    const ux = b[0] - a[0], uz = b[2] - a[2], vx = P[0] - a[0], vy = apex - top, vz = P[2] - a[2]
-    let nx = vy * uz, ny = uz * vx - ux * vz, nz = -ux * vy
-    if (ny < 0) { nx = -nx; ny = -ny; nz = -nz }
+    const a: V3 = [ring[i * 2], top, -ring[i * 2 + 1]],
+      b: V3 = [ring[j * 2], top, -ring[j * 2 + 1]]
+    const ux = b[0] - a[0],
+      uz = b[2] - a[2],
+      vx = P[0] - a[0],
+      vy = apex - top,
+      vz = P[2] - a[2]
+    let nx = vy * uz,
+      ny = uz * vx - ux * vz,
+      nz = -ux * vy
+    if (ny < 0) {
+      nx = -nx
+      ny = -ny
+      nz = -nz
+    }
     const L = Math.hypot(nx, ny, nz) || 1
     const cyw = (b[2] - a[2]) * (P[0] - a[0]) - (b[0] - a[0]) * (P[2] - a[2])
     if (cyw >= 0) geo.tri(a, b, P, [nx / L, ny / L, nz / L], color)

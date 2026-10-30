@@ -3,7 +3,14 @@ import * as THREE from 'three'
 import { hash } from '../engine/geo.ts'
 import type { Graph } from './graph.ts'
 
-interface Agent { e: number; s: number; dir: 1 | -1; speed: number; trail: { x: number; y: number; d: number }[]; odo: number }
+interface Agent {
+  e: number
+  s: number
+  dir: 1 | -1
+  speed: number
+  trail: { x: number; y: number; d: number }[]
+  odo: number
+}
 
 export class Movers {
   graph: Graph
@@ -21,19 +28,44 @@ export class Movers {
   private sc = new THREE.Vector3(1, 1, 1)
   private up = new THREE.Vector3(0, 1, 0)
 
-  constructor(graph: Graph, count: number, geo: THREE.BufferGeometry, colors: string[], speed: [number, number], opts: { segments?: number; gap?: number; offset?: number; seed: number; vertexColors?: boolean; extra?: [THREE.BufferGeometry, string] }) {
+  constructor(
+    graph: Graph,
+    count: number,
+    geo: THREE.BufferGeometry,
+    colors: string[],
+    speed: [number, number],
+    opts: {
+      segments?: number
+      gap?: number
+      offset?: number
+      seed: number
+      vertexColors?: boolean
+      extra?: [THREE.BufferGeometry, string]
+    },
+  ) {
     this.graph = graph
     this.segments = opts.segments ?? 1
     this.gap = opts.gap ?? 0
     this.offset = opts.offset ?? 0
     const n = Math.min(count, graph.edges.length * 2)
-    this.mesh = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ vertexColors: !!opts.vertexColors }), Math.max(1, n * this.segments))
+    this.mesh = new THREE.InstancedMesh(
+      geo,
+      new THREE.MeshLambertMaterial({ vertexColors: !!opts.vertexColors }),
+      Math.max(1, n * this.segments),
+    )
     this.mesh.castShadow = true
     this.mesh.frustumCulled = false
     const c = new THREE.Color()
     for (let i = 0; i < n; i++) {
       const e = Math.floor(hash(i, opts.seed) * graph.edges.length)
-      const a: Agent = { e, s: hash(i, opts.seed + 1) * graph.edges[e].len, dir: hash(i, opts.seed + 2) > 0.5 ? 1 : -1, speed: speed[0] + hash(i, opts.seed + 3) * (speed[1] - speed[0]), trail: [], odo: 0 }
+      const a: Agent = {
+        e,
+        s: hash(i, opts.seed + 1) * graph.edges[e].len,
+        dir: hash(i, opts.seed + 2) > 0.5 ? 1 : -1,
+        speed: speed[0] + hash(i, opts.seed + 3) * (speed[1] - speed[0]),
+        trail: [],
+        odo: 0,
+      }
       this.agents.push(a)
       c.set(colors[Math.floor(hash(i, opts.seed + 4) * colors.length)])
       for (let k = 0; k < this.segments; k++) this.mesh.setColorAt(i * this.segments + k, c)
@@ -83,7 +115,8 @@ export class Movers {
     const t = a.trail
     for (let i = t.length - 1; i > 0; i--) {
       if (t[i - 1].d <= d) {
-        const p = t[i - 1], q = t[i]
+        const p = t[i - 1],
+          q = t[i]
         const f = q.d > p.d ? (d - p.d) / (q.d - p.d) : 0
         const L = Math.hypot(q.x - p.x, q.y - p.y) || 1
         return { x: p.x + (q.x - p.x) * f, y: p.y + (q.y - p.y) * f, dx: (q.x - p.x) / L, dy: (q.y - p.y) / L }
@@ -106,7 +139,8 @@ export class Movers {
         }
         if (!p) continue
         // przesunięcie na prawy pas
-        const ox = p.dy * this.offset, oy = -p.dx * this.offset
+        const ox = p.dy * this.offset,
+          oy = -p.dx * this.offset
         this.v.set(p.x + ox, y, -(p.y + oy))
         this.q.setFromAxisAngle(this.up, Math.atan2(p.dy, p.dx))
         this.m.compose(this.v, this.q, this.sc)
@@ -118,4 +152,3 @@ export class Movers {
     if (this.extra) this.extra.instanceMatrix.needsUpdate = true
   }
 }
-
