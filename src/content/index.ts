@@ -33,6 +33,9 @@ export const epochs = (): Epoch[] =>
     text: l.text,
   }))
 
+// Nazwy zabytków w obu językach (obiekt z OSM o takiej nazwie to ten sam zabytek, napis z OSM pomijamy).
+export const landmarkNames = () => new Set(LANDMARKS.flatMap((l) => [l.pl.name, l.en.name]))
+
 export const landmarks = (): Landmark[] =>
   LANDMARKS.map(({ lat, lon, year, [lang()]: l }) => ({ name: l.name, lat, lon, year: year ?? l.year, text: l.text }))
 

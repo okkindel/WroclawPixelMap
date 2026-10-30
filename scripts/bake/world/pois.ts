@@ -25,9 +25,13 @@ export function addPoi(pois: Poi[], el: OsmEl, t: Tags) {
   const from = year(t.start_date) ?? undefined
   for (const [x, y] of anchors(el)) {
     if (!inBox([x, y])) continue
-    pois.push(
-      from ? [t.name, r1(x), r1(y), k, rank, wiki, from] : wiki ? [t.name, r1(x), r1(y), k, rank, wiki] : [t.name, r1(x), r1(y), k, rank],
-    )
+    const poi: Poi = from
+      ? [t.name, r1(x), r1(y), k, rank, wiki, from]
+      : wiki
+        ? [t.name, r1(x), r1(y), k, rank, wiki]
+        : [t.name, r1(x), r1(y), k, rank]
+    source.set(poi, `${el.type}/${el.id}`)
+    pois.push(poi)
   }
 }
 
@@ -83,14 +87,20 @@ export async function addWikiLinks(pois: Poi[], buildings: Building[]) {
   console.log(`linki do Wikipedii z ${WIKI_LINKS}: ${linked} napisów, ${added} nowych`)
 }
 
-// Jedna nazwa w jednym miejscu = jeden napis (budynek bywa zmapowany kilka razy, np. obszar i bryła): zostaje ostatni
-// wpis na miejscu pierwszego. Ta sama nazwa dalej niż PART_APART (części jednego obszaru) to osobny napis.
+// Z którego obiektu OSM pochodzi napis (części jednego obszaru mają wspólne źródło).
+const source = new WeakMap<Poi, string>()
+
+// Jedna nazwa = jeden obiekt z napisami: zostaje ostatni zmapowany (budynek bywa zmapowany kilka razy, np. obszar
+// i bryła, a uczelnia ma kilka osobnych obszarów o tej samej nazwie). Kilka napisów ma tylko obiekt z kilku
+// odległych części (anchors), np. ASP przy pl. Polskim i przy Traugutta.
 export function uniquePois(pois: Poi[]): Poi[] {
-  const out: Poi[] = []
-  for (const p of pois) {
-    const i = out.findIndex((q) => q[0] === p[0] && Math.hypot(q[1] - p[1], q[2] - p[2]) < PART_APART)
-    if (i < 0) out.push(p)
-    else out[i] = p
-  }
-  return out
+  const last = new Map<string, string | undefined>()
+  for (const p of pois) last.set(p[0], source.get(p))
+  const seen = new Set<string>()
+  return pois.filter((p) => {
+    const key = `${p[0]}|${p[1]}|${p[2]}`
+    if (source.get(p) !== last.get(p[0]) || seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
 }
