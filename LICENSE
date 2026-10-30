@@ -1,0 +1,13 @@
+Copyright (c) 2026 Maciej Hajduk. All rights reserved.
+
+The source code, graphics, palettes, models, historical reconstructions, texts and
+the name "Wrocław w pikselach" / "Wrocław Pixel Map" in this repository are protected
+by copyright. No part may be copied, modified, distributed or used without the prior
+written permission of the author.
+
+Third-party data is not covered by this notice and remains under its own licenses:
+- public/data is a derivative database of OpenStreetMap, © OpenStreetMap contributors,
+  licensed under the Open Database License (ODbL) 1.0.
+- Roof colours are derived from GUGiK orthophotos, licensed under CC BY 4.0.
+- Tram timetable data is derived from the MPK Wrocław GTFS feed (Otwarte Dane Wrocław).
+See README.md for details.
