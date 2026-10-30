@@ -19,7 +19,7 @@ import { Dwarfs } from './layers/dwarfs.ts'
 import { Neons } from './layers/neons.ts'
 import { Monuments } from './layers/monuments.ts'
 import type { PinGroup } from './layers/labels.ts'
-import { WALLS, type Epoch } from './history/content.ts'
+import { WALLS, type Epoch } from './content/index.ts'
 import { epochScene, type EpochScene } from './history/epochs.ts'
 import { SINCE } from './history/milestones.ts'
 import { dwarfFacts, eggs, epochs, landmarkRank, landmarks, t, trivia } from './i18n/index.ts'
@@ -265,7 +265,7 @@ export async function startApp() {
     if (isNew) toast(t('toast.newDwarf', { n: dwarfs.found.size, total: dwarfs.list.length }))
     if (dwarfs.found.size === dwarfs.list.length) toast(t('toast.allDwarfs'), 6000)
   }
-  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf })
+  initPicking(canvas, camera, { dwarfs, timetable, monuments, neons, tiles, scenes: () => scenes, onDwarf: clickDwarf, scene })
 
   // --- skróty i easter eggi z klawiatury ---
   initKeys({

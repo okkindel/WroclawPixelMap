@@ -1,0 +1,620 @@
+[
+  {
+    "id": "politechnika-wroclawska",
+    "lat": 51.10793,
+    "lon": 17.06176,
+    "year": "1910",
+    "rank": 1,
+    "pl": {
+      "name": "Politechnika Wrocławska",
+      "text": "Gmach główny (A-1) przy Wybrzeżu Wyspiańskiego powstał dla Königliche Technische Hochschule Breslau, otwartej w 1910 r. Po wojnie uczelnię uruchomili w dużej części profesorowie ze Lwowa."
+    },
+    "en": {
+      "name": "Wrocław University of Science and Technology",
+      "text": "The main building (A-1) on Wybrzeże Wyspiańskiego was built for the Königliche Technische Hochschule Breslau, opened in 1910. After the war the university was restarted largely by professors from Lwów (Lviv)."
+    }
+  },
+  {
+    "id": "ratusz",
+    "lat": 51.10958,
+    "lon": 17.03201,
+    "rank": 1,
+    "pl": {
+      "name": "Ratusz",
+      "year": "XIII–XVI w.",
+      "text": "Gotycki ratusz rozbudowywano przez blisko trzy stulecia. W piwnicach działa Piwnica Świdnicka, uchodząca za jedną z najstarszych restauracji w Europie."
+    },
+    "en": {
+      "name": "Town Hall",
+      "year": "13th–16th c.",
+      "text": "The Gothic town hall (Ratusz) was extended for nearly three centuries. Its cellars house the Piwnica Świdnicka, said to be one of the oldest restaurants in Europe."
+    }
+  },
+  {
+    "id": "rynek",
+    "lat": 51.10995,
+    "lon": 17.0315,
+    "year": "1242",
+    "rank": 2,
+    "pl": {
+      "name": "Rynek",
+      "text": "Wytyczony przy lokacji miasta, należy do największych rynków w Polsce. Kamienice wokół mają nazwy jak z bajki: Pod Gryfami, Pod Złotym Słońcem, Pod Siedmioma Elektorami."
+    },
+    "en": {
+      "name": "Rynek (Market Square)",
+      "text": "Laid out when the town was chartered, it is one of the largest market squares in Poland. The houses around it have fairy-tale names: Under the Griffins, Under the Golden Sun, Under the Seven Electors."
+    }
+  },
+  {
+    "id": "pregierz",
+    "lat": 51.10962,
+    "lon": 17.0329,
+    "pl": {
+      "name": "Pręgierz",
+      "year": "1492 (replika 1985)",
+      "text": "Oryginał stał przed ratuszem od 1492 r. do 1945 r. Replikę postawiono w 1985 r., a figurka kata wróciła na szczyt dopiero w 2002 r."
+    },
+    "en": {
+      "name": "Pillory",
+      "year": "1492 (replica 1985)",
+      "text": "The original pillory (Pręgierz) stood in front of the town hall from 1492 to 1945. A replica was put up in 1985, and the executioner figure only returned to the top in 2002."
+    }
+  },
+  {
+    "id": "kamienica-pod-gryfami",
+    "lat": 51.11086,
+    "lon": 17.03051,
+    "year": "1587",
+    "pl": {
+      "name": "Kamienica Pod Gryfami",
+      "text": "Renesansowa kamienica z gryfami na szczycie, jedna z najbardziej charakterystycznych pierzei Rynku."
+    },
+    "en": {
+      "name": "Griffin House",
+      "text": "A Renaissance house (Kamienica Pod Gryfami) with griffins on its gable, one of the most distinctive frontages of the Rynek."
+    }
+  },
+  {
+    "id": "pomnik-aleksandra-fredry",
+    "lat": 51.10925,
+    "lon": 17.0316,
+    "pl": {
+      "name": "Pomnik Aleksandra Fredry",
+      "year": "1956 we Wrocławiu",
+      "text": "Pomnik komediopisarza przyjechał ze Lwowa, podobnie jak wielu powojennych mieszkańców miasta. Stoi na Rynku od 1956 r."
+    },
+    "en": {
+      "name": "Aleksander Fredro Monument",
+      "year": "1956 in Wrocław",
+      "text": "The monument to the comic playwright came from Lwów (Lviv), like many of the city’s post-war residents. It has stood on the Rynek since 1956."
+    }
+  },
+  {
+    "id": "kosciol-marii-magdaleny-i-mostek-pokutnic",
+    "lat": 51.10957,
+    "lon": 17.03507,
+    "pl": {
+      "name": "Kościół Marii Magdaleny i Mostek Pokutnic",
+      "year": "XIV w.",
+      "text": "Gotycka katedra polskokatolicka. Jej dwie wieże łączy na wysokości ok. 45 m Mostek Pokutnic (Czarownic), dziś taras widokowy."
+    },
+    "en": {
+      "name": "St. Mary Magdalene Church and Penitents’ Bridge",
+      "year": "14th c.",
+      "text": "A Gothic cathedral of the Polish Catholic Church. Its two towers are linked at about 45 m by the Penitents’ (or Witches’) Bridge, now a viewing terrace."
+    }
+  },
+  {
+    "id": "kosciol-sw-elzbiety",
+    "lat": 51.11163,
+    "lon": 17.03043,
+    "rank": 2,
+    "pl": {
+      "name": "Kościół św. Elżbiety",
+      "year": "XIV w.",
+      "text": "Wieża mierzy ok. 91 m i jest punktem widokowym. Kościół przetrwał zawalenie hełmu w 1529 r. i wielki pożar w 1976 r."
+    },
+    "en": {
+      "name": "St. Elizabeth’s Church",
+      "year": "14th c.",
+      "text": "The tower is about 91 m tall and has a viewing platform. The church survived the collapse of its spire in 1529 and a great fire in 1976."
+    }
+  },
+  {
+    "id": "jas-i-malgosia",
+    "lat": 51.11125,
+    "lon": 17.0308,
+    "pl": {
+      "name": "Jaś i Małgosia",
+      "year": "ok. 1400 (XVIII w.)",
+      "text": "Dwa domki altarystów przy kościele św. Elżbiety, połączone barokową bramą. W \"Jasiu\" mieszkał i pracował grafik Eugeniusz Get-Stankiewicz."
+    },
+    "en": {
+      "name": "Jaś i Małgosia (Hansel and Gretel)",
+      "year": "c. 1400 (18th c.)",
+      "text": "Two small altarists’ houses by St. Elizabeth’s Church, joined by a Baroque gateway. The graphic artist Eugeniusz Get-Stankiewicz lived and worked in \"Jaś\"."
+    }
+  },
+  {
+    "id": "plac-solny",
+    "lat": 51.10939,
+    "lon": 17.02941,
+    "rank": 2,
+    "pl": {
+      "name": "Plac Solny",
+      "year": "XIII w.",
+      "text": "Dawny targ solny tuż przy Rynku, dziś znany z całodobowych kwiaciarni. Stoi tu mała iglica Adama Wyspiańskiego z 1996 r."
+    },
+    "en": {
+      "name": "Plac Solny (Salt Square)",
+      "year": "13th c.",
+      "text": "The old salt market right next to the Rynek, known today for its round-the-clock flower stalls. A small spire by Adam Wyspiański from 1996 stands here."
+    }
+  },
+  {
+    "id": "uniwersytet-wroclawski-aula-leopoldina",
+    "lat": 51.114,
+    "lon": 17.0342,
+    "year": "1728–1742",
+    "rank": 1,
+    "pl": {
+      "name": "Uniwersytet Wrocławski (Aula Leopoldina)",
+      "text": "Barokowy gmach jezuickiej Leopoldiny, uczelni założonej przez cesarza Leopolda I w 1702 r. Aula Leopoldina to jedno z najwspanialszych barokowych wnętrz Europy Środkowej."
+    },
+    "en": {
+      "name": "University of Wrocław (Aula Leopoldina)",
+      "text": "The Baroque building of the Jesuit Leopoldina, the university founded by Emperor Leopold I in 1702. The Aula Leopoldina is one of the most magnificent Baroque interiors in Central Europe."
+    }
+  },
+  {
+    "id": "kosciol-najswietszego-imienia-jezus",
+    "lat": 51.11395,
+    "lon": 17.03522,
+    "year": "1689–1698",
+    "pl": {
+      "name": "Kościół Najświętszego Imienia Jezus",
+      "text": "Jezuicki kościół uniwersytecki, barokowy od posadzki po sklepienie z iluzjonistycznymi freskami."
+    },
+    "en": {
+      "name": "Church of the Holy Name of Jesus",
+      "text": "The Jesuit university church, Baroque from the floor to the vault with its illusionistic frescoes."
+    }
+  },
+  {
+    "id": "ossolineum",
+    "lat": 51.11375,
+    "lon": 17.03675,
+    "rank": 2,
+    "pl": {
+      "name": "Ossolineum",
+      "year": "XVII–XVIII w. (Ossolineum od 1946 r.)",
+      "text": "Barokowy gmach dawnego szpitala krzyżowców z czerwoną gwiazdą. Po wojnie trafiły tu zbiory Zakładu Narodowego im. Ossolińskich przywiezione ze Lwowa."
+    },
+    "en": {
+      "name": "Ossolineum",
+      "year": "17th–18th c. (Ossolineum since 1946)",
+      "text": "The Baroque building of the former hospital of the Knights of the Cross with the Red Star. After the war it received the collections of the Ossoliński National Institute brought from Lwów (Lviv)."
+    }
+  },
+  {
+    "id": "arsenal-miejski",
+    "lat": 51.11304,
+    "lon": 17.02658,
+    "pl": {
+      "name": "Arsenał Miejski",
+      "year": "XV–XVI w.",
+      "text": "Najstarszy zachowany zespół budowli obronnych miasta, przy dawnej Bramie Mikołajskiej. Mieści Muzeum Militariów i Muzeum Archeologiczne."
+    },
+    "en": {
+      "name": "City Arsenal",
+      "year": "15th–16th c.",
+      "text": "The oldest surviving group of the city’s defensive buildings, by the former Nicholas Gate. It houses the Military Museum and the Archaeological Museum."
+    }
+  },
+  {
+    "id": "synagoga-pod-bialym-bocianem",
+    "lat": 51.10842,
+    "lon": 17.02545,
+    "year": "1829",
+    "pl": {
+      "name": "Synagoga Pod Białym Bocianem",
+      "text": "Klasycystyczna synagoga projektu Carla Ferdinanda Langhansa. Przetrwała Noc Kryształową, bo stała w ciasnym podwórzu i jej podpalenie groziło sąsiednim kamienicom."
+    },
+    "en": {
+      "name": "White Stork Synagogue",
+      "text": "A Neoclassical synagogue (Synagoga Pod Białym Bocianem) designed by Carl Ferdinand Langhans. It survived Kristallnacht because it stood in a cramped courtyard and setting it on fire would have endangered the neighbouring houses."
+    }
+  },
+  {
+    "id": "narodowe-forum-muzyki",
+    "lat": 51.10695,
+    "lon": 17.02638,
+    "year": "2015",
+    "rank": 1,
+    "pl": {
+      "name": "Narodowe Forum Muzyki",
+      "text": "Sala koncertowa przy pl. Wolności, otwarta tuż przed rokiem Europejskiej Stolicy Kultury."
+    },
+    "en": {
+      "name": "National Forum of Music",
+      "text": "A concert hall on Plac Wolności, opened just before Wrocław’s year as European Capital of Culture."
+    }
+  },
+  {
+    "id": "palac-krolewski",
+    "lat": 51.10754,
+    "lon": 17.0289,
+    "rank": 2,
+    "pl": {
+      "name": "Pałac Królewski",
+      "year": "XVIII w.",
+      "text": "Dawna rezydencja królów pruskich, dziś Muzeum Miejskie Wrocławia. W 1813 r. we Wrocławiu ustanowiono Krzyż Żelazny i ogłoszono odezwę \"An mein Volk\"."
+    },
+    "en": {
+      "name": "Royal Palace",
+      "year": "18th c.",
+      "text": "The former residence of the Prussian kings, now the Wrocław City Museum. In 1813 the Iron Cross was instituted in Wrocław and the proclamation \"An mein Volk\" was issued here."
+    }
+  },
+  {
+    "id": "opera-wroclawska",
+    "lat": 51.1057,
+    "lon": 17.03063,
+    "year": "1841",
+    "rank": 2,
+    "pl": {
+      "name": "Opera Wrocławska",
+      "text": "Gmach opery zaprojektował Carl Ferdinand Langhans; stoi tuż przy Fosie Miejskiej."
+    },
+    "en": {
+      "name": "Wrocław Opera",
+      "text": "The opera house was designed by Carl Ferdinand Langhans; it stands right by the City Moat."
+    }
+  },
+  {
+    "id": "bastion-sakwowy-wzgorze-partyzantow",
+    "lat": 51.1049,
+    "lon": 17.0386,
+    "pl": {
+      "name": "Bastion Sakwowy (Wzgórze Partyzantów)",
+      "year": "XVI–XVII w., wzgórze po 1807",
+      "text": "Pozostałość bastionu przerobiona na wzgórze widokowe Liebichshöhe (1867). W 2024 r. przywrócono mu historyczną nazwę Bastion Sakwowy."
+    },
+    "en": {
+      "name": "Sakwowy Bastion (Partisans’ Hill)",
+      "year": "16th–17th c., hill after 1807",
+      "text": "The remains of a bastion turned into the Liebichshöhe viewing hill (1867). In 2024 it got back its historical name, Bastion Sakwowy."
+    }
+  },
+  {
+    "id": "wzgorze-polskie-bastion-ceglarski",
+    "lat": 51.1117,
+    "lon": 17.0447,
+    "year": "1585",
+    "rank": 2,
+    "pl": {
+      "name": "Wzgórze Polskie (Bastion Ceglarski)",
+      "text": "Bastion projektu Hansa Schneidera von Lindau, nazwany od cechu ceglarzy, który go bronił. Przed wojną nosił nazwę Holteihöhe."
+    },
+    "en": {
+      "name": "Polish Hill (Ceglarski Bastion)",
+      "text": "A bastion designed by Hans Schneider von Lindau, named after the brickmakers’ guild that defended it. Before the war it was called Holteihöhe."
+    }
+  },
+  {
+    "id": "hala-targowa",
+    "lat": 51.11241,
+    "lon": 17.04043,
+    "year": "1908",
+    "rank": 1,
+    "pl": {
+      "name": "Hala Targowa",
+      "text": "Hala Richarda Plüddemanna z żelbetowymi łukami, wtedy technologiczna nowinka. W środku pachnie kiszonymi ogórkami i kwiatami."
+    },
+    "en": {
+      "name": "Market Hall",
+      "text": "Richard Plüddemann’s hall (Hala Targowa) with reinforced-concrete arches, a technological novelty at the time. Inside it smells of pickled cucumbers and flowers."
+    }
+  },
+  {
+    "id": "panorama-raclawicka",
+    "lat": 51.11014,
+    "lon": 17.0444,
+    "rank": 1,
+    "pl": {
+      "name": "Panorama Racławicka",
+      "year": "1894 (we Wrocławiu od 1985)",
+      "text": "Obraz Jana Styki i Wojciecha Kossaka ma ok. 114 × 15 m. Przywieziony ze Lwowa w 1946 r., na pokazanie w rotundzie czekał do 14 czerwca 1985 r."
+    },
+    "en": {
+      "name": "Racławice Panorama",
+      "year": "1894 (in Wrocław since 1985)",
+      "text": "The painting by Jan Styka and Wojciech Kossak measures about 114 × 15 m. Brought from Lwów (Lviv) in 1946, it had to wait until 14 June 1985 to be shown in its rotunda."
+    }
+  },
+  {
+    "id": "muzeum-narodowe",
+    "lat": 51.11088,
+    "lon": 17.04764,
+    "year": "1886",
+    "rank": 2,
+    "pl": {
+      "name": "Muzeum Narodowe",
+      "text": "Neorenesansowy gmach dawnej rejencji śląskiej, latem zielony, jesienią czerwony od oplatającego go winobluszczu."
+    },
+    "en": {
+      "name": "National Museum",
+      "text": "The Neo-Renaissance building of the former Silesian regional government, green in summer and red in autumn from the Virginia creeper covering it."
+    }
+  },
+  {
+    "id": "kosciol-nmp-na-piasku",
+    "lat": 51.11462,
+    "lon": 17.04137,
+    "rank": 2,
+    "pl": {
+      "name": "Kościół NMP na Piasku",
+      "year": "od 1334",
+      "text": "Gotycka hala na Wyspie Piasek ze sklepieniami gwiaździstymi, budowana od 1334 r. Jej masywna bryła dominuje nad wyspą."
+    },
+    "en": {
+      "name": "Church of St. Mary on the Sand",
+      "year": "from 1334",
+      "text": "A Gothic hall church on Wyspa Piasek (Sand Island) with star vaults, built from 1334. Its massive bulk dominates the island."
+    }
+  },
+  {
+    "id": "most-tumski",
+    "lat": 51.11471,
+    "lon": 17.04233,
+    "year": "1889",
+    "rank": 2,
+    "pl": {
+      "name": "Most Tumski",
+      "text": "Stalowy, nitowany most łączący Wyspę Piasek z Ostrowem Tumskim. Do 1945 r. Dombrücke, czyli Most Katedralny."
+    },
+    "en": {
+      "name": "Tumski Bridge",
+      "text": "A riveted steel bridge linking Wyspa Piasek (Sand Island) with Ostrów Tumski. Until 1945 it was the Dombrücke, the Cathedral Bridge."
+    }
+  },
+  {
+    "id": "archikatedra-sw-jana-chrzciciela",
+    "lat": 51.11422,
+    "lon": 17.04668,
+    "rank": 1,
+    "pl": {
+      "name": "Archikatedra św. Jana Chrzciciela",
+      "year": "od XIII w.",
+      "text": "Gotycka katedra stoi w miejscu wcześniejszych świątyń biskupstwa założonego w 1000 r. Zniszczone w 1945 r. hełmy wież odtworzono dopiero w 1991 r."
+    },
+    "en": {
+      "name": "Cathedral of St. John the Baptist",
+      "year": "from 13th c.",
+      "text": "The Gothic cathedral stands on the site of earlier churches of the diocese founded in 1000. The tower spires destroyed in 1945 were only rebuilt in 1991."
+    }
+  },
+  {
+    "id": "kolegiata-sw-krzyza",
+    "lat": 51.11494,
+    "lon": 17.04413,
+    "year": "1288–1350",
+    "pl": {
+      "name": "Kolegiata św. Krzyża",
+      "text": "Kościół dwupoziomowy: dwa kościoły jeden nad drugim. Ufundował go książę Henryk IV Probus."
+    },
+    "en": {
+      "name": "Collegiate Church of the Holy Cross",
+      "text": "A two-storey church: two churches, one on top of the other. It was founded by Duke Henry IV Probus."
+    }
+  },
+  {
+    "id": "kosciol-sw-idziego",
+    "lat": 51.11455,
+    "lon": 17.04694,
+    "pl": {
+      "name": "Kościół św. Idziego",
+      "year": "ok. 1230",
+      "text": "Najstarszy zachowany kościół Wrocławia. Obok przejście przez Bramę Kluskową."
+    },
+    "en": {
+      "name": "St. Giles’ Church",
+      "year": "c. 1230",
+      "text": "The oldest surviving church in Wrocław. Next to it is the passage through the Brama Kluskowa (Dumpling Gate)."
+    }
+  },
+  {
+    "id": "wyspa-slodowa",
+    "lat": 51.1161,
+    "lon": 17.0378,
+    "year": "—",
+    "pl": {
+      "name": "Wyspa Słodowa",
+      "text": "Wyspa między Starym Miastem a Nadodrzem, latem najpopularniejsze miejsce na wieczór nad wodą."
+    },
+    "en": {
+      "name": "Wyspa Słodowa (Malt Island)",
+      "text": "An island between the Old Town and Nadodrze, the most popular place for a summer evening by the water."
+    }
+  },
+  {
+    "id": "ogrod-botaniczny",
+    "lat": 51.11621,
+    "lon": 17.04667,
+    "year": "1811",
+    "rank": 1,
+    "pl": {
+      "name": "Ogród Botaniczny",
+      "text": "Ogród Uniwersytetu Wrocławskiego założony w 1811 r. tuż za katedrą, na Ostrowie Tumskim."
+    },
+    "en": {
+      "name": "Botanical Garden",
+      "text": "The University of Wrocław’s garden, founded in 1811 just behind the cathedral on Ostrów Tumski."
+    }
+  },
+  {
+    "id": "most-grunwaldzki",
+    "lat": 51.1095,
+    "lon": 17.05254,
+    "year": "1910",
+    "rank": 1,
+    "pl": {
+      "name": "Most Grunwaldzki",
+      "text": "Wiszący most z kamiennymi pylonami, otwarty jako Kaiserbrücke. Prowadzi wprost na pl. Grunwaldzki."
+    },
+    "en": {
+      "name": "Grunwaldzki Bridge",
+      "text": "A suspension bridge with stone pylons, opened as the Kaiserbrücke. It leads straight to Plac Grunwaldzki."
+    }
+  },
+  {
+    "id": "plac-grunwaldzki",
+    "lat": 51.11147,
+    "lon": 17.06054,
+    "rank": 1,
+    "pl": {
+      "name": "Plac Grunwaldzki",
+      "year": "1945 / lata 70.",
+      "text": "W 1945 r. wyburzony pod lotnisko oblężonej twierdzy. Potem kampus i \"Sedesowce\" Jadwigi Grabowskiej-Hawrylak — bloki z charakterystycznymi owalnymi oknami."
+    },
+    "en": {
+      "name": "Plac Grunwaldzki",
+      "year": "1945 / 1970s",
+      "text": "Demolished in 1945 to make an airfield for the besieged fortress. Later came the campus and Jadwiga Grabowska-Hawrylak’s \"Sedesowce\" (the \"Toilet Seats\") — blocks with distinctive oval windows."
+    }
+  },
+  {
+    "id": "wieza-cisnien-na-grobli",
+    "lat": 51.10457,
+    "lon": 17.05782,
+    "year": "1866–1871",
+    "pl": {
+      "name": "Wieża ciśnień Na Grobli",
+      "text": "Neogotycka wieża dawnych wodociągów nad Odrą. Obok, w podziemnym zbiorniku wody, działa centrum wiedzy Hydropolis."
+    },
+    "en": {
+      "name": "Na Grobli Water Tower",
+      "text": "The Neo-Gothic tower of the old waterworks on the Oder. Next to it, in an underground water reservoir, is the Hydropolis science centre."
+    }
+  },
+  {
+    "id": "hala-stulecia",
+    "lat": 51.10699,
+    "lon": 17.07716,
+    "year": "1913",
+    "rank": 1,
+    "pl": {
+      "name": "Hala Stulecia",
+      "text": "Żelbetowa kopuła Maxa Berga o rozpiętości 65 m była rekordowa w czasach budowy. Od 2006 r. na liście UNESCO."
+    },
+    "en": {
+      "name": "Centennial Hall",
+      "text": "Max Berg’s reinforced-concrete dome spanning 65 m was a record when it was built. On the UNESCO World Heritage List since 2006."
+    }
+  },
+  {
+    "id": "iglica",
+    "lat": 51.10755,
+    "lon": 17.07519,
+    "year": "1948",
+    "rank": 2,
+    "pl": {
+      "name": "Iglica",
+      "text": "Stalowy pomnik Stanisława Hempla na Wystawę Ziem Odzyskanych. Miał 106 m; po kolejnych skróceniach mierzy ok. 90 m."
+    },
+    "en": {
+      "name": "Iglica (Spire)",
+      "text": "Stanisław Hempel’s steel monument for the Exhibition of the Recovered Territories. It was 106 m tall; after several shortenings it now measures about 90 m."
+    }
+  },
+  {
+    "id": "pergola-i-fontanna",
+    "lat": 51.10888,
+    "lon": 17.07914,
+    "year": "1913",
+    "rank": 2,
+    "pl": {
+      "name": "Pergola i Fontanna",
+      "text": "Betonowa pergola Hansa Poelziga otacza staw z multimedialną fontanną, która gra wieczorami w sezonie."
+    },
+    "en": {
+      "name": "Pergola and Fountain",
+      "text": "Hans Poelzig’s concrete pergola surrounds a pond with a multimedia fountain that plays in the evenings during the season."
+    }
+  },
+  {
+    "id": "pawilon-czterech-kopul",
+    "lat": 51.10786,
+    "lon": 17.07579,
+    "year": "1913",
+    "pl": {
+      "name": "Pawilon Czterech Kopuł",
+      "text": "Pawilon Hansa Poelziga z Wystawy Stulecia, dziś muzeum sztuki współczesnej."
+    },
+    "en": {
+      "name": "Four Domes Pavilion",
+      "text": "Hans Poelzig’s pavilion from the Centennial Exhibition, now a museum of contemporary art."
+    }
+  },
+  {
+    "id": "ogrod-japonski",
+    "lat": 51.10975,
+    "lon": 17.08,
+    "year": "1913",
+    "rank": 2,
+    "pl": {
+      "name": "Ogród Japoński",
+      "text": "Założony na Wystawę Stulecia, odtworzony z pomocą japońskich ogrodników w latach 90. Zalany w czasie powodzi w 1997 r."
+    },
+    "en": {
+      "name": "Japanese Garden",
+      "text": "Laid out for the Centennial Exhibition and restored with the help of Japanese gardeners in the 1990s. It was flooded in 1997."
+    }
+  },
+  {
+    "id": "zoo-wroclaw",
+    "lat": 51.1042,
+    "lon": 17.0745,
+    "year": "1865",
+    "rank": 1,
+    "pl": {
+      "name": "ZOO Wrocław",
+      "text": "Najstarszy ogród zoologiczny w dzisiejszych granicach Polski. Jego Afrykarium pokazuje ekosystemy wodne Afryki."
+    },
+    "en": {
+      "name": "Wrocław Zoo",
+      "text": "The oldest zoo within Poland’s present borders. Its Africarium shows the aquatic ecosystems of Africa."
+    }
+  },
+  {
+    "id": "dworzec-glowny",
+    "lat": 51.09897,
+    "lon": 17.03661,
+    "year": "1857",
+    "rank": 1,
+    "pl": {
+      "name": "Dworzec Główny",
+      "text": "Neogotycki dworzec Wilhelma Grapowa, trochę zamek, trochę stacja. Gruntownie odnowiony przed Euro 2012."
+    },
+    "en": {
+      "name": "Wrocław Główny Station",
+      "text": "Wilhelm Grapow’s Neo-Gothic station (Dworzec Główny), part castle, part railway station. Thoroughly restored before Euro 2012."
+    }
+  },
+  {
+    "id": "dworzec-swiebodzki",
+    "lat": 51.10765,
+    "lon": 17.01918,
+    "rank": 2,
+    "pl": {
+      "name": "Dworzec Świebodzki",
+      "year": "ok. 1842",
+      "text": "Jeden z pierwszych dworców w mieście, z czasów, gdy kolej dopiero docierała do Breslau."
+    },
+    "en": {
+      "name": "Świebodzki Station",
+      "year": "c. 1842",
+      "text": "One of the first railway stations in the city, from the days when the railway was only just reaching Breslau."
+    }
+  }
+]

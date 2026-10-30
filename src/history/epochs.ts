@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { bbox, distToPolyline, hash, pointInRing, signedArea, toLocal } from '../engine/geo.ts'
 import type { BuildOpts } from '../world/buildings.ts'
 import type { Building, Flat, World } from '../types/world.ts'
-import type { Epoch, Walls } from './content.ts'
+import type { Epoch, Walls } from '../content/index.ts'
 import { SINCE } from './milestones.ts'
 
 export interface EpochScene {

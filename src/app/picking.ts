@@ -8,6 +8,8 @@ import type { Timetable } from '../life/timetable.ts'
 import type { Scenes } from '../scenes/index.ts'
 import { openPopup } from '../ui/popup.ts'
 import type { Tiles } from '../world/tiles.ts'
+import type { Building } from '../types/world.ts'
+import { byId } from '../ui/dom.ts'
 
 // przesunięcie wskaźnika między wciśnięciem a puszczeniem większe niż tyle pikseli = przeciąganie mapy
 const CLICK_TOLERANCE_PX = 5
@@ -23,6 +25,7 @@ export interface Pickables {
   // scenki powstają dopiero po wczytaniu miasta
   scenes: () => Scenes | null
   onDwarf: (i: number) => void
+  scene: THREE.Scene
 }
 
 export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: Pickables) {
@@ -34,39 +37,97 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     ray.setFromCamera(ndc, camera)
   }
 
-  const pick = () => {
+  // Co jest pod kursorem: akcja po kliknięciu i obiekt do obrysowania (albo null, gdy nic klikalnego).
+  interface Target { open: () => void; outline: THREE.Box3 | Building }
+  const boxOf = (root: THREE.Object3D): THREE.Box3 | null => {
+    const hit = ray.intersectObject(root, true)[0]
+    if (!hit) return null
+    if (hit.instanceId != null && (hit.object as THREE.InstancedMesh).isInstancedMesh) {
+      const mesh = hit.object as THREE.InstancedMesh
+      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox()
+      const m = new THREE.Matrix4()
+      mesh.getMatrixAt(hit.instanceId, m)
+      return mesh.geometry.boundingBox!.clone().applyMatrix4(m).applyMatrix4(mesh.matrixWorld)
+    }
+    return new THREE.Box3().setFromObject(hit.object)
+  }
+
+  const find = (): Target | null => {
     if (p.dwarfs.mesh.visible) {
       const hit = ray.intersectObject(p.dwarfs.mesh)[0]
-      if (hit?.instanceId != null) return p.onDwarf(hit.instanceId)
+      const id = hit?.instanceId
+      if (id != null) return { open: () => p.onDwarf(id), outline: boxOf(p.dwarfs.mesh)! }
     }
     const timetable = p.timetable
     if (timetable?.mesh.visible) {
       const tram = ray.intersectObject(timetable.mesh)[0]
       const info = tram?.instanceId != null ? timetable.describe(tram.instanceId) : null
       if (info) {
-        return openPopup({
-          title: t('tram.title', { line: info.line }),
-          sub: t('tram.sub', { head: info.head }),
-          text: t('tram.text', { dep: info.dep, arr: info.arr }),
-        })
+        const open = () =>
+          openPopup({
+            title: t('tram.title', { line: info.line }),
+            sub: t('tram.sub', { head: info.head }),
+            text: t('tram.text', { dep: info.dep, arr: info.arr }),
+          })
+        return { open, outline: boxOf(timetable.mesh)! }
       }
     }
     const monument = p.monuments?.hit(ray)
-    if (monument) return openPopup(monument)
+    if (monument && p.monuments) return { open: () => openPopup(monument), outline: boxOf(p.monuments.group)! }
     const neon = p.neons.group.visible ? p.neons.hit(ray) : null
     if (neon) {
       const link = neon.source ? { href: neon.source, label: t('source') } : undefined
-      return openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link })
+      return { open: () => openPopup({ title: neon.title, sub: t('sub.trivia'), text: neon.text, link }), outline: boxOf(p.neons.group)! }
     }
-    const scene = p.scenes()?.hit(ray)
-    if (scene) return openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text })
-    if (p.scenes()?.speedway?.group.visible && p.scenes()?.speedway?.hit(ray)) return openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') })
+    const scenes = p.scenes()
+    const scene = scenes?.hit(ray)
+    if (scene && scenes) return { open: () => openPopup({ title: scene.title, sub: t('sub.trivia'), text: scene.text }), outline: boxOf(scenes.group)! }
+    const speedway = scenes?.speedway
+    if (speedway?.group.visible && speedway.hit(ray)) {
+      return { open: () => openPopup({ title: t('speedway.title'), sub: t('sub.trivia'), text: t('speedway.text') }), outline: boxOf(speedway.group)! }
+    }
     const b = p.tiles.pick(ray)
     if (b?.n) {
       const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')
-      openPopup({ title: b.n, sub })
+      const name = b.n
+      return { open: () => openPopup({ title: name, sub }), outline: b }
     }
+    return null
   }
+
+  // Obrys: złote krawędzie prostopadłościanu albo zarysu budynku (podstawa, góra i pionowe narożniki).
+  const outline = new THREE.LineSegments(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: '#e3b341', depthTest: false, transparent: true }),
+  )
+  outline.renderOrder = 20
+  outline.visible = false
+  p.scene.add(outline)
+  const showOutline = (o: THREE.Box3 | Building | null) => {
+    outline.visible = !!o && byId<HTMLInputElement>('opt-hover').checked
+    if (!o || !outline.visible) return
+    const pts: number[] = []
+    if (o instanceof THREE.Box3) {
+      const { min: a, max: b } = o
+      const c = [[a.x, a.z], [b.x, a.z], [b.x, b.z], [a.x, b.z]]
+      for (let i = 0; i < 4; i++) {
+        const [x0, z0] = c[i], [x1, z1] = c[(i + 1) % 4]
+        pts.push(x0, a.y, z0, x1, a.y, z1, x0, b.y, z0, x1, b.y, z1, x0, a.y, z0, x0, b.y, z0)
+      }
+    } else {
+      const ring = o.o, n = ring.length / 2, y0 = o.m ?? 0, y1 = o.H
+      for (let i = 0; i < n; i++) {
+        const j = (i + 1) % n
+        const ax = ring[i * 2], az = -ring[i * 2 + 1], bx = ring[j * 2], bz = -ring[j * 2 + 1]
+        pts.push(ax, y0, az, bx, y0, bz, ax, y1, az, bx, y1, bz, ax, y0, az, ax, y1, az)
+      }
+    }
+    outline.geometry.dispose()
+    outline.geometry = new THREE.BufferGeometry()
+    outline.geometry.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3))
+  }
+
+  const pick = () => find()?.open()
 
   let downAt = [0, 0]
   canvas.addEventListener('pointerdown', (ev) => (downAt = [ev.clientX, ev.clientY]))
@@ -76,14 +137,19 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     pick()
   })
 
+  // Najechanie: kursor-łapka i obrys nad wszystkim, co da się kliknąć (krasnale dodatkowo podskakują).
   let hoverAt = 0
   canvas.addEventListener('pointermove', (ev) => {
-    const dwarfs = p.dwarfs
-    if (!dwarfs.mesh.visible || performance.now() - hoverAt < HOVER_INTERVAL_MS) return
+    if (ev.buttons || performance.now() - hoverAt < HOVER_INTERVAL_MS) return
     hoverAt = performance.now()
     aim(ev)
-    const hit = ray.intersectObject(dwarfs.mesh)[0]
-    dwarfs.setHover(hit?.instanceId ?? -1)
-    canvas.style.cursor = hit ? 'pointer' : ''
+    const target = find()
+    if (p.dwarfs.mesh.visible) {
+      const hit = ray.intersectObject(p.dwarfs.mesh)[0]
+      p.dwarfs.setHover(hit?.instanceId ?? -1)
+    }
+    canvas.style.cursor = target ? 'pointer' : ''
+    showOutline(target?.outline ?? null)
   })
+  canvas.addEventListener('pointerleave', () => showOutline(null))
 }

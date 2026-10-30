@@ -1,0 +1,198 @@
+[
+  {
+    "id": "papa-krasnal",
+    "lat": 51.10754,
+    "lon": 17.03251,
+    "trigger": "click",
+    "pl": {
+      "title": "Papa Krasnal",
+      "text": "Pierwszy wrocławski krasnal stanął 1 czerwca 2001 r. na Świdnickiej, gdzie Pomarańczowa Alternatywa robiła happeningi. To pomnik ruchu, który walczył z PRL-em za pomocą absurdu."
+    },
+    "en": {
+      "title": "Papa Krasnal (Papa Dwarf)",
+      "text": "Wrocław’s first dwarf was unveiled on 1 June 2001 on Świdnicka street, where the Orange Alternative used to stage its happenings. It is a monument to a movement that fought communist Poland with absurdity."
+    }
+  },
+  {
+    "id": "konami-orange",
+    "lat": 51.10754,
+    "lon": 17.03251,
+    "trigger": "konami",
+    "pl": {
+      "title": "Rewolucja Krasnoludków",
+      "text": "Tryb pomarańczowy włączony! 1 czerwca 1988 r. ponad 10 tys. osób w pomarańczowych czapkach przemaszerowało przez centrum miasta. Milicja nie wiedziała, kogo aresztować: krasnoludków się nie zamyka."
+    },
+    "en": {
+      "title": "The Dwarf Revolution",
+      "text": "Orange mode on! On 1 June 1988 more than 10,000 people in orange hats marched through the city centre. The militia didn’t know whom to arrest: you can’t lock up dwarfs."
+    }
+  },
+  {
+    "id": "mostek-pokutnic",
+    "lat": 51.10957,
+    "lon": 17.03507,
+    "trigger": "click",
+    "pl": {
+      "title": "Mostek Pokutnic",
+      "text": "Według legendy duchy panien, które wolały zabawę od zamążpójścia, za karę zamiatają ten mostek między wieżami. Dziś za wejście płaci się biletem, nie wieczną pokutą."
+    },
+    "en": {
+      "title": "Penitents’ Bridge",
+      "text": "Legend has it that the ghosts of maidens who preferred having fun to getting married sweep this bridge between the towers as punishment. Today you pay for a ticket to get up there, not with eternal penance."
+    }
+  },
+  {
+    "id": "klodki",
+    "lat": 51.11471,
+    "lon": 17.04233,
+    "trigger": "click",
+    "pl": {
+      "title": "Kłódki zakochanych",
+      "text": "Przez lata pary wieszały na Moście Tumskim kłódki, a klucze wyrzucały do Odry. Przy remoncie zdjęto ich ok. 40 tys. i dziś wieszać ich już nie wolno, bo zabytkowy most ma dość ciężaru."
+    },
+    "en": {
+      "title": "Love padlocks",
+      "text": "For years couples hung padlocks on the Tumski Bridge and threw the keys into the Oder. About 40,000 of them were removed during renovation, and hanging them is no longer allowed: the historic bridge carries enough weight already."
+    }
+  },
+  {
+    "id": "latarnik",
+    "lat": 51.1144,
+    "lon": 17.045,
+    "trigger": "time",
+    "pl": {
+      "title": "Latarnik z Ostrowa",
+      "text": "Po zmroku na Ostrowie Tumskim gazowe latarnie zapala ręcznie latarnik w pelerynie i cylindrze. Na tej mapie wystarczy poczekać do wieczora."
+    },
+    "en": {
+      "title": "The lamplighter of Ostrów",
+      "text": "After dusk on Ostrów Tumski the gas lamps are lit by hand by a lamplighter in a cape and top hat. On this map, just wait for evening."
+    }
+  },
+  {
+    "id": "pregierz",
+    "lat": 51.10962,
+    "lon": 17.0329,
+    "trigger": "click",
+    "pl": {
+      "title": "Pręgierz",
+      "text": "Od 1492 r. przed ratuszem karano chłostą i publicznym wstydem. Kat na szczycie repliki wrócił dopiero w 2002 r. — uważaj, gdzie klikasz."
+    },
+    "en": {
+      "title": "The Pillory",
+      "text": "From 1492, people were flogged and publicly shamed in front of the town hall. The executioner on top of the replica only came back in 2002 — careful where you click."
+    }
+  },
+  {
+    "id": "most-szpiegow",
+    "lat": 51.1212,
+    "lon": 17.028,
+    "trigger": "click",
+    "pl": {
+      "title": "Most szpiegów",
+      "text": "Jesienią 2014 r. Steven Spielberg zamienił Nadodrze w Berlin Wschodni: na Ptasiej wyrósł mur, a Kurkowa zagrała Checkpoint Charlie. Wrocław w filmie z Tomem Hanksem gra Niemcy — tym razem z dobrym scenariuszem."
+    },
+    "en": {
+      "title": "Bridge of Spies",
+      "text": "In autumn 2014 Steven Spielberg turned Nadodrze into East Berlin: a wall went up on Ptasia street and Kurkowa played Checkpoint Charlie. In the Tom Hanks film Wrocław plays Germany — this time with a good script."
+    }
+  },
+  {
+    "id": "elyan",
+    "lat": 51.11422,
+    "lon": 17.04668,
+    "trigger": "click",
+    "pl": {
+      "title": "Pierwsze drukowane słowa po polsku",
+      "text": "W 1475 r. kanonik katedralny Kasper Elyan wydrukował we Wrocławiu statuty synodalne, a w nich modlitwy po polsku: Ojcze nasz, Zdrowaś Maryjo i Wierzę. To pierwszy znany druk z tekstem w języku polskim."
+    },
+    "en": {
+      "title": "The first printed words in Polish",
+      "text": "In 1475 the cathedral canon Kasper Elyan printed the synodal statutes in Wrocław, including prayers in Polish: the Our Father, the Hail Mary and the Creed. It is the earliest known print containing text in Polish."
+    }
+  },
+  {
+    "id": "iglica-lustra",
+    "lat": 51.10755,
+    "lon": 17.07519,
+    "trigger": "zoom",
+    "pl": {
+      "title": "Lustra na Iglicy",
+      "text": "Na szczycie Iglicy obracał się dysk z ośmioma lustrami, który miał rzucać nocą błyski. Dwa tygodnie po otwarciu w 1948 r. zniszczyła go burza, a resztki zdjęli wspinacze z Krakowa. W 2007 r. Iglica była największą choinką w Europie."
+    },
+    "en": {
+      "title": "Mirrors on the Iglica",
+      "text": "At the top of the Iglica a disc with eight mirrors rotated, meant to send flashes of light at night. Two weeks after the 1948 opening a storm wrecked it, and climbers from Kraków took down what was left. In 2007 the Iglica was the biggest Christmas tree in Europe."
+    }
+  },
+  {
+    "id": "zoo-1997",
+    "lat": 51.1042,
+    "lon": 17.0745,
+    "trigger": "click",
+    "pl": {
+      "title": "Ratowanie ZOO",
+      "text": "W lipcu 1997 r. ok. 10 tys. ochotników układało worki z piaskiem wokół wrocławskiego ZOO. Zwierzęta przeżyły powódź tysiąclecia dzięki ludziom."
+    },
+    "en": {
+      "title": "Saving the zoo",
+      "text": "In July 1997 about 10,000 volunteers piled sandbags around the Wrocław Zoo. The animals survived the Millennium Flood thanks to people."
+    }
+  },
+  {
+    "id": "liebichshohe",
+    "lat": 51.1049,
+    "lon": 17.0386,
+    "trigger": "click",
+    "pl": {
+      "title": "Wzgórze (nie)miłości",
+      "text": "Niemiecka nazwa Liebichshöhe pochodzi od kupca Adolfa Liebicha, ale przez podobieństwo do słowa Liebe po wojnie mówiono tu o \"Wzgórzu Miłości\". Pomyłka romantyczna, choć nie najgorsza."
+    },
+    "en": {
+      "title": "The Hill of (Un)Love",
+      "text": "The German name Liebichshöhe comes from the merchant Adolf Liebich, but because it sounds like Liebe (love), after the war people called it the \"Hill of Love\". A romantic mistake, though not the worst one."
+    }
+  },
+  {
+    "id": "picasso",
+    "lat": 51.1073,
+    "lon": 17.06,
+    "trigger": "click",
+    "pl": {
+      "title": "Picasso we Wrocławiu",
+      "text": "W sierpniu 1948 r. w gmachu Politechniki odbył się Światowy Kongres Intelektualistów w Obronie Pokoju. Przyjechał na niego Pablo Picasso."
+    },
+    "en": {
+      "title": "Picasso in Wrocław",
+      "text": "In August 1948 the University of Technology’s main building hosted the World Congress of Intellectuals in Defence of Peace. Pablo Picasso came to attend it."
+    }
+  },
+  {
+    "id": "krzyz-zelazny",
+    "lat": 51.10754,
+    "lon": 17.0289,
+    "trigger": "click",
+    "pl": {
+      "title": "Krzyż Żelazny",
+      "text": "W marcu 1813 r. król Fryderyk Wilhelm III ustanowił we Wrocławiu order Krzyża Żelaznego i wydał stąd odezwę \"An mein Volk\". Sto lat później miasto uczciło te wydarzenia budową Hali Stulecia."
+    },
+    "en": {
+      "title": "The Iron Cross",
+      "text": "In March 1813 King Frederick William III instituted the Iron Cross in Wrocław and issued his proclamation \"An mein Volk\" from here. A hundred years later the city commemorated these events by building the Centennial Hall."
+    }
+  },
+  {
+    "id": "mosty",
+    "lat": 51.113,
+    "lon": 17.04,
+    "trigger": "zoom",
+    "pl": {
+      "title": "Miasto mostów",
+      "text": "Odra, Oława, kanały i fosa sprawiają, że we Wrocławiu jest ponad sto mostów i kładek. Spróbuj policzyć te widoczne na mapie."
+    },
+    "en": {
+      "title": "City of bridges",
+      "text": "The Oder, the Oława, the canals and the moat give Wrocław more than a hundred bridges and footbridges. Try counting the ones you can see on the map."
+    }
+  }
+]

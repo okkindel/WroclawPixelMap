@@ -1,0 +1,1554 @@
+[
+  {
+    "id": "na-ostatnim-groszu",
+    "lat": 51.1217,
+    "lon": 16.985,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://fotopolska.eu/Wroclaw/b20165,Gospoda_Na_Ostatnim_Groszu.html",
+    "pl": {
+      "title": "Na Ostatnim Groszu",
+      "text": "Skąd taka nazwa ulicy? Przy dzisiejszej Lotniczej stała gospoda Zum Letzten Heller, czyli „Pod Ostatnim Halerzem”. Zniknęła w 1945 r., a ulica zachowała jej nazwę w polskim przekładzie. Dziś to skrzyżowanie Legnickiej, Lotniczej, Na Ostatnim Groszu i Milenijnej."
+    },
+    "en": {
+      "title": "Na Ostatnim Groszu",
+      "text": "Where does the street name come from? On today’s Lotnicza street stood an inn called Zum Letzten Heller, “At the Last Heller”. It disappeared in 1945, and the street kept its name in Polish translation: Na Ostatnim Groszu (“On the Last Penny”). Today it is the junction of Legnicka, Lotnicza, Na Ostatnim Groszu and Milenijna."
+    }
+  },
+  {
+    "id": "lotnisko-gadow",
+    "lat": 51.1281,
+    "lon": 16.9729,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/gadow-maly-lotnisko-osiedla-mieszkaniowe",
+    "pl": {
+      "title": "Lotnisko na Gądowie",
+      "text": "Od 1910 r. na dawnym placu ćwiczeń wojskowych działało lotnisko, w latach 20. najważniejsze na wschodzie Niemiec. Zamknięto je w latach 70., a na jego miejscu wyrosło osiedle Kosmonautów. W budynku portu z wieżą kontroli lotów jest dziś przedszkole, a w betonowym hangarze działa supermarket."
+    },
+    "en": {
+      "title": "Gądów Airfield",
+      "text": "From 1910 an airfield operated on a former military drill ground, and in the 1920s it was the most important one in eastern Germany. It closed in the 1970s, and the Kosmonautów housing estate grew in its place. The terminal building with its control tower is now a kindergarten, and the concrete hangar houses a supermarket."
+    }
+  },
+  {
+    "id": "popowice-pop",
+    "lat": 51.1241,
+    "lon": 16.9878,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Popowice_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Popowice, czyli wieś księży",
+      "text": "Nazwa pochodzi od staropolskiego słowa „pop”, którym w średniowieczu określano także księży katolickich. Niemcy przerobili ją na Pöpelwitz. W XVIII w. w ruinach biskupiego pałacyku ukrywała się banda Manduby, nazywanego miejscowym Robin Hoodem."
+    },
+    "en": {
+      "title": "Popowice, the priests’ village",
+      "text": "The name comes from the Old Polish word “pop”, which in the Middle Ages was also used for Catholic priests. The Germans turned it into Pöpelwitz. In the 18th century the gang of Manduba, called the local Robin Hood, hid in the ruins of the bishop’s small palace."
+    }
+  },
+  {
+    "id": "kozanow-1997",
+    "lat": 51.1385,
+    "lon": 16.9739,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Kozan%C3%B3w",
+    "pl": {
+      "title": "Kozanów pod wodą",
+      "text": "Przed 1945 r. osiedle nazywało się Kosel, a tuż po wojnie przez chwilę Kozoniowo. W lipcu 1997 r. Kozanów był najbardziej zniszczonym przez powódź fragmentem miasta, a w 2010 r. woda wróciła tu jeszcze raz."
+    },
+    "en": {
+      "title": "Kozanów under water",
+      "text": "Before 1945 the estate was called Kosel, and right after the war, briefly, Kozoniowo. In July 1997 Kozanów was the part of the city worst hit by the flood, and in 2010 the water came back here once more."
+    }
+  },
+  {
+    "id": "pilczyce-fryderyk",
+    "lat": 51.1372,
+    "lon": 16.9645,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Pilczyce",
+    "pl": {
+      "title": "Sylwester króla w Pilczycach",
+      "text": "W noc sylwestrową 1740 r. Fryderyk Wielki maszerujący na Wrocław zanocował w tutejszym dworku. Nazwa wsi (niem. Pilsnitz) może pochodzić od pilchów, czyli popielic. Król i popielice — obaj lubią długo spać."
+    },
+    "en": {
+      "title": "The king’s New Year’s Eve in Pilczyce",
+      "text": "On New Year’s Eve 1740, Frederick the Great, marching on Wrocław, spent the night in the local manor house. The village name (German: Pilsnitz) may come from “pilchy”, i.e. edible dormice. The king and the dormice — both like a long sleep."
+    }
+  },
+  {
+    "id": "muchobor-kolonie",
+    "lat": 51.1104,
+    "lon": 16.9656,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Muchob%C3%B3r_Ma%C5%82y",
+    "pl": {
+      "title": "Samoa na Muchoborze",
+      "text": "Przed wojną część ulic na Muchoborze Małym (Klein Mochbern) nazwano od niemieckich kolonii: dzisiejsza Angielska była Windhuk Straße, a Holenderska — Samoa Straße. Po kolonialnych ambicjach zostały tylko europejskie nazwy."
+    },
+    "en": {
+      "title": "Samoa in Muchobór",
+      "text": "Before the war some streets in Muchobór Mały (Klein Mochbern) were named after German colonies: today’s Angielska (“English”) was Windhuk Straße, and Holenderska (“Dutch”) was Samoa Straße. Of the colonial ambitions, only European names remain."
+    }
+  },
+  {
+    "id": "oporow-dwor",
+    "lat": 51.0786,
+    "lon": 16.9609,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Opor%C3%B3w_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Szachulcowy dwór na Oporowie",
+      "text": "Przy ul. Wiejskiej 17 stoi dwór z połowy XVI w., w którym mieszkał zarządca dóbr kapituły. To jeden z najstarszych budynków szachulcowych w Polsce. Jego kamienny gotycki portal skradziono w 1997 r."
+    },
+    "en": {
+      "title": "Half-timbered manor in Oporów",
+      "text": "At ul. Wiejska 17 stands a manor house from the mid-16th century, once home to the steward of the cathedral chapter’s estates. It is one of the oldest half-timbered buildings in Poland. Its Gothic stone portal was stolen in 1997."
+    }
+  },
+  {
+    "id": "grabiszyn-polackenweg",
+    "lat": 51.0953,
+    "lon": 16.9833,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Grabiszyn",
+    "pl": {
+      "title": "Polska droga do Grabiszyna",
+      "text": "Grabiszyn (Gräbschen) wziął nazwę od imienia Grabisz albo od grabu. Średniowieczne dokumenty wspominają „drogę, którą idzie się do Grabiszyna”, a Niemcy nazywali trakt od południa po prostu Polackenweg, czyli „polską drogą”. Ulica Grabiszyńska dostała nazwę w 1923 r."
+    },
+    "en": {
+      "title": "The Polish road to Grabiszyn",
+      "text": "Grabiszyn (Gräbschen) took its name from the given name Grabisz or from the hornbeam (“grab”). Medieval documents mention “the road one takes to Grabiszyn”, and the Germans called the route from the south simply Polackenweg, “the Polish road”. Grabiszyńska street got its name in 1923."
+    }
+  },
+  {
+    "id": "szczepin-polska-wies",
+    "lat": 51.1144,
+    "lon": 17.0166,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-koscioly-ktorych-juz-nie-ma",
+    "pl": {
+      "title": "Polskie Przedmieście",
+      "text": "Szczepin (Tschepine) wziął nazwę od imienia Szczepan, a w XVIII w. mówiono o nim Polnische Vorstadt, czyli Polskie Przedmieście. Stojący przy pl. św. Mikołaja kościół zniszczyła bomba w 1945 r. Cegły z jego ruin posłużyły m.in. do odbudowy Warszawy."
+    },
+    "en": {
+      "title": "The Polish Suburb",
+      "text": "Szczepin (Tschepine) took its name from the given name Szczepan, and in the 18th century it was known as Polnische Vorstadt, the Polish Suburb. The church on Plac św. Mikołaja (St Nicholas Square) was destroyed by a bomb in 1945. Bricks from its ruins were used, among other things, to rebuild Warsaw."
+    }
+  },
+  {
+    "id": "kosciol-sw-pawla",
+    "lat": 51.1135,
+    "lon": 17.0031,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-koscioly-ktorych-juz-nie-ma",
+    "pl": {
+      "title": "Kościół, który stał się przychodnią",
+      "text": "U zbiegu Legnickiej i Głogowskiej od 1913 r. stał kościół św. Pawła. Uszkodzony w 1945 r., został rozebrany w latach 60. Dziś w tym miejscu działa centrum medyczne Dolmed."
+    },
+    "en": {
+      "title": "The church that became a clinic",
+      "text": "From 1913 St Paul’s Church stood at the corner of Legnicka and Głogowska. Damaged in 1945, it was demolished in the 1960s. Today the Dolmed medical centre operates on the site."
+    }
+  },
+  {
+    "id": "bunkier-strzegomski",
+    "lat": 51.1128,
+    "lon": 17.0052,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Bunkier_przy_placu_Strzegomskim_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Muzeum w schronie",
+      "text": "Okrągły schron przeciwlotniczy na pl. Strzegomskim z 1942 r. zaprojektował Richard Konwiarz, autor Stadionu Olimpijskiego. Nie ma okien, w latach 90. miał na dachu neon Coca-Coli, a od 2011 r. mieści Muzeum Współczesne."
+    },
+    "en": {
+      "title": "A museum in a shelter",
+      "text": "The round 1942 air-raid shelter on Plac Strzegomski was designed by Richard Konwiarz, architect of the Olympic Stadium. It has no windows, in the 1990s it had a Coca-Cola neon on its roof, and since 2011 it has housed the Contemporary Museum (Muzeum Współczesne)."
+    }
+  },
+  {
+    "id": "plac-jana-pawla",
+    "lat": 51.1116,
+    "lon": 17.0221,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Plac_Jana_Paw%C5%82a_II_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Plac Królewski",
+      "text": "Plac powstał po zburzeniu Bramy Mikołajskiej i do 1945 r. nazywał się Königsplatz. Od 1900 r. stał na nim pomnik Bismarcka, po wojnie plac nazwano 1 Maja, a od 2006 r. nosi imię Jana Pawła II. Ocalała tylko kamienica z 1841 r., w której mieści się Akademia Muzyczna."
+    },
+    "en": {
+      "title": "King’s Square",
+      "text": "The square was created after the Nicholas Gate (Brama Mikołajska) was pulled down, and until 1945 it was called Königsplatz. From 1900 a Bismarck monument stood here; after the war the square was named after May Day (1 Maja), and since 2006 it has borne the name of John Paul II. Only an 1841 tenement survived, now home to the Academy of Music."
+    }
+  },
+  {
+    "id": "plac-legionow",
+    "lat": 51.1044,
+    "lon": 17.0226,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Plac_Legion%C3%B3w_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Plac Słoneczny",
+      "text": "Do 1945 r. był to Sonnenplatz, nazwany od ulic rozchodzących się z niego jak promienie słońca. Potem kolejno: plac Słoneczny, plac PKWN, a od lat 90. plac Legionów. Słońce zgasło, promienie zostały."
+    },
+    "en": {
+      "title": "Sun Square",
+      "text": "Until 1945 this was Sonnenplatz, named after the streets radiating from it like rays of the sun. Then, in turn: plac Słoneczny (Sun Square), plac PKWN, and since the 1990s plac Legionów. The sun has gone out, the rays remain."
+    }
+  },
+  {
+    "id": "nowa-synagoga",
+    "lat": 51.104,
+    "lon": 17.0276,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Nowa_Synagoga_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Nowa Synagoga",
+      "text": "Na rogu Podwala i Łąkowej stała otwarta w 1872 r. synagoga Edwina Opplera z kopułą wysoką na 73 m, jedna z największych w Niemczech. Spłonęła w Noc Kryształową 1938 r. i nie została odbudowana. Miejsce upamiętnia pomnik z 1998 r., a w 2017 r. odkopano jej fundamenty."
+    },
+    "en": {
+      "title": "The New Synagogue",
+      "text": "At the corner of Podwale and Łąkowa stood Edwin Oppler’s synagogue, opened in 1872, with a 73 m high dome — one of the largest in Germany. It burned down on Kristallnacht in 1938 and was never rebuilt. The site is marked by a 1998 memorial, and in 2017 its foundations were excavated."
+    }
+  },
+  {
+    "id": "plac-kosciuszki",
+    "lat": 51.1029,
+    "lon": 17.0301,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Plac_Tadeusza_Ko%C5%9Bciuszki_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Szubienica, generał i McDonald’s",
+      "text": "W XIV–XVI w. był tu cmentarz dla ubogich, a od 1557 r. szubienica. Plac wytyczono w 1807 r. na paradę wojsk Hieronima Bonapartego i nazwano od generała Tauentziena, którego grób z pomnikiem stał pośrodku. Znacznie później otwarto tu pierwszy we Wrocławiu bar McDonald’s."
+    },
+    "en": {
+      "title": "Gallows, a general and McDonald’s",
+      "text": "In the 14th–16th centuries there was a paupers’ cemetery here, and from 1557 a gallows. The square was laid out in 1807 for a parade of Jérôme Bonaparte’s troops and named after General Tauentzien, whose grave with a monument stood in the middle. Much later, Wrocław’s first McDonald’s opened here."
+    }
+  },
+  {
+    "id": "komandorska",
+    "lat": 51.0996,
+    "lon": 17.0307,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Komandorska_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Komandorska, czyli Nowa Wieś",
+      "text": "Ulica wzięła nazwę od wsi Commende Neudorf, włączonej do miasta w 1868 r. Do 1945 r. była to Neudorfstraße. Działająca przy niej od 1860 r. fabryka papierosów Przedeckiego dostarczała towar nawet na dwór sułtana tureckiego."
+    },
+    "en": {
+      "title": "Komandorska, or New Village",
+      "text": "The street took its name from the village of Commende Neudorf, incorporated into the city in 1868. Until 1945 it was Neudorfstraße. Przedecki’s cigarette factory, operating here from 1860, supplied its goods even to the court of the Turkish sultan."
+    }
+  },
+  {
+    "id": "poltegor",
+    "lat": 51.0945,
+    "lon": 17.0196,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Poltegor_Centre",
+    "pl": {
+      "title": "Poltegor i Sky Tower",
+      "text": "Przy Powstańców Śląskich stał Poltegor, ukończony w 1982 r. i do czasu rozbiórki najwyższy budynek Wrocławia (125 m z anteną). Rozebrano go w 2007 r., a fundamenty rozbijano mikroładunkami wybuchowymi. Na jego miejscu stoi Sky Tower."
+    },
+    "en": {
+      "title": "Poltegor and Sky Tower",
+      "text": "On Powstańców Śląskich stood Poltegor, completed in 1982 and, until its demolition, the tallest building in Wrocław (125 m including the antenna). It was taken down in 2007, and its foundations were broken up with micro explosive charges. Sky Tower now stands in its place."
+    }
+  },
+  {
+    "id": "cmentarz-zydowski-slezna",
+    "lat": 51.0877,
+    "lon": 17.0269,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Stary_Cmentarz_%C5%BBydowski_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Stary Cmentarz Żydowski",
+      "text": "Cmentarz przy Ślężnej założono w 1856 r. na gruntach wsi Gabitz, dzisiejszych Gajowic. Leży tu m.in. Ferdinand Lassalle, założyciel pierwszej partii robotniczej w Niemczech, i rodzice Edyty Stein. Na niektórych macewach widać ślady kul z 1945 r."
+    },
+    "en": {
+      "title": "Old Jewish Cemetery",
+      "text": "The cemetery on Ślężna was founded in 1856 on land of the village of Gabitz, today’s Gajowice. Among those buried here are Ferdinand Lassalle, founder of the first workers’ party in Germany, and Edith Stein’s parents. Some of the matzevot still bear bullet marks from 1945."
+    }
+  },
+  {
+    "id": "borek-bor",
+    "lat": 51.0819,
+    "lon": 17.0106,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Borek_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Borek, który miał zamek",
+      "text": "Polski „bór” Niemcy usłyszeli jako „Burg” i tak Borek stał się Kleinburgiem, czyli „Małym Zamkiem”, choć żadnego zamku tu nie było. Urodził się tu Manfred von Richthofen, słynny Czerwony Baron z I wojny światowej."
+    },
+    "en": {
+      "title": "Borek, which had a castle",
+      "text": "The Germans heard the Polish “bór” (pine forest) as “Burg”, and so Borek became Kleinburg, “Little Castle”, even though there was never any castle here. Manfred von Richthofen, the famous Red Baron of the First World War, was born here."
+    }
+  },
+  {
+    "id": "wzgorze-andersa",
+    "lat": 51.0902,
+    "lon": 17.0304,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Wzg%C3%B3rze_Andersa",
+    "pl": {
+      "title": "Góra z gruzu",
+      "text": "Wzgórze Andersa usypano po 1945 r. z gruzu zburzonych domów, a pod nim zniknęła cała ulica Sobótkowska. Od 1985 r. nosiło imię Władysława Gomułki i miało dostać Pomnik Ziem Odzyskanych, ale stanął tylko kamień węgielny. Dziś na szczycie jest pumptrack."
+    },
+    "en": {
+      "title": "A hill of rubble",
+      "text": "Wzgórze Andersa (Anders Hill) was piled up after 1945 from the rubble of destroyed houses, and an entire street, Sobótkowska, vanished beneath it. From 1985 it bore the name of Władysław Gomułka and was to receive a Monument to the Recovered Territories, but only the cornerstone was ever laid. Today there is a pump track on top."
+    }
+  },
+  {
+    "id": "salvatorkirche",
+    "lat": 51.0964,
+    "lon": 17.0348,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-koscioly-ktorych-juz-nie-ma",
+    "pl": {
+      "title": "Kościół, dworzec, galeria",
+      "text": "Przy Borowskiej i Dyrekcyjnej stał ukończony w 1876 r. kościół Zbawiciela. Zniszczone w 1945 r. mury rozbierano stopniowo, a w 1975 r. w tym miejscu otwarto dworzec autobusowy. Dziś jest tu centrum handlowe Wroclavia z dworcem pod ziemią."
+    },
+    "en": {
+      "title": "Church, bus station, mall",
+      "text": "At Borowska and Dyrekcyjna stood the Church of the Saviour, completed in 1876. Its walls, wrecked in 1945, were gradually demolished, and in 1975 a bus station opened on the site. Today it is the Wroclavia shopping centre with an underground bus station."
+    }
+  },
+  {
+    "id": "browar-mieszczanski",
+    "lat": 51.0923,
+    "lon": 17.0447,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Browar_Mieszcza%C5%84ski_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Browar Mieszczański",
+      "text": "Browar przy Hubskiej powstał w 1894 r., żeby zaopatrywać lokal Roberta Haina przy Oławskiej. Tuż po wojnie zamiast piwa produkował kwas mlekowy. Piwo warzono tu do 1996 r., a dziś w budynkach działa centrum kulturalne."
+    },
+    "en": {
+      "title": "Browar Mieszczański",
+      "text": "The brewery on Hubska was built in 1894 to supply Robert Hain’s establishment on Oławska. Right after the war it produced lactic acid instead of beer. Beer was brewed here until 1996, and today the buildings house a cultural centre."
+    }
+  },
+  {
+    "id": "gaj-herdain",
+    "lat": 51.0939,
+    "lon": 17.0409,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Gaj_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Gaj, który był Herdainem",
+      "text": "Niemiecka nazwa wsi, Herdain, pochodzi najpewniej od mieszczanina Herdana, którego syn kupił tu ziemię w 1273 r. W 1905 r. prowadząca do wsi Herdainstraße zmieniła nazwę; dziś to ulica Gajowa."
+    },
+    "en": {
+      "title": "Gaj, which was Herdain",
+      "text": "The village’s German name, Herdain, most likely comes from a burgher named Herdan, whose son bought land here in 1273. In 1905 Herdainstraße, which led to the village, was renamed; today it is Gajowa street."
+    }
+  },
+  {
+    "id": "tarnogaj-durrgoy",
+    "lat": 51.0802,
+    "lon": 17.0623,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Tarnogaj",
+    "pl": {
+      "title": "Suchy gaj",
+      "text": "Najstarsza nazwa osiedla, Gay, oznaczała gaik; Niemcy przerobili ją na Dürrgoy. W 1933 r. naziści założyli tu jeden z pierwszych obozów koncentracyjnych dla więźniów politycznych, choć dokładne miejsce obozu do dziś nie jest znane. Wcześniej, w latach 1912–1914, przez Tarnogaj jeździł trolejbus."
+    },
+    "en": {
+      "title": "The dry grove",
+      "text": "The estate’s oldest name, Gay, meant a small grove; the Germans turned it into Dürrgoy. In 1933 the Nazis set up one of the first concentration camps for political prisoners here, although the camp’s exact location is still unknown. Earlier, in 1912–1914, a trolleybus ran through Tarnogaj."
+    }
+  },
+  {
+    "id": "ksieze-male",
+    "lat": 51.0771,
+    "lon": 17.085,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ksi%C4%99%C5%BCe_Ma%C5%82e",
+    "pl": {
+      "title": "Zwierzaki nad bramami",
+      "text": "Modernistyczne osiedle na Księżu Małym zbudowano w latach 1928–1930 z „mieszkaniami minimum”. Nad bramami umieszczono ceramiczne płaskorzeźby zwierząt, żeby łatwiej było trafić pod swój adres. W 1937 r. naziści zmienili słowiańską nazwę Klein Tschansch na Klein Ohlewiesen."
+    },
+    "en": {
+      "title": "Animals above the gateways",
+      "text": "The modernist estate in Księże Małe was built in 1928–1930 with “minimum dwellings”. Ceramic animal reliefs were placed above the gateways to make it easier to find your own address. In 1937 the Nazis changed the Slavic name Klein Tschansch to Klein Ohlewiesen."
+    }
+  },
+  {
+    "id": "trojkat-bermudzki",
+    "lat": 51.1025,
+    "lon": 17.0499,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Tr%C3%B3jk%C4%85t_Bermudzki_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Trójkąt Bermudzki",
+      "text": "Tak od ok. 1982 r. podziemna prasa nazywała rejon między Pułaskiego, Traugutta i Kościuszki, który miał złą sławę. Ulica Miernicza grała w filmach, m.in. w „Moście szpiegów”. Dziś kamienice przechodzą rewitalizację i nikt tu nie znika."
+    },
+    "en": {
+      "title": "The Bermuda Triangle",
+      "text": "From around 1982 the underground press used this name for the area between Pułaskiego, Traugutta and Kościuszki, which had a bad reputation. Miernicza street has appeared in films, including “Bridge of Spies”. Today the tenements are being revitalised and nobody disappears here."
+    }
+  },
+  {
+    "id": "trzonolinowiec",
+    "lat": 51.1014,
+    "lon": 17.0401,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/jak-trzonolinowiec-stawiano-od-gory-do-dolu-ewenement-na-skale-swiata-archiwalne-zdjecia",
+    "pl": {
+      "title": "Wisielec z Kościuszki",
+      "text": "Stropy Trzonolinowca przy Kościuszki 72 wiszą na stalowych linach zaczepionych o szczyt betonowego trzonu. Budynek, ukończony w 1967 r., stawiano od najwyższego piętra w dół. Wrocławianie mówią o nim „Wisielec”."
+    },
+    "en": {
+      "title": "The Hanged Man of Kościuszki",
+      "text": "The floors of the Trzonolinowiec at Kościuszki 72 hang on steel cables attached to the top of a concrete core. The building, completed in 1967, was built from the top floor down. Wrocław locals call it “Wisielec” (“The Hanged Man”)."
+    }
+  },
+  {
+    "id": "szewska-most",
+    "lat": 51.1108,
+    "lon": 17.035,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Szewska_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Most bez rzeki",
+      "text": "Niemiecka nazwa Szewskiej brzmiała Schuhbrücke, czyli dosłownie „Most Szewski”. Słowo Brücke oznaczało tu dawniej ulicę wyłożoną deskami lub brukiem. To jeden z dowodów, że ulicę dość wcześnie utwardzono."
+    },
+    "en": {
+      "title": "A bridge without a river",
+      "text": "The German name of Szewska was Schuhbrücke, literally “Shoemakers’ Bridge”. The word Brücke here once meant a street paved with planks or cobbles. It is one piece of evidence that the street was surfaced quite early."
+    }
+  },
+  {
+    "id": "kuznicza",
+    "lat": 51.1119,
+    "lon": 17.0341,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Ku%C5%BAnicza_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Ulica kowali",
+      "text": "Kuźnicza to dawna Schmiedebrücke, wzmiankowana już w 1345 r. jako „smedebrucke”. Mieszkali przy niej kowale i ślusarze, podobnie jak przy sąsiednich Igielnej, Nożowniczej i Kotlarskiej. W latach 1877–1878 przejechał nią jeden z pierwszych wrocławskich tramwajów konnych."
+    },
+    "en": {
+      "title": "Blacksmiths’ street",
+      "text": "Kuźnicza is the former Schmiedebrücke, mentioned as early as 1345 as “smedebrucke”. Blacksmiths and locksmiths lived along it, as on neighbouring Igielna, Nożownicza and Kotlarska. In 1877–1878 one of Wrocław’s first horse-drawn trams ran along it."
+    }
+  },
+  {
+    "id": "igielna",
+    "lat": 51.1117,
+    "lon": 17.0313,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Igielna_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Ulica bez numerów",
+      "text": "Igielna (Nadlergasse) wzięła nazwę od cechu igielników. Do lat 90. XIX w. jej domy nie miały własnych numerów i liczyły się jako część sąsiednich adresów z Rynku i Kotlarskiej. Listonosz musiał znać miasto na pamięć."
+    },
+    "en": {
+      "title": "A street without numbers",
+      "text": "Igielna (Nadlergasse) took its name from the needlemakers’ guild. Until the 1890s its houses had no numbers of their own and counted as part of neighbouring addresses on the Rynek (Market Square) and Kotlarska. The postman had to know the city by heart."
+    }
+  },
+  {
+    "id": "ruska",
+    "lat": 51.1104,
+    "lon": 17.0267,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Ruska_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Ruska, nie Rosyjska",
+      "text": "Ulicę zapisano w 1345 r. jako Rusyschin Gasse, a do 1945 r. była Reusche Straße. Tuż po wojnie przez chwilę nazywała się Rosyjska, zanim wróciła do Ruskiej. Przecina ją Trasa W-Z, wytyczona wzdłuż dawnej Czarnej Oławy, która była średniowieczną fosą."
+    },
+    "en": {
+      "title": "Ruthenian, not Russian",
+      "text": "The street was recorded in 1345 as Rusyschin Gasse, and until 1945 it was Reusche Straße. Right after the war it was briefly called Rosyjska (“Russian”) before returning to Ruska (“Ruthenian”). It is crossed by the W-Z Route (Trasa W-Z), laid out along the former Czarna Oława, which served as a medieval moat."
+    }
+  },
+  {
+    "id": "palac-hatzfeldow",
+    "lat": 51.1098,
+    "lon": 17.0374,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Pa%C5%82ac_Hatzfeld%C3%B3w_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Pałac Hatzfeldów",
+      "text": "Klasycystyczny pałac zaprojektował Carl Gotthard Langhans, późniejszy autor Bramy Brandenburskiej. W 1945 r. Niemcy wysadzili jego górne piętra, żeby nie przeszkadzały artylerii. Z ruin zrobiono galerię Awangarda, a w 2021 r. teren kupił inwestor, który zapowiada odbudowę pałacu."
+    },
+    "en": {
+      "title": "Hatzfeld Palace",
+      "text": "The classicist palace was designed by Carl Gotthard Langhans, who later created the Brandenburg Gate. In 1945 the Germans blew up its upper floors so they would not get in the way of the artillery. The ruins were turned into the Awangarda gallery, and in 2021 the site was bought by an investor who has announced plans to rebuild the palace."
+    }
+  },
+  {
+    "id": "plac-strzelecki",
+    "lat": 51.1225,
+    "lon": 17.0283,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Plac_Strzelecki_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Plac Strzelecki",
+      "text": "Nazwa nawiązuje do miejskiej strzelnicy Schießwerder na pobliskiej Kępie Strzeleckiej. Plac nazywał się Schießwerderplatz, a o strzelcach przypomina też sąsiednia ulica Kurkowa. Po strzelnicy dziś nie ma śladu, za to jest plac zabaw."
+    },
+    "en": {
+      "title": "Plac Strzelecki",
+      "text": "The name refers to the city shooting range, Schießwerder, on nearby Kępa Strzelecka. The square was called Schießwerderplatz, and the neighbouring Kurkowa street is another reminder of the riflemen. No trace of the shooting range remains today, but there is a playground."
+    }
+  },
+  {
+    "id": "kosciol-odkupiciela",
+    "lat": 51.1239,
+    "lon": 17.0312,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-koscioly-ktorych-juz-nie-ma",
+    "pl": {
+      "title": "Kościół, który zamienił się w sklep",
+      "text": "Na pl. Staszica stał kościół Odkupiciela z wieżą o wysokości 81 m. W 1945 r. saperzy wysadzili wieżę, a w 1956 r. rozebrano resztę. Dziś stoi tu skwer i sklep Społem z 1973 r."
+    },
+    "en": {
+      "title": "The church that turned into a shop",
+      "text": "On Plac Staszica stood the Church of the Redeemer, with an 81 m tower. In 1945 sappers blew up the tower, and in 1956 the rest was demolished. Today there is a small square here and a Społem shop from 1973."
+    }
+  },
+  {
+    "id": "dworzec-nadodrze",
+    "lat": 51.1257,
+    "lon": 17.033,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Wroc%C5%82aw_Nadodrze",
+    "pl": {
+      "title": "Dworzec przy Bramie Odrzańskiej",
+      "text": "Dworzec otwarty w 1868 r. nosił długą nazwę Rechte-Oder-Ufer-Thorbahnhof, potem po prostu Breslau Odertor. W lipcu 1945 r. jako pierwszy wrocławski dworzec przyjmował pociągi ze wschodu."
+    },
+    "en": {
+      "title": "The station by the Oder Gate",
+      "text": "The station, opened in 1868, bore the long name Rechte-Oder-Ufer-Thorbahnhof, later simply Breslau Odertor. In July 1945 it was the first Wrocław station to receive trains from the east."
+    }
+  },
+  {
+    "id": "olbin-opactwo",
+    "lat": 51.1207,
+    "lon": 17.0534,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/O%C5%82bin",
+    "pl": {
+      "title": "Zburzone opactwo na Ołbinie",
+      "text": "Na Ołbinie (niem. Elbing) od lat 30. XII w. stało opactwo benedyktynów ufundowane przez Piotra Włostowica. W 1529 r. miasto rozebrało je w obawie przed najazdem Turków. Po wodnych umocnieniach z tamtych czasów został staw w parku Tołpy."
+    },
+    "en": {
+      "title": "The demolished abbey of Ołbin",
+      "text": "In Ołbin (German: Elbing), from the 1130s, stood a Benedictine abbey founded by Piotr Włostowic. In 1529 the city pulled it down for fear of a Turkish invasion. All that remains of the water defences from that time is the pond in Tołpa Park (park Tołpy)."
+    }
+  },
+  {
+    "id": "karlowice-karol",
+    "lat": 51.1372,
+    "lon": 17.0562,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Kar%C5%82owice_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Wieś Karola",
+      "text": "Karłowice (Carlowitz) założył ok. 1699 r. opat klasztoru św. Wincentego Carl Keller, stąd „wieś Karola”. Od 1911 r. budowano tu miasto-ogród, a dzisiejszy plac Piłsudskiego był jego rynkiem."
+    },
+    "en": {
+      "title": "Karl’s village",
+      "text": "Karłowice (Carlowitz) was founded around 1699 by Carl Keller, abbot of St Vincent’s monastery, hence “Karl’s village”. From 1911 a garden city was built here, and today’s plac Piłsudskiego was its market square."
+    }
+  },
+  {
+    "id": "rozanka-rogozin",
+    "lat": 51.1416,
+    "lon": 17.0311,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/R%C3%B3%C5%BCanka_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Różanka, Rosenthal, Rogozin",
+      "text": "Niemiecka nazwa Rosenthal, czyli „Dolina Róż”, pojawia się w dokumentach już w 1322 r. Po wojnie przez chwilę mówiono tu Różan albo Rogozin, a ta druga nazwa przetrwała w Zaułku Rogozińskim."
+    },
+    "en": {
+      "title": "Różanka, Rosenthal, Rogozin",
+      "text": "The German name Rosenthal, “Valley of Roses”, appears in documents as early as 1322. After the war the place was briefly called Różan or Rogozin, and the latter name survives in Zaułek Rogoziński (Rogozin Lane)."
+    }
+  },
+  {
+    "id": "osobowice-osobnosc",
+    "lat": 51.1422,
+    "lon": 16.9909,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Osobowice",
+    "pl": {
+      "title": "Osobowice na uboczu",
+      "text": "Nazwa Osobowic (niem. Oswitz) ma niepewne pochodzenie, prawdopodobnie od „osobności”, czyli położenia na uboczu. Od 1242 r. wieś należała do klarysek. W latach 1822–1824 kaplicę dla katolików na pobliskim wzgórzu ufundował protestant, wydawca Johann Gottlieb Korn."
+    },
+    "en": {
+      "title": "Osobowice, off the beaten track",
+      "text": "The origin of the name Osobowice (German: Oswitz) is uncertain, probably from “osobność” (seclusion), i.e. its out-of-the-way location. From 1242 the village belonged to the Poor Clares. In 1822–1824 a chapel for Catholics on a nearby hill was funded by a Protestant, the publisher Johann Gottlieb Korn."
+    }
+  },
+  {
+    "id": "wyspa-bielarska",
+    "lat": 51.1171,
+    "lon": 17.0384,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Wyspa_Bielarska",
+    "pl": {
+      "title": "Wyspa bielarzy",
+      "text": "Niemiecka nazwa Hinterbleiche oznaczała „Tylną Bielnię”; przednią była dzisiejsza Wyspa Słodowa. Od XIII w. działał tu Młyn św. Klary, który wysadzono w powietrze w 1975 r. Dziś wyspa jest niezabudowana i służy do spacerów."
+    },
+    "en": {
+      "title": "The bleachers’ island",
+      "text": "The German name Hinterbleiche meant “Rear Bleachery”; the front one was today’s Wyspa Słodowa (Malt Island). From the 13th century St Clare’s Mill operated here; it was blown up in 1975. Today the island is undeveloped and used for walks."
+    }
+  },
+  {
+    "id": "most-pokoju",
+    "lat": 51.1116,
+    "lon": 17.0491,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://en.wikipedia.org/wiki/Peace_Bridge,_Wroc%C5%82aw",
+    "pl": {
+      "title": "Most Lessinga",
+      "text": "W miejscu Mostu Pokoju stał żelazny Lessingbrücke z 1875 r., nazwany od pisarza Gottholda Ephraima Lessinga. Zniszczono go w 1945 r. Obecny most z betonu sprężonego zaprojektował prof. Jan Kmita z Politechniki Wrocławskiej."
+    },
+    "en": {
+      "title": "Lessing Bridge",
+      "text": "Where Most Pokoju (Peace Bridge) stands, there used to be the iron Lessingbrücke of 1875, named after the writer Gotthold Ephraim Lessing. It was destroyed in 1945. The present prestressed-concrete bridge was designed by Prof. Jan Kmita of the Wrocław University of Science and Technology (Politechnika Wrocławska)."
+    }
+  },
+  {
+    "id": "polinka",
+    "lat": 51.1066,
+    "lon": 17.0559,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Polinka",
+    "pl": {
+      "title": "Polinka",
+      "text": "Od 2013 r. studenci Politechniki przekraczają Odrę gondolą. Kolej ma 373 m, a przejazd trwa niecałe dwie minuty. Zwykły bilet MPK tu nie działa."
+    },
+    "en": {
+      "title": "Polinka",
+      "text": "Since 2013 students of the Politechnika have crossed the Oder by gondola. The line is 373 m long and the ride takes just under two minutes. A regular MPK ticket is not valid here."
+    }
+  },
+  {
+    "id": "kosciol-lutra",
+    "lat": 51.1102,
+    "lon": 17.0577,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-koscioly-ktorych-juz-nie-ma",
+    "pl": {
+      "title": "Kościół zburzony dla lotniska",
+      "text": "W pobliżu pl. Grunwaldzkiego stał neogotycki kościół Lutra z wieżą wysoką na ponad 90 m. 19 marca 1945 r. gauleiter Karl Hanke kazał go wysadzić, żeby zrobić miejsce na pas startowy. Dziś stoją tu budynki Politechniki i pomnik Pomordowanych Profesorów Lwowskich."
+    },
+    "en": {
+      "title": "A church demolished for an airstrip",
+      "text": "Near Plac Grunwaldzki stood the neo-Gothic Luther Church, with a tower over 90 m high. On 19 March 1945 Gauleiter Karl Hanke ordered it blown up to make room for a runway. Today the site holds Politechnika buildings and the Monument to the Murdered Lwów Professors."
+    }
+  },
+  {
+    "id": "zoo-1921",
+    "lat": 51.1035,
+    "lon": 17.076,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Ogr%C3%B3d_Zoologiczny_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "ZOO, które było zamknięte",
+      "text": "Po I wojnie światowej ogród nie miał za co karmić zwierząt i 1 kwietnia 1921 r. go zamknięto. Otwarto go ponownie 1 maja 1927 r. Wcześniej, w 1873 r., kupionego tu słonia Teodora przewieziono przez miasto powozem ciągniętym przez sześć koni."
+    },
+    "en": {
+      "title": "The zoo that was closed",
+      "text": "After the First World War the zoo had no money to feed its animals and was closed on 1 April 1921. It reopened on 1 May 1927. Earlier, in 1873, Theodor the elephant, bought for the zoo, was carried across the city in a carriage pulled by six horses."
+    }
+  },
+  {
+    "id": "kosciolek-szczytnicki",
+    "lat": 51.1087,
+    "lon": 17.0827,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/kosciolek-sw-jana-napomucena-w-parku-szczytnickim-przestrzen-kultury-juz-otwarta",
+    "pl": {
+      "title": "Kościółek z przeprowadzki",
+      "text": "Drewniany kościół św. Jana Nepomucena w Parku Szczytnickim pochodzi z Górnego Śląska; pierwotnie stał w Starym Koźlu, potem w Kędzierzynie. W 1913 r. przewieziono go do Wrocławia jako eksponat Wystawy Stulecia. Od 2018 r., po remoncie, odbywają się w nim wydarzenia kulturalne."
+    },
+    "en": {
+      "title": "The church that moved house",
+      "text": "The wooden Church of St John of Nepomuk in Szczytnicki Park comes from Upper Silesia; it originally stood in Stare Koźle, then in Kędzierzyn. In 1913 it was brought to Wrocław as an exhibit of the Centennial Exhibition. Since its renovation in 2018 it has hosted cultural events."
+    }
+  },
+  {
+    "id": "dabie-langhans",
+    "lat": 51.1052,
+    "lon": 17.0812,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/D%C4%85bie_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Dąbie i Brama Brandenburska",
+      "text": "Do 1945 r. Dąbie nazywało się Grüneiche, czyli „Zielony Dąb”, i do dziś rosną tu kilkusetletnie dęby. W 1808 r. zmarł tu Carl Gotthard Langhans, twórca berlińskiej Bramy Brandenburskiej."
+    },
+    "en": {
+      "title": "Dąbie and the Brandenburg Gate",
+      "text": "Until 1945 Dąbie was called Grüneiche, “Green Oak”, and centuries-old oaks still grow here. In 1808 Carl Gotthard Langhans, creator of Berlin’s Brandenburg Gate, died here."
+    }
+  },
+  {
+    "id": "biskupin-koczotow",
+    "lat": 51.1021,
+    "lon": 17.1038,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Biskupin_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Biskupin, czyli Koczotów",
+      "text": "Średniowieczna wieś nazywała się Koczotów, a niemiecka nazwa Bischofswalde („Las Biskupi”) pochodziła od lasu należącego do biskupstwa. Po wojnie wybrano Biskupin. Pod koniec lat 70. trzy wieżowce przy Kazimierskiej przerwały prowadzone od blisko 170 lat pomiary miejskiego obserwatorium meteorologicznego."
+    },
+    "en": {
+      "title": "Biskupin, or Koczotów",
+      "text": "The medieval village was called Koczotów, and the German name Bischofswalde (“Bishop’s Forest”) came from a forest owned by the bishopric. After the war the name Biskupin was chosen. In the late 1970s three tower blocks on Kazimierska put an end to the city weather observatory’s measurements, which had been running for almost 170 years."
+    }
+  },
+  {
+    "id": "sepolno-kino",
+    "lat": 51.1105,
+    "lon": 17.1025,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/S%C4%99polno_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Kino w kościele",
+      "text": "Sępolno (Zimpel) budowano w latach 1919–1935 jako miasto-ogród dla klasy średniej. Na wschodnim krańcu centralnego błonia stoi ewangelicki Kościół Pamięci Króla Gustawa Adolfa, w którym w czasach PRL działały dwa kina."
+    },
+    "en": {
+      "title": "A cinema in a church",
+      "text": "Sępolno (Zimpel) was built in 1919–1935 as a garden city for the middle class. At the eastern end of the central green stands the Lutheran King Gustavus Adolphus Memorial Church, which housed two cinemas in communist times."
+    }
+  },
+  {
+    "id": "zalesie-leerbeutel",
+    "lat": 51.1208,
+    "lon": 17.0867,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Zalesie_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Pusta Sakiewka",
+      "text": "Niemiecka nazwa Zalesia, Leerbeutel, znaczy „Pusta Sakiewka”, a pochodziła najpewniej od żartobliwego przezwiska miejscowej karczmy. Na zachodnim krańcu miasta nazwę dała ulicy gospoda Pod Ostatnim Groszem, na wschodnim — całemu osiedlu."
+    },
+    "en": {
+      "title": "The Empty Purse",
+      "text": "Zalesie’s German name, Leerbeutel, means “Empty Purse”, and most likely came from a joking nickname for the local tavern. At the city’s western edge the inn Pod Ostatnim Groszem (“At the Last Penny”) gave its name to a street; at the eastern edge, to a whole district."
+    }
+  },
+  {
+    "id": "stadion-olimpijski",
+    "lat": 51.1196,
+    "lon": 17.0967,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Stadion_Olimpijski_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Olimpijski medal za stadion",
+      "text": "Stadion zbudowany w latach 1926–1928 jako Schlesierkampfbahn w parku sportowym Leerbeutel przyniósł Richardowi Konwiarzowi brązowy medal olimpijski. Dostał go na igrzyskach w Los Angeles w 1932 r., w konkursie architektury. W 1978 r. jego maszty oświetleniowe uchodziły za najjaśniejsze na stadionie w Europie."
+    },
+    "en": {
+      "title": "An Olympic medal for a stadium",
+      "text": "The stadium, built in 1926–1928 as the Schlesierkampfbahn in the Leerbeutel sports park, earned Richard Konwiarz an Olympic bronze medal. He received it at the 1932 Los Angeles Games, in the architecture competition. In 1978 its floodlight masts were considered the brightest of any stadium in Europe."
+    }
+  },
+  {
+    "id": "zacisze-wilhelmsruh",
+    "lat": 51.1233,
+    "lon": 17.0757,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Zacisze_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Spokój Wilhelma",
+      "text": "Willowe osiedle nazywało się Wilhelmsruh, czyli „Spokój Wilhelma”. W 1945 r. prof. Witold Taszycki zaproponował polską nazwę Zacisze, która oddaje klimat miejsca lepiej niż wierne tłumaczenie."
+    },
+    "en": {
+      "title": "Wilhelm’s Rest",
+      "text": "The villa district was called Wilhelmsruh, “Wilhelm’s Rest”. In 1945 Prof. Witold Taszycki proposed the Polish name Zacisze (“Quiet Nook”), which captures the feel of the place better than a literal translation."
+    }
+  },
+  {
+    "id": "bartoszowice-kladka",
+    "lat": 51.1037,
+    "lon": 17.1145,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Bartoszowice_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Kładka z drugiej ręki",
+      "text": "Bartoszowice (Bartheln) wzięły nazwę od imienia Bartosz. Kładkę nad tutejszą śluzą zniszczono w 1945 r., a ponad pół wieku później zastąpiono ją przęsłem odzyskanym z Lipek na Opolszczyźnie, za 120 tys. zł."
+    },
+    "en": {
+      "title": "A second-hand footbridge",
+      "text": "Bartoszowice (Bartheln) took its name from the given name Bartosz. The footbridge over the local lock was destroyed in 1945, and more than half a century later it was replaced with a span salvaged from Lipki in the Opole region, for 120,000 złoty."
+    }
+  },
+  {
+    "id": "swojczyce-guntherbrucke",
+    "lat": 51.1163,
+    "lon": 17.127,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Swojczyce",
+    "pl": {
+      "title": "Swojczyce, czyli most Günthera",
+      "text": "Nazwa Swojczyc pochodzi od słowa „swój” lub imienia Swojan. W 1937 r. naziści zmienili Schwoitsch na Güntherbrücke, od mostu zbudowanego obok w latach 1914–1918. Kościół św. Jacka postawiono w 1537 r. na wzgórzu, żeby nie zalewała go woda."
+    },
+    "en": {
+      "title": "Swojczyce, or Günther’s Bridge",
+      "text": "The name Swojczyce comes from the word “swój” (one’s own) or from the given name Swojan. In 1937 the Nazis changed Schwoitsch to Güntherbrücke, after the bridge built nearby in 1914–1918. St Hyacinth’s Church was built in 1537 on a hill so that floodwater would not reach it."
+    }
+  },
+  {
+    "id": "kowale",
+    "lat": 51.1327,
+    "lon": 17.1051,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Kowale_(Wroc%C5%82aw)",
+    "pl": {
+      "title": "Wieś kowali",
+      "text": "Nazwa Kowali mówi sama za siebie: Heinrich Adamy tłumaczył ją jako Schmiededorf, czyli „wieś kowali”. Wieś wymienia papieski dokument z 1201 r., co czyni ją jedną z najstarszych w okolicy. Po wojnie przez pewien czas nazywała się Mirowiec."
+    },
+    "en": {
+      "title": "Blacksmiths’ village",
+      "text": "The name Kowale speaks for itself: Heinrich Adamy translated it as Schmiededorf, “blacksmiths’ village”. The village is mentioned in a papal document of 1201, making it one of the oldest in the area. After the war it was for some time called Mirowiec."
+    }
+  },
+  {
+    "id": "psie-pole",
+    "lat": 51.1453,
+    "lon": 17.111,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Psie_Pole_(miasto)",
+    "pl": {
+      "title": "Skąd Psie Pole?",
+      "text": "Według Wincentego Kadłubka po bitwie z 1109 r. psy żerowały tu na poległych Niemcach. Historycy wolą prostsze wyjaśnienie: „psie”, czyli lichej jakości ziemie, albo teren książęcej psiarni. Psie Pole było osobnym miasteczkiem z rynkiem przy kościele św. Jakuba i Krzysztofa do 1928 r."
+    },
+    "en": {
+      "title": "Why “Psie Pole”?",
+      "text": "According to Wincenty Kadłubek, after the battle of 1109 dogs fed here, at Psie Pole (“Dogs’ Field”), on the fallen Germans. Historians prefer a simpler explanation: “psie” meaning poor-quality land, or the site of the duke’s kennels. Psie Pole was a separate small town, with a market square by the Church of Sts James and Christopher, until 1928."
+    }
+  },
+  {
+    "id": "orzel-sepolno",
+    "lat": 51.1101,
+    "lon": 17.0999,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/od-100-lat-we-wroclawiu-sepolno-na-starych-mapach-i-zdjeciach",
+    "pl": {
+      "title": "Orzeł z lotu ptaka",
+      "text": "Z lotu ptaka układ ulic Sępolna przypomina orła. Osiedle zaprojektowali Paul Heim, Hermann Wahlich i Albert Kempter i budowali je w latach 1919–1935 jako miasto-ogród dla robotników i klasy średniej. Według źródeł orzeł wyszedł przypadkiem, bo oficjalnie nikt go nie planował. Środek tego ptaka to dzisiejszy Skwer Powstańców Warszawskich."
+    },
+    "en": {
+      "title": "A bird’s-eye eagle",
+      "text": "From a bird’s-eye view, the street layout of Sępolno resembles an eagle. The estate was designed by Paul Heim, Hermann Wahlich and Albert Kempter and built in 1919–1935 as a garden city for workers and the middle class. According to sources, the eagle came about by accident, as officially nobody planned it. The centre of the bird is today’s Skwer Powstańców Warszawskich (Warsaw Insurgents’ Square)."
+    }
+  },
+  {
+    "id": "wuwa-osiedle",
+    "lat": 51.1069,
+    "lon": 17.0859,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/WUWA",
+    "pl": {
+      "title": "WuWA 1929",
+      "text": "W 1929 r. śląski Werkbund zbudował tu wzorcowe osiedle na wystawę „Wohnung und Werkraum”: 32 domy o tanich, nowoczesnych mieszkaniach, w których każdy miał mieć własną sypialnię. Krytycy narzekali na chaotyczny plan, ale prasa szeroko o nim pisała. W 2020 r. dostało Znak Dziedzictwa Europejskiego."
+    },
+    "en": {
+      "title": "WuWA 1929",
+      "text": "In 1929 the Silesian Werkbund built a model estate here for the “Wohnung und Werkraum” exhibition: 32 houses with cheap, modern flats in which everyone was to have their own bedroom. Critics complained about the chaotic layout, but the press wrote about it widely. In 2020 it received the European Heritage Label."
+    }
+  },
+  {
+    "id": "wuwa-scharoun",
+    "lat": 51.1076,
+    "lon": 17.0842,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/rozmawia/osiedle-wuwa",
+    "pl": {
+      "title": "Dom Scharouna",
+      "text": "Przy Kopernika 9 stoi dom dla osób samotnych i bezdzietnych małżeństw, który Hans Scharoun zaprojektował na WuWę. Mieszkania rozłożone na półpiętrach były wtedy architektoniczną nowinką. Dziś działa w nim hotel, a od 1972 r. budynek jest zabytkiem."
+    },
+    "en": {
+      "title": "Scharoun’s house",
+      "text": "At Kopernika 9 stands a house for single people and childless couples, designed by Hans Scharoun for the WuWA. Flats laid out on split levels were an architectural novelty at the time. Today it is a hotel, and the building has been a listed monument since 1972."
+    }
+  },
+  {
+    "id": "wuwa-przedszkole",
+    "lat": 51.1045,
+    "lon": 17.0842,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/WUWA",
+    "pl": {
+      "title": "Przedszkole, które wróciło",
+      "text": "Drewniane wzorcowe przedszkole z WuWy spłonęło w lipcu 2006 r. Odbudowano je i w styczniu 2014 r. otwarto w nim siedzibę Dolnośląskiej Izby Architektów oraz punkt informacji o osiedlu."
+    },
+    "en": {
+      "title": "The kindergarten that came back",
+      "text": "The WuWA’s wooden model kindergarten burned down in July 2006. It was rebuilt, and in January 2014 it opened as the seat of the Lower Silesian Chamber of Architects and an information point about the estate."
+    }
+  },
+  {
+    "id": "zajezdnia",
+    "lat": 51.0966,
+    "lon": 16.9912,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pl.wikipedia.org/wiki/Centrum_Historii_Zajezdnia",
+    "pl": {
+      "title": "Zajezdnia przy Grabiszyńskiej",
+      "text": "W tej ceglanej zajezdni 26 sierpnia 1980 r. powstał pierwszy w regionie Międzyzakładowy Komitet Strajkowy, a strajk okupacyjny trwał do 1 września. Autobusy MPK wyjeżdżały stąd do 2015 r. Od 2016 r. działa tu Centrum Historii Zajezdnia."
+    },
+    "en": {
+      "title": "The Grabiszyńska depot",
+      "text": "In this brick depot, on 26 August 1980, the region’s first Inter-Enterprise Strike Committee was formed, and the sit-in strike lasted until 1 September. MPK buses left from here until 2015. Since 2016 it has been home to the Depot History Centre (Centrum Historii Zajezdnia)."
+    }
+  },
+  {
+    "id": "uwr-szajnochy",
+    "lat": 51.1088,
+    "lon": 17.0281,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawski-hogwart-w-dawnej-biblioteka-uniwersytecka-przy-szajnochy-bedzie-archiwum-uczelni",
+    "pl": {
+      "title": "Wrocławski Hogwart",
+      "text": "Neogotycki gmach przy Szajnochy 7/9 zaprojektował Richard Plüddemann, autor Hali Targowej, dla miejskiej kasy oszczędności, archiwum i biblioteki. Po wojnie zbiory Biblioteki Miejskiej przejął Uniwersytet Wrocławski. Ostatnie książki wyjechały stąd w 2019 r., a budynek nazywa się dziś „wrocławskim Hogwartem”."
+    },
+    "en": {
+      "title": "Wrocław’s Hogwarts",
+      "text": "The neo-Gothic building at Szajnochy 7/9 was designed by Richard Plüddemann, architect of the Market Hall (Hala Targowa), for the city savings bank, archive and library. After the war the University of Wrocław took over the City Library’s collections. The last books left in 2019, and the building is now known as “Wrocław’s Hogwarts”."
+    }
+  },
+  {
+    "id": "pwr-gmach-glowny",
+    "lat": 51.1077,
+    "lon": 17.0625,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Politechnika_Wroc%C5%82awska",
+    "pl": {
+      "title": "Politechnika z cesarzem",
+      "text": "Królewską Wyższą Szkołę Techniczną otwarto 29 listopada 1910 r., a na uroczystości był cesarz Wilhelm II. Na pierwszym roku studiowało tylko 57 osób. W połowie stycznia 1945 r. uczelnię ewakuowano w głąb Rzeszy."
+    },
+    "en": {
+      "title": "A university with an emperor",
+      "text": "The Royal Technical College opened on 29 November 1910, with Emperor Wilhelm II attending the ceremony. Only 57 people studied in the first year. In mid-January 1945 the college was evacuated deeper into the Reich."
+    }
+  },
+  {
+    "id": "umed-mikulicz",
+    "lat": 51.1092,
+    "lon": 17.0674,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/A73CC19B940DA2B732CA0D100984FB43/S0025727322000059a.pdf/making_the_medical_mask_surgery_bacteriology_and_the_control_of_infection_1870s1920s.pdf",
+    "pl": {
+      "title": "Narodziny maseczki",
+      "text": "W 1897 r. chirurg Jan Mikulicz-Radecki, kierownik kliniki chirurgicznej uniwersytetu we Wrocławiu, jako jeden z pierwszych operował w gazowej masce na nosie i ustach. Przy wejściu do kliniki przy Curie-Skłodowskiej 66 wisi jego płaskorzeźba z 1909 r."
+    },
+    "en": {
+      "title": "Birth of the face mask",
+      "text": "In 1897 the surgeon Jan Mikulicz-Radecki, head of the university surgical clinic in Wrocław, was one of the first to operate wearing a gauze mask over his nose and mouth. A 1909 relief of him hangs by the entrance to the clinic at Curie-Skłodowskiej 66."
+    }
+  },
+  {
+    "id": "upwr-norwida",
+    "lat": 51.1113,
+    "lon": 17.0639,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Uniwersytet_Przyrodniczy_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Rolnicy przy Norwida",
+      "text": "Gmach główny Uniwersytetu Przyrodniczego przy Norwida 25 zbudowano jako instytut rolniczy niemieckiego uniwersytetu, który działał tu od 1923 r. przy ówczesnej Hansastraße. Samodzielna uczelnia rolnicza powstała w 1951 r., a wielu jej pierwszych pracowników przyjechało ze Lwowa."
+    },
+    "en": {
+      "title": "Farmers on Norwida",
+      "text": "The main building of the University of Environmental and Life Sciences at Norwida 25 was built as the agricultural institute of the German university, which operated here from 1923 on what was then Hansastraße. An independent agricultural university was founded in 1951, and many of its first staff came from Lwów."
+    }
+  },
+  {
+    "id": "ue-komandorska",
+    "lat": 51.0911,
+    "lon": 17.0247,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Komandorska_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Uczelnia w dawnym szpitalu",
+      "text": "Uniwersytet Ekonomiczny zaczynał w 1947 r. jako prywatna Wyższa Szkoła Handlowa, z kadrą głównie ze Lwowa i Wilna. Jego kampus przy Komandorskiej zajmuje kompleks dawnego szpitala Wenzel-Hancke z lat 1875–1911."
+    },
+    "en": {
+      "title": "A university in a former hospital",
+      "text": "The University of Economics began in 1947 as a private College of Commerce, with staff mainly from Lwów and Wilno. Its campus on Komandorska occupies the complex of the former Wenzel-Hancke hospital, built in 1875–1911."
+    }
+  },
+  {
+    "id": "asp-plac-polski",
+    "lat": 51.1114,
+    "lon": 17.044,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://en.wikipedia.org/wiki/Staatliche_Akademie_f%C3%BCr_Kunst_und_Kunstgewerbe_Breslau",
+    "pl": {
+      "title": "Akademia awangardy",
+      "text": "Przy dzisiejszym pl. Polskim, gdzie mieści się ASP, przed wojną działała Akademia Sztuki i Rzemiosła Artystycznego. Kierowali nią m.in. Hans Poelzig i August Endell, a uczyli Otto Mueller i Oskar Schlemmer z Bauhausu. Zamknięto ją dekretem w kwietniu 1932 r., a powojenną uczelnię założył w 1946 r. Eugeniusz Geppert."
+    },
+    "en": {
+      "title": "Avant-garde academy",
+      "text": "On today’s Plac Polski, home of the Academy of Fine Arts (ASP), the Academy of Art and Applied Arts operated before the war. Its directors included Hans Poelzig and August Endell, and its teachers Otto Mueller and Oskar Schlemmer of the Bauhaus. It was closed by decree in April 1932, and the post-war academy was founded in 1946 by Eugeniusz Geppert."
+    }
+  },
+  {
+    "id": "akademia-muzyczna",
+    "lat": 51.1112,
+    "lon": 17.0212,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Akademia_Muzyczna_im._Karola_Lipi%C5%84skiego_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Muzyka, która leczy",
+      "text": "Akademia Muzyczna powstała pod koniec 1948 r. jako siódma wyższa szkoła muzyczna w Polsce. W 1972 r. otworzyła pierwszą w kraju jednostkę naukową zajmującą się muzykoterapią. W 2024 r. doszedł do niej Wydział Muzyki Jazzowej."
+    },
+    "en": {
+      "title": "Music that heals",
+      "text": "The Academy of Music was founded at the end of 1948 as the seventh music college in Poland. In 1972 it opened the country’s first research unit devoted to music therapy. In 2024 a Faculty of Jazz Music was added."
+    }
+  },
+  {
+    "id": "awf",
+    "lat": 51.1181,
+    "lon": 17.098,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Akademia_Wychowania_Fizycznego_im._Polskich_Olimpijczyk%C3%B3w_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Uczelnia ze stadionem",
+      "text": "AWF zaczynała w 1946 r. jako studium wychowania fizycznego przy wydziale lekarskim. W 1975 r. przejęła od miasta Stadion Olimpijski, który miasto odkupiło od uczelni w 2006 r. W stanie wojennym internowano sześciu jej pracowników."
+    },
+    "en": {
+      "title": "A university with a stadium",
+      "text": "The AWF (University of Physical Education) began in 1946 as a physical education programme at the medical faculty. In 1975 it took over the Olympic Stadium from the city, which bought it back from the university in 2006. During martial law six of its staff members were interned."
+    }
+  },
+  {
+    "id": "bar-mis",
+    "lat": 51.1125,
+    "lon": 17.034,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/bary-mleczne-wroclaw-gdzie-zjesc-tanio-i-dobrze",
+    "pl": {
+      "title": "Bar mleczny Miś",
+      "text": "Przy Kuźniczej 48 działa najstarszy z wciąż czynnych barów mlecznych we Wrocławiu, ulubiony przez studentów pobliskiego uniwersytetu. Nazwa kojarzy się z komedią Barei, ale nie wiadomo, czy to od niej."
+    },
+    "en": {
+      "title": "Miś milk bar",
+      "text": "At Kuźnicza 48 is the oldest of Wrocław’s still-operating milk bars, a favourite of students from the nearby university. The name brings to mind Bareja’s comedy “Miś”, but nobody knows whether that is where it comes from."
+    }
+  },
+  {
+    "id": "bar-mewa",
+    "lat": 51.1164,
+    "lon": 17.033,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/akademicki-wroclaw/bary-mleczne-stolowki-studenckie-wroclaw-ceny",
+    "pl": {
+      "title": "Bar mleczny Mewa",
+      "text": "Bar mleczny przy Drobnera 4 słynie z pierogów i stołują się w nim zarówno studenci, jak i wykładowcy. To jedno z miejsc, gdzie wciąż zjesz obiad z dofinansowaniem za ułamek ceny z restauracji."
+    },
+    "en": {
+      "title": "Mewa milk bar",
+      "text": "The milk bar at Drobnera 4 is famous for its pierogi, and both students and lecturers eat here. It is one of the places where you can still get a subsidised lunch for a fraction of a restaurant price."
+    }
+  },
+  {
+    "id": "neon-side",
+    "lat": 51.1106,
+    "lon": 17.0246,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/neony-ruska-galeria-neonow-umowa-podpisana-do-2034-remont-naprawa",
+    "pl": {
+      "title": "Neon Side",
+      "text": "W 2005 r. Tomasz Kosmalski uratował przed złomowaniem neon cukierni z Nowowiejskiej. Tak powstała kolekcja, z której w 2014 r. zawisła na podwórku przy Ruskiej 46 galeria starych wrocławskich neonów, m.in. „Hanka” i „Rumcajs”. W 2024 r. miasto podpisało umowę, dzięki której neony zostaną tu co najmniej do 2034 r."
+    },
+    "en": {
+      "title": "Neon Side",
+      "text": "In 2005 Tomasz Kosmalski saved a patisserie neon on Nowowiejska from the scrapyard. That was the start of a collection from which, in 2014, a gallery of old Wrocław neons was hung in the courtyard at Ruska 46, including “Hanka” and “Rumcajs”. In 2024 the city signed an agreement that keeps the neons here until at least 2034."
+    }
+  },
+  {
+    "id": "pasaz-niepolda",
+    "lat": 51.1104,
+    "lon": 17.0255,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/klub-bezsennosc-zamyka-sie-po-19-latach-dzialalnosci-pasaz-niepolda",
+    "pl": {
+      "title": "Pasaż Niepolda",
+      "text": "Przed wojną kupiec Wilhelm Niepold handlował tu towarami kolonialnymi. Dziś podwórko przy Ruskiej 51 to jedno z najgłośniejszych miejsc nocnego życia w mieście, z klubami i shot barami otwartymi do rana. Legendarna Bezsenność zamknęła się tu po 19 latach."
+    },
+    "en": {
+      "title": "Pasaż Niepolda",
+      "text": "Before the war the merchant Wilhelm Niepold sold colonial goods here. Today the courtyard at Ruska 51 is one of the loudest nightlife spots in the city, with clubs and shot bars open until morning. The legendary Bezsenność (“Insomnia”) closed here after 19 years."
+    }
+  },
+  {
+    "id": "rura",
+    "lat": 51.1124,
+    "lon": 17.0295,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/wroclawskie-krasnale-mala-lady-punk-zespol-lady-pank",
+    "pl": {
+      "title": "Jazz Klub Rura (dawniej)",
+      "text": "W kamienicy na rogu Łaziennej i Rzeźniczej działał jazzowy klub Rura, jedno z centrów muzycznego Wrocławia lat 80. Dobrze wspominał go Jan Borysewicz z Lady Pank. W 2022 r., na 40-lecie zespołu, w miejscu klubu stanął krasnal Mała Lady Punk."
+    },
+    "en": {
+      "title": "Rura Jazz Club (former)",
+      "text": "In the tenement at the corner of Łazienna and Rzeźnicza was the Rura jazz club, one of the hubs of musical Wrocław in the 1980s. Jan Borysewicz of Lady Pank remembered it fondly. In 2022, for the band’s 40th anniversary, a dwarf figure called Mała Lady Punk was placed where the club used to be."
+    }
+  },
+  {
+    "id": "kalambur",
+    "lat": 51.1127,
+    "lon": 17.0347,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://pl.wikipedia.org/wiki/Ulica_Ku%C5%BAnicza_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Kalambur",
+      "text": "Przy Kuźniczej 29a w 1957 r. powstał studencki Teatr Kalambur, jedna z legend wrocławskiej kultury studenckiej. Działająca przy nim kawiarnia jest otwarta od 1983 r."
+    },
+    "en": {
+      "title": "Kalambur",
+      "text": "At Kuźnicza 29a the student Teatr Kalambur was founded in 1957, one of the legends of Wrocław’s student culture. Its café has been open since 1983."
+    }
+  },
+  {
+    "id": "spiz",
+    "lat": 51.1098,
+    "lon": 17.0313,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/nieznany-wroclaw-tajemna-receptura-browaru-spiz",
+    "pl": {
+      "title": "Spiż",
+      "text": "W 1992 r. Bogdan Spiż z siostrą otworzyli w podziemiach ratusza browar z restauracją, uważany za pierwszy taki lokal w Polsce. Piwo warzy się tu na oczach gości, a gastronomia działała w tym miejscu już w 1899 r."
+    },
+    "en": {
+      "title": "Spiż",
+      "text": "In 1992 Bogdan Spiż and his sister opened a brewery with a restaurant in the Town Hall cellars, considered the first such venue in Poland. The beer is brewed in front of the guests, and food and drink were already served on this spot in 1899."
+    }
+  },
+  {
+    "id": "teatr-laboratorium",
+    "lat": 51.1099,
+    "lon": 17.0327,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://grotowski.net/en/toolkit/timelines/jerzy-grotowski/1965",
+    "pl": {
+      "title": "Teatr Laboratorium",
+      "text": "Od 2 stycznia 1965 r. w kamienicy Rynek-Ratusz 27 mieścił się Teatr Laboratorium Jerzego Grotowskiego, który zmienił światowy teatr. Zespół działał we Wrocławiu do 1984 r., a dziś w tych salach pracuje Instytut Grotowskiego."
+    },
+    "en": {
+      "title": "Laboratory Theatre",
+      "text": "From 2 January 1965 the tenement at Rynek-Ratusz 27 housed Jerzy Grotowski’s Teatr Laboratorium (Laboratory Theatre), which changed world theatre. The company worked in Wrocław until 1984, and today the Grotowski Institute uses these rooms."
+    }
+  },
+  {
+    "id": "kameleon",
+    "lat": 51.1085,
+    "lon": 17.0342,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://archeyes.com/petersdorff-department-store-erich-mendelsohns-modernist-masterpiece",
+    "pl": {
+      "title": "Kameleon",
+      "text": "Dom towarowy Rudolfa Petersdorffa przy Szewskiej zaprojektował w latach 1927–1928 Erich Mendelsohn i to jego jedyny budynek we Wrocławiu. Był jednym z pierwszych budynków w mieście ze stalowym szkieletem, a Mendelsohn z powodu żydowskiego pochodzenia musiał potem emigrować."
+    },
+    "en": {
+      "title": "Kameleon",
+      "text": "Rudolf Petersdorff’s department store on Szewska was designed in 1927–1928 by Erich Mendelsohn, and it is his only building in Wrocław. It was one of the first buildings in the city with a steel frame, and Mendelsohn, being of Jewish origin, later had to emigrate."
+    }
+  },
+  {
+    "id": "nowe-horyzonty",
+    "lat": 51.1095,
+    "lon": 17.0262,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://pl.wikipedia.org/wiki/Kino_Nowe_Horyzonty",
+    "pl": {
+      "title": "Kino Nowe Horyzonty",
+      "text": "W latach 2002–2012 był tu Helios, a od jesieni 2012 r. działa Kino Nowe Horyzonty. Dziewięć sal mieści łącznie 2329 widzów, co czyni je największym kinem studyjnym w Polsce. To główna siedziba festiwalu Nowe Horyzonty."
+    },
+    "en": {
+      "title": "Nowe Horyzonty Cinema",
+      "text": "From 2002 to 2012 there was a Helios cinema here, and since autumn 2012 it has been Kino Nowe Horyzonty. Its nine screens seat 2,329 viewers in total, making it the largest arthouse cinema in Poland. It is the main home of the Nowe Horyzonty (New Horizons) festival."
+    }
+  },
+  {
+    "id": "dcf-kino-warszawa",
+    "lat": 51.1013,
+    "lon": 17.0303,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://wroclawskiefakty.pl/110-lat-milosci-do-kina-palast-theater-warszawa-dolnoslaskie-centrum-filmowe-video",
+    "pl": {
+      "title": "Kino Warszawa (dawniej)",
+      "text": "Już 3 września 1910 r. otwarto tu kino Palast-Theater na 431 miejsc. Po wojnie, jako kino Warszawa, pokazywało pierwsze seanse w polskim Wrocławiu. Od 2011 r. działa tu Dolnośląskie Centrum Filmowe, a jego sale noszą nazwy dawnych kin: Warszawa, Lalka, Lwów i Polonia."
+    },
+    "en": {
+      "title": "Kino Warszawa (former)",
+      "text": "As early as 3 September 1910 the 431-seat Palast-Theater cinema opened here. After the war, as Kino Warszawa, it showed the first screenings in Polish Wrocław. Since 2011 it has been home to the Lower Silesian Film Centre (Dolnośląskie Centrum Filmowe), whose screens are named after former cinemas: Warszawa, Lalka, Lwów and Polonia."
+    }
+  },
+  {
+    "id": "capitol-kino-slask",
+    "lat": 51.1008,
+    "lon": 17.0303,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://pl.wikipedia.org/wiki/Teatr_Muzyczny_Capitol_we_Wroc%C5%82awiu",
+    "pl": {
+      "title": "Capitol i kino Śląsk",
+      "text": "Ekspresjonistyczny kinoteatr Capitol z 1929 r. miał 1200 miejsc i fasadę z podświetlanej mozaiki. 1 stycznia 1946 r. otwarto w nim kino Śląsk, uważane za największe w Polsce. Od 1964 r. salę dzieliła z kinem operetka, a dziś gra tu Teatr Muzyczny Capitol."
+    },
+    "en": {
+      "title": "Capitol and Kino Śląsk",
+      "text": "The expressionist Capitol cinema-theatre of 1929 had 1,200 seats and a facade of illuminated mosaic. On 1 January 1946 Kino Śląsk opened in it, considered the largest cinema in Poland. From 1964 the cinema shared the hall with an operetta company, and today it is home to the Capitol Musical Theatre (Teatr Muzyczny Capitol)."
+    }
+  },
+  {
+    "id": "pod-nasypem",
+    "lat": 51.0994,
+    "lon": 17.0321,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/en/second-life-of-boguslawskiego-street",
+    "pl": {
+      "title": "Pod nasypem",
+      "text": "Ulica Bogusławskiego słynęła kiedyś z tandetnych sklepików, a dziś pod kolejowym nasypem działają puby i restauracje. Pociągi przejeżdżają gościom nad głowami i większość uważa, że to część uroku."
+    },
+    "en": {
+      "title": "Under the embankment",
+      "text": "Bogusławskiego street was once known for its tacky little shops; today pubs and restaurants operate under the railway embankment. Trains pass right over the guests’ heads, and most consider it part of the charm."
+    }
+  },
+  {
+    "id": "palacyk",
+    "lat": 51.1027,
+    "lon": 17.0339,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/palac-schaffgoschow-palacyk-kosciuszki-historia-perla-architektury-slaski-kopciuszek-zdjecia",
+    "pl": {
+      "title": "Pałacyk",
+      "text": "Neorenesansowy Pałac Schaffgotschów z 1890 r. przy Kościuszki 34 przejęło w 1956 r. Zrzeszenie Studentów Polskich i otworzyło tu klub Pałacyk. Od niego wzięła się nazwa całego budynku. Przez dekady był tu jazz, teatr i dyskoteki, a w latach 90. giełda narciarska."
+    },
+    "en": {
+      "title": "Pałacyk",
+      "text": "The neo-Renaissance Schaffgotsch Palace of 1890 at Kościuszki 34 was taken over in 1956 by the Polish Students’ Association, which opened the Pałacyk (“Little Palace”) club here. The whole building took its name from the club. For decades it hosted jazz, theatre and discos, and in the 1990s a ski equipment fair."
+    }
+  },
+  {
+    "id": "renoma",
+    "lat": 51.1033,
+    "lon": 17.0321,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://en.wikipedia.org/wiki/Renoma",
+    "pl": {
+      "title": "Renoma, czyli Pedet",
+      "text": "Dom towarowy Wertheim Hermanna Dernburga otwarto w 1930 r. W 1945 r. spłonęły jego wnętrza, ale fasada przetrwała. Po wojnie był to Powszechny Dom Towarowy, czyli „Pedet”, a nazwę Renoma wybrali mieszkańcy w plebiscycie."
+    },
+    "en": {
+      "title": "Renoma, or Pedet",
+      "text": "Hermann Dernburg’s Wertheim department store opened in 1930. In 1945 its interiors burned out, but the facade survived. After the war it was the Powszechny Dom Towarowy (General Department Store), known as “Pedet”, and the name Renoma was chosen by residents in a public vote."
+    }
+  },
+  {
+    "id": "kredka-olowek",
+    "lat": 51.1144,
+    "lon": 17.0676,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/akademiki-kredka-olowek-domy-studenckie-uniwersytet-wroclawski",
+    "pl": {
+      "title": "Kredka i Ołówek",
+      "text": "Dwa akademiki Uniwersytetu Wrocławskiego przy pl. Grunwaldzkim zawdzięczają nazwy smukłym sylwetkom. Ołówek oddano w 1989 r., Kredkę dwa lata później. Ołówek jest niższy, bo — jak żartują studenci — częściej się go temperuje."
+    },
+    "en": {
+      "title": "Kredka and Ołówek",
+      "text": "Two University of Wrocław dormitories on Plac Grunwaldzki owe their names, Kredka (“Crayon”) and Ołówek (“Pencil”), to their slender shapes. Ołówek was completed in 1989, Kredka two years later. Ołówek is shorter because — as students joke — it gets sharpened more often."
+    }
+  },
+  {
+    "id": "swiebodzki-targ",
+    "lat": 51.1072,
+    "lon": 17.0185,
+    "trigger": "click",
+    "category": "kultowe",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/galeria/sedesowce-teki-wisielec-grunwald-czy-umiesz-mowic-po-wroclawsku-sprawdz,p,12",
+    "pl": {
+      "title": "Na Świebodzkim",
+      "text": "Ostatni pociąg pasażerski odjechał z Dworca Świebodzkiego w 1991 r. Od tego czasu w weekendy dworzec zamienia się w targ, a „kupiłem to na Świebodzkim” weszło do wrocławskiej gwary."
+    },
+    "en": {
+      "title": "At Świebodzki",
+      "text": "The last passenger train left Świebodzki Station (Dworzec Świebodzki) in 1991. Since then the station has turned into a market at weekends, and “I bought it at Świebodzki” has entered Wrocław slang."
+    }
+  },
+  {
+    "id": "pwr-serowiec",
+    "lat": 51.1076,
+    "lon": 17.0597,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pwr.edu.pl/d/NGBUXFA1dbQ1kBEBgWlQDTxYAFisjHwk9ACFDC1dbWD0RaBMvRgN-G3dAKzEMQQtSBUpFZG4eHxRLf0N3FBgUOUEbWCdGA21HORIJ/informacja_o_politechnice_wroclawskiej_w_tekscie_odczytywalnym_maszynowo.pdf",
+    "pl": {
+      "title": "Serowiec (C-13)",
+      "text": "Oficjalnie to Zintegrowane Centrum Studenckie, zbudowane w latach 2005–2007 według projektu pracowni Manufaktura Nr 1 i Bogusława Wowrzeczki. Wszyscy mówią na nie jednak Serowiec — wystarczy spojrzeć na okrągłe okna, żeby skojarzyć je z dziurami w serze."
+    },
+    "en": {
+      "title": "Serowiec (C-13)",
+      "text": "Officially it is the Integrated Student Centre, built in 2005–2007 to a design by the Manufaktura Nr 1 studio and Bogusław Wowrzeczka. Everyone calls it Serowiec (“the Cheese”), though — one look at the round windows and you think of holes in a cheese."
+    }
+  },
+  {
+    "id": "pwr-bibliotech",
+    "lat": 51.1097,
+    "lon": 17.0581,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/bibliotech-czyli-brama-do-wiedzy",
+    "pl": {
+      "title": "Bibliotech (D-21)",
+      "text": "Stalowoszarą „bramę” na kampus od strony pl. Grunwaldzkiego wstawiono w latach 2010–2013 między zabytkowe gmachy D-1 i D-2, według projektu niemieckiej pracowni Heinle, Wischer und Partner. Miała być „biblioteką bez książek”, a dziś mieszkają w niej superkomputer Lem i komputer kwantowy Odra 5."
+    },
+    "en": {
+      "title": "Bibliotech (D-21)",
+      "text": "This steel-grey “gate” to the campus from Plac Grunwaldzki was slotted in between the historic D-1 and D-2 buildings in 2010–2013, to a design by the German firm Heinle, Wischer und Partner. It was meant to be a “library without books”, and today it houses the Lem supercomputer and the Odra 5 quantum computer."
+    }
+  },
+  {
+    "id": "pwr-technopolis",
+    "lat": 51.1094,
+    "lon": 17.0594,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/zobacz-nowe-budowle-w-kampusie-politechniki",
+    "pl": {
+      "title": "Technopolis (C-16)",
+      "text": "Gmach przy Janiszewskiego kosztował 80 mln zł i powstał dla elektroników. W pakiecie przyszła komora akustyczna w kształcie wielkiej czarnej bryły węgla — w środku pomiary nie słyszą ani hałasu, ani drgań z kampusu."
+    },
+    "en": {
+      "title": "Technopolis (C-16)",
+      "text": "The building on Janiszewskiego Street cost 80 million złoty and was built for the electronics engineers. It came with an acoustic chamber shaped like a huge black lump of coal — inside, measurements are shielded from the campus noise and vibrations."
+    }
+  },
+  {
+    "id": "pwr-wieza-magow",
+    "lat": 51.1095,
+    "lon": 17.061,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/akademicki-wroclaw/wieza-magow-remont-dawnej-siedziby-wydzialu-matematyki-politechniki-wroclawskiej",
+    "pl": {
+      "title": "Wieża Magów (C-11)",
+      "text": "Budynek z lat 90. przy Janiszewskiego był siedzibą politechnicznych matematyków, a na kampusie mówiono na niego Wieża Magów. Matematycy przenieśli się do dawnego szpitala Maxa Berga, a wieżę przebudowuje się dla Wydziału Podstawowych Problemów Techniki — magia zostaje w rodzinie."
+    },
+    "en": {
+      "title": "Tower of the Magi (C-11)",
+      "text": "This 1990s building on Janiszewskiego Street was home to the university’s mathematicians, and on campus it was called Wieża Magów, the “Tower of the Magi”. The mathematicians moved to Max Berg’s former hospital, and the tower is being rebuilt for the Faculty of Fundamental Problems of Technology — so the magic stays in the family."
+    }
+  },
+  {
+    "id": "pwr-szpital-berga",
+    "lat": 51.1079,
+    "lon": 17.0573,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/akademicki-wroclaw/dawny-szpital-maxa-berga-zajal-wydzial-matematyki-wkrotce-dolacza-studenci-nowego-wydzialu-medycznego-politechniki-wroclawskiej",
+    "pl": {
+      "title": "Szpital Maxa Berga (C-19)",
+      "text": "Miejski Szpital Dziecięcy zbudowano w 1911 r. według projektu Maxa Berga, późniejszego autora Hali Stulecia. Politechnika kupiła go w 2015 r. i po remoncie za prawie 50 mln zł urządziła tu Wydział Matematyki. Od 2023 r. w kompleksie znów uczy się medycyny — PWr jako pierwsza polska politechnika kształci lekarzy."
+    },
+    "en": {
+      "title": "Max Berg’s hospital (C-19)",
+      "text": "The Municipal Children’s Hospital was built in 1911 to a design by Max Berg, later the architect of the Centennial Hall. The university bought it in 2015 and, after a renovation costing nearly 50 million złoty, moved its Faculty of Mathematics in. Since 2023 medicine is taught in the complex again — the university is the first Polish technical university to train doctors."
+    }
+  },
+  {
+    "id": "pwr-architektura",
+    "lat": 51.119,
+    "lon": 17.0543,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/gmach-wydzialu-architektury-jak-nowy",
+    "pl": {
+      "title": "Drugi Hogwart (E-1)",
+      "text": "Monumentalny gmach przy Prusa powstał na początku XX w. dla szkoły budowlanej i wyższej szkoły budowy maszyn. Zaprojektował go Karl Klimm pod okiem Richarda Plüddemanna — autora „wrocławskiego Hogwartu” przy Szajnochy. Nic dziwnego, że siedzibę Wydziału Architektury też nazywa się Hogwartem."
+    },
+    "en": {
+      "title": "The other Hogwarts (E-1)",
+      "text": "The monumental building on Prusa Street went up in the early 20th century for a building-trades school and a higher school of mechanical engineering. Karl Klimm designed it under the supervision of Richard Plüddemann — the architect of the “Wrocław Hogwarts” on Szajnochy Street. No wonder the Faculty of Architecture’s home is also called Hogwarts."
+    }
+  },
+  {
+    "id": "pwr-teki",
+    "lat": 51.1037,
+    "lon": 17.0851,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/galeria/sedesowce-teki-wisielec-grunwald-czy-umiesz-mowic-po-wroclawsku-sprawdz,p,4",
+    "pl": {
+      "title": "Teki na Wittigowie",
+      "text": "Akademiki Politechniki od T-15 do T-19 to po prostu Teki, a całe miasteczko studenckie od ul. Wittiga nazywa się Wittigowem. Wysokie bloki mają też własne imiona: Hades, Tower, Ikar i Piast. Hasło „impreza w Tekach” każdy wrocławski student rozumie bez tłumaczenia."
+    },
+    "en": {
+      "title": "Teki in Wittigowo",
+      "text": "The university’s dormitories T-15 to T-19 are simply called Teki (“the Ts”), and the whole student village is called Wittigowo after Wittiga Street. The tall blocks also have names of their own: Hades, Tower, Ikar and Piast. Every Wrocław student understands “a party in Teki” without translation."
+    }
+  },
+  {
+    "id": "pwr-straszny-dwor",
+    "lat": 51.1136,
+    "lon": 17.0645,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://pl.wikipedia.org/wiki/Politechnika_Wroc%C5%82awska",
+    "pl": {
+      "title": "Straszny Dwór (T-3)",
+      "text": "Akademiki Politechniki mają imiona z fantazją: przy Grunwaldzkiej stoją Telemik (T-2) i Straszny Dwór (T-3), a dalej Czworak (T-4) i Alcatraz (T-6). Moniuszko pewnie by się zdziwił, gdzie trafił tytuł jego opery."
+    },
+    "en": {
+      "title": "Straszny Dwór (T-3)",
+      "text": "The university’s dormitories have imaginative names: on Grunwaldzka Street stand Telemik (T-2) and Straszny Dwór (T-3, “The Haunted Manor”), and further on Czworak (T-4) and Alcatraz (T-6). Moniuszko would probably be surprised to see where the title of his opera ended up."
+    }
+  },
+  {
+    "id": "pwr-idaszewski",
+    "lat": 51.1102,
+    "lon": 17.0577,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://pwr.edu.pl/en/university/about-us/history",
+    "pl": {
+      "title": "Pierwszy polski wykład",
+      "text": "15 listopada 1945 r. prof. Kazimierz Idaszewski, specjalista od maszyn elektrycznych z Politechniki Lwowskiej, wygłosił pierwszy wykład w polskim Wrocławiu. Politechnika działała wtedy w parze z uniwersytetem jako Uniwersytet i Politechnika — do rozwodu doszło w 1951 r. Skwer przy pl. Grunwaldzkim nosi imię profesora."
+    },
+    "en": {
+      "title": "The first Polish lecture",
+      "text": "On 15 November 1945 Prof. Kazimierz Idaszewski, an electrical-machines specialist from the Lwów Polytechnic, gave the first lecture in Polish Wrocław. The polytechnic was then paired with the university as the University and Polytechnic — the divorce came in 1951. The square by Plac Grunwaldzki is named after him."
+    }
+  },
+  {
+    "id": "pwr-bulwar-kulczynskiego",
+    "lat": 51.1065,
+    "lon": 17.0598,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/prof-kulczynski-ponownie-patronem-bulwaru-nad-odra",
+    "pl": {
+      "title": "Bulwar rektora",
+      "text": "Stanisław Kulczyński był pierwszym powojennym rektorem Uniwersytetu i Politechniki, a w 1938 r. jako rektor Politechniki Lwowskiej odmówił wprowadzenia getta ławkowego i ustąpił. W 2018 r. w ramach dekomunizacji jego nazwisko zdjęto z bulwaru na Wyspie Piasek — Politechnika szybko nazwała jego imieniem własny bulwar nad Odrą."
+    },
+    "en": {
+      "title": "The rector’s boulevard",
+      "text": "Stanisław Kulczyński was the first post-war rector of the University and Polytechnic, and in 1938, as rector of the Lwów Polytechnic, he refused to introduce ghetto benches and resigned. In 2018 his name was removed from the boulevard on Wyspa Piasek under the decommunisation law — the polytechnic promptly named its own riverside boulevard after him."
+    }
+  },
+  {
+    "id": "pwr-stanica",
+    "lat": 51.1069,
+    "lon": 17.061,
+    "trigger": "click",
+    "category": "miejsce",
+    "source": "https://www.wroclaw.pl/akademicki-wroclaw/stanica-wioslarska-otwarta",
+    "pl": {
+      "title": "Stanica i Tawerna",
+      "text": "Stanicę wioślarską u wylotu Norwida zbudowano w latach 30. Po wojnie wrócili tu wioślarze, potem działały stołówka, bar i studencki klub Tawerna. Politechnika kupiła ruinę w 2011 r., a po remoncie w 2015 r. jest tu jedyny czynny we Wrocławiu basen do treningu wioślarskiego — wiosłuje się w miejscu."
+    },
+    "en": {
+      "title": "The rowing station and Tawerna",
+      "text": "The rowing station where Norwida Street meets the river was built in the 1930s. After the war the rowers returned, followed by a canteen, a bar and the student club Tawerna. The university bought the ruin in 2011, and since its 2015 renovation it has housed Wrocław’s only working rowing training pool — where you row without going anywhere."
+    }
+  },
+  {
+    "id": "pwr-geocentrum",
+    "lat": 51.1044,
+    "lon": 17.0543,
+    "trigger": "click",
+    "category": "uczelnia",
+    "source": "https://www.wroclaw.pl/dla-mieszkanca/zobacz-nowe-budowle-w-kampusie-politechniki",
+    "pl": {
+      "title": "GeoCentrum (L-1)",
+      "text": "Po drugiej stronie Odry, przy ul. Na Grobli, Politechnika postawiła za 72 mln zł GeoCentrum dla wydziałów górniczego, mechaniczno-energetycznego oraz budownictwa i inżynierii wodnej. Z głównym kampusem łączy je Polinka, więc przyszli górnicy jeżdżą na zajęcia kolejką linową."
+    },
+    "en": {
+      "title": "GeoCentrum (L-1)",
+      "text": "Across the Odra, on Na Grobli Street, the university built the 72-million-złoty GeoCentrum for its mining, mechanical and power engineering, and civil and water engineering faculties. Polinka links it to the main campus, so future miners commute to class by cable car."
+    }
+  }
+]

@@ -1,7 +1,6 @@
 // Pozycje wyszukiwarki: zabytki, ciekawostki, krasnale oraz ulice i budynki z OSM.
 import { toLocal } from '../engine/geo.ts'
-import type { Landmark } from '../history/content.ts'
-import type { Trivia } from '../history/trivia.ts'
+import type { Landmark, Trivia } from '../content/index.ts'
 import { t } from '../i18n/index.ts'
 import type { Dwarf, World } from '../types/world.ts'
 import type { SearchItem } from '../ui/search.ts'

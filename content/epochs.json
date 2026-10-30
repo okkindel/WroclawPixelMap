@@ -1,0 +1,257 @@
+[
+  {
+    "id": "grod",
+    "year": 1000,
+    "city": "Wrotizla",
+    "flag": "pl",
+    "mode": "medieval",
+    "pl": {
+      "label": "Gród na Ostrowie",
+      "state": "Polska (Piastowie)",
+      "text": "Na zjeździe gnieźnieńskim w 1000 r. powstaje biskupstwo wrocławskie. Miasto to na razie drewniany gród na Ostrowie Tumskim, schowany między odnogami Odry — wyspa była najlepszym murem obronnym."
+    },
+    "en": {
+      "label": "Stronghold on Ostrów",
+      "state": "Poland (Piast dynasty)",
+      "text": "At the Congress of Gniezno in 1000 the Diocese of Wrocław is founded. For now the town is a wooden stronghold on Ostrów Tumski (Cathedral Island), tucked between arms of the Oder — the island was the best defensive wall there was."
+    }
+  },
+  {
+    "id": "lokacja",
+    "year": 1242,
+    "city": "Wratislavia",
+    "flag": "pl",
+    "mode": "medieval",
+    "pl": {
+      "label": "Lokacja miasta",
+      "state": "Polska (Piastowie, Księstwo Śląskie)",
+      "text": "Po spaleniu osady podczas najazdu mongolskiego w 1241 r. miasto lokowano na prawie magdeburskim. Wytyczono Rynek i regularną szachownicę ulic, którą widać na mapie do dziś."
+    },
+    "en": {
+      "label": "Town charter",
+      "state": "Poland (Piast dynasty, Duchy of Silesia)",
+      "text": "After the settlement was burned during the Mongol invasion of 1241, the town was re-founded under Magdeburg law. The Rynek (Market Square) and a regular grid of streets were laid out, and you can still see them on the map today."
+    }
+  },
+  {
+    "id": "czechy",
+    "year": 1335,
+    "city": "Vratislav",
+    "flag": "cz",
+    "mode": "medieval",
+    "pl": {
+      "label": "Pod koroną czeską",
+      "state": "Korona Czeska (Luksemburgowie)",
+      "text": "Po śmierci księcia Henryka VI Dobrego w 1335 r. Wrocław przechodzi pod władzę króla Czech Jana Luksemburskiego. Kupieckie miasto bogaci się, należy do Hanzy, a ratusz i kościoły rosną w gotyckim tempie."
+    },
+    "en": {
+      "label": "Under the Bohemian Crown",
+      "state": "Crown of Bohemia (House of Luxembourg)",
+      "text": "After the death of Duke Henry VI the Good in 1335, Wrocław passes to King John of Bohemia (John of Luxembourg). The merchant city grows rich, joins the Hanseatic League, and its town hall and churches rise at a Gothic pace."
+    }
+  },
+  {
+    "id": "habsburgowie",
+    "year": 1526,
+    "city": "Breslau",
+    "flag": "hab",
+    "mode": "walls",
+    "pl": {
+      "label": "Habsburgowie",
+      "state": "Monarchia Habsburgów (Korona Czeska)",
+      "text": "Po bitwie pod Mohaczem czeską koronę, a z nią Wrocław, przejmują Habsburgowie. Miasto przyjmuje reformację, otacza się bastionami (Ceglarski powstał w 1585 r.), a w 1702 r. cesarz Leopold I zakłada tu uniwersytet."
+    },
+    "en": {
+      "label": "The Habsburgs",
+      "state": "Habsburg Monarchy (Crown of Bohemia)",
+      "text": "After the Battle of Mohács the Bohemian crown, and Wrocław with it, passes to the Habsburgs. The city embraces the Reformation, surrounds itself with bastions (the Ceglarski Bastion was built in 1585), and in 1702 Emperor Leopold I founds a university here."
+    }
+  },
+  {
+    "id": "prusy",
+    "year": 1741,
+    "city": "Breslau",
+    "flag": "pru",
+    "mode": "walls",
+    "pl": {
+      "label": "Fryderyk Wielki",
+      "state": "Królestwo Prus",
+      "text": "W styczniu 1741 r. wojska Fryderyka II zajmują Wrocław bez walki, a pokój wrocławski z 1742 r. oddaje niemal cały Śląsk Prusom. Zmienia się władca, mury zostają."
+    },
+    "en": {
+      "label": "Frederick the Great",
+      "state": "Kingdom of Prussia",
+      "text": "In January 1741 the troops of Frederick II take Wrocław without a fight, and the Peace of Breslau of 1742 hands almost all of Silesia to Prussia. The ruler changes, the walls stay."
+    }
+  },
+  {
+    "id": "twierdza",
+    "year": 1800,
+    "city": "Breslau",
+    "flag": "pru",
+    "mode": "walls",
+    "pl": {
+      "label": "Miasto-twierdza",
+      "state": "Królestwo Prus",
+      "text": "Około 1800 r. Stare Miasto wciąż ściskają wały, bastiony i fosa, a do środka wchodzi się przez bramy. Za murami są już przedmieścia, ale centrum wygląda jeszcze jak z rycin."
+    },
+    "en": {
+      "label": "Fortress city",
+      "state": "Kingdom of Prussia",
+      "text": "Around 1800 the Old Town is still squeezed by ramparts, bastions and a moat, and you enter through gates. Suburbs already spread beyond the walls, but the centre still looks like an old engraving."
+    }
+  },
+  {
+    "id": "napoleon",
+    "year": 1807,
+    "city": "Breslau",
+    "flag": "pru",
+    "mode": "today",
+    "pl": {
+      "label": "Napoleon i Promenada",
+      "state": "Królestwo Prus (okupacja francuska)",
+      "text": "Na początku 1807 r. miasto kapituluje przed wojskami napoleońskimi, a Hieronim Bonaparte każe zburzyć fortyfikacje. Z wałów zostają wzgórza widokowe, a wzdłuż fosy powstaje Promenada — najlepsza rzecz, jaką Wrocław dostał od okupanta."
+    },
+    "en": {
+      "label": "Napoleon and the Promenade",
+      "state": "Kingdom of Prussia (French occupation)",
+      "text": "In early 1807 the city surrenders to Napoleon’s troops, and Jérôme Bonaparte orders the fortifications torn down. The ramparts become viewing hills, and the Promenade is laid out along the moat — the best thing Wrocław ever got from an occupier."
+    }
+  },
+  {
+    "id": "industrial",
+    "year": 1900,
+    "city": "Breslau",
+    "flag": "de",
+    "mode": "today",
+    "pl": {
+      "label": "Breslau przemysłowy",
+      "state": "Cesarstwo Niemieckie (od 1871)",
+      "text": "Od 1871 r. Breslau leży w zjednoczonych Niemczech i jest jednym z największych miast kraju. Kolej (pierwsza linia już w 1842 r.), fabryki i kamienice rozpychają miasto daleko poza dawną fosę."
+    },
+    "en": {
+      "label": "Industrial Breslau",
+      "state": "German Empire (since 1871)",
+      "text": "From 1871 Breslau lies in a unified Germany and is one of the country’s largest cities. Railways (the first line opened as early as 1842), factories and tenement houses push the city far beyond the old moat."
+    }
+  },
+  {
+    "id": "hala",
+    "year": 1913,
+    "city": "Breslau",
+    "flag": "de",
+    "mode": "today",
+    "pl": {
+      "label": "Hala Stulecia",
+      "state": "Cesarstwo Niemieckie",
+      "text": "Na stulecie wojen wyzwoleńczych z 1813 r. Max Berg stawia Halę Stulecia z żelbetową kopułą o rozpiętości 65 m. Wokół powstają Pergola i Pawilon Czterech Kopuł — wystawa, która przeszła do historii architektury."
+    },
+    "en": {
+      "label": "Centennial Hall",
+      "state": "German Empire",
+      "text": "For the centenary of the 1813 Wars of Liberation, Max Berg builds the Centennial Hall (Hala Stulecia) with a reinforced-concrete dome spanning 65 m. Around it rise the Pergola and the Four Domes Pavilion — an exhibition that made architectural history."
+    }
+  },
+  {
+    "id": "festung",
+    "year": 1945,
+    "city": "Breslau",
+    "flag": "de",
+    "mode": "festung",
+    "pl": {
+      "label": "Festung Breslau",
+      "state": "III Rzesza",
+      "text": "Od lutego 1945 r. okrążone miasto broni się jako twierdza; by zbudować pas startowy, wyburzono zabudowę dzisiejszego pl. Grunwaldzkiego. Kapitulacja przychodzi dopiero 6 maja 1945 r., gdy miasto leży w gruzach."
+    },
+    "en": {
+      "label": "Festung Breslau",
+      "state": "Third Reich",
+      "text": "From February 1945 the encircled city holds out as a fortress; to build a runway, the buildings around today’s Plac Grunwaldzki were demolished. Surrender comes only on 6 May 1945, when the city lies in ruins."
+    }
+  },
+  {
+    "id": "powojnie",
+    "year": 1946,
+    "city": "Wrocław",
+    "flag": "pl",
+    "mode": "festung",
+    "pl": {
+      "label": "Wrocław z gruzów",
+      "state": "Polska",
+      "text": "Niemieckich mieszkańców wysiedlono, a do miasta przybywają Polacy, m.in. ze Lwowa — razem z nimi Ossolineum i Panorama Racławicka. Cegły z ruin jadą na odbudowę Warszawy, a w 1948 r. Wystawa Ziem Odzyskanych stawia Iglicę."
+    },
+    "en": {
+      "label": "Wrocław from the rubble",
+      "state": "Poland",
+      "text": "The German inhabitants are expelled and Poles arrive, many of them from Lwów (Lviv) — bringing the Ossolineum and the Racławice Panorama with them. Bricks from the ruins are shipped to rebuild Warsaw, and in 1948 the Exhibition of the Recovered Territories puts up the Iglica (Spire)."
+    }
+  },
+  {
+    "id": "prl",
+    "year": 1988,
+    "city": "Wrocław",
+    "flag": "prl",
+    "mode": "today",
+    "pl": {
+      "label": "Pomarańczowa Alternatywa",
+      "state": "PRL",
+      "text": "Major Waldemar Fydrych i Pomarańczowa Alternatywa walczą z systemem absurdem: malują krasnale na zamalowanych hasłach i robią happeningi. 1 czerwca 1988 r. przez centrum przechodzi ponad 10 tys. ludzi w krasnalowych czapkach."
+    },
+    "en": {
+      "label": "Orange Alternative",
+      "state": "Polish People’s Republic",
+      "text": "Major Waldemar Fydrych and the Orange Alternative fight the system with absurdity: they paint dwarfs over painted-out slogans and stage happenings. On 1 June 1988 more than 10,000 people in dwarf hats march through the centre."
+    }
+  },
+  {
+    "id": "powodz",
+    "year": 1997,
+    "city": "Wrocław",
+    "flag": "pl",
+    "mode": "flood",
+    "pl": {
+      "label": "Powódź tysiąclecia",
+      "state": "Polska",
+      "text": "12 lipca 1997 r. fala kulminacyjna Odry wdziera się do miasta; pod wodą jest prawie 40% Wrocławia. Mieszkańcy workami z piaskiem ratują Rynek, ZOO i własne podwórka."
+    },
+    "en": {
+      "label": "Millennium Flood",
+      "state": "Poland",
+      "text": "On 12 July 1997 the Oder’s flood crest bursts into the city; almost 40% of Wrocław is under water. Residents with sandbags save the Rynek, the zoo and their own backyards."
+    }
+  },
+  {
+    "id": "esk",
+    "year": 2016,
+    "city": "Wrocław",
+    "flag": "pl",
+    "mode": "today",
+    "pl": {
+      "label": "Europejska Stolica Kultury",
+      "state": "Polska",
+      "text": "W 2016 r. Wrocław jest Europejską Stolicą Kultury (razem z San Sebastián) i Światową Stolicą Książki UNESCO. Rok wcześniej otwiera się Narodowe Forum Muzyki."
+    },
+    "en": {
+      "label": "European Capital of Culture",
+      "state": "Poland",
+      "text": "In 2016 Wrocław is a European Capital of Culture (together with San Sebastián) and UNESCO World Book Capital. A year earlier the National Forum of Music opens."
+    }
+  },
+  {
+    "id": "dzis",
+    "year": 2026,
+    "city": "Wrocław",
+    "flag": "pl",
+    "mode": "today",
+    "pl": {
+      "label": "Dziś",
+      "state": "Polska",
+      "text": "Miasto mostów, wysp i studentów — i setek krasnali, które trzeba omijać na chodniku. Zabudowa pokazuje dziś ponad tysiąc lat historii czterech państw."
+    },
+    "en": {
+      "label": "Today",
+      "state": "Poland",
+      "text": "A city of bridges, islands and students — and hundreds of dwarfs you have to step around on the pavement. Its buildings now tell over a thousand years of history of four states."
+    }
+  }
+]

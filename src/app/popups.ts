@@ -1,7 +1,5 @@
 // Treść okienek dla zabytków, ciekawostek, neonów i krasnali.
-import type { Egg, Landmark } from '../history/content.ts'
-import type { Trivia } from '../history/trivia.ts'
-import type { NeonSpec } from '../layers/neons.data.ts'
+import type { Egg, Landmark, NeonSpec, Trivia } from '../content/index.ts'
 import type { Dwarf } from '../types/world.ts'
 import { lang, t } from '../i18n/index.ts'
 import { openPopup } from '../ui/popup.ts'

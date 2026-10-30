@@ -2,9 +2,7 @@
 // Kolejność dodawania = pierwszeństwo przy nachodzeniu napisów (patrz Labels.update).
 import { centroid, toLatLon, toLocal } from '../engine/geo.ts'
 import { Labels } from '../layers/labels.ts'
-import { NEONS } from '../layers/neons.data.ts'
-import type { Egg, Landmark } from '../history/content.ts'
-import type { Trivia } from '../history/trivia.ts'
+import { NEONS, type Egg, type Landmark, type Trivia } from '../content/index.ts'
 import { lang, t } from '../i18n/index.ts'
 import type { PoiKind, WorldMeta } from '../types/world.ts'
 import { openPopup } from '../ui/popup.ts'
@@ -34,6 +32,13 @@ const UNIVERSITY = /^(Uniwersytet|Politechnika|Akademia|Szkoła Wyższa|Wyższa 
 
 // obiekt 'edu', który jest szkołą, a nie uczelnią: tylko z bliska, z podtytułem „Szkoła”
 const SCHOOL = /Liceum|Szkoła|Technikum|Gimnazjum|Zespół Szkół/i
+
+interface WikiEntry { pl?: string; en?: string; img?: string; credit?: string }
+let wikiCache: Promise<Record<string, WikiEntry>> | null = null
+const wikiData = (): Promise<Record<string, WikiEntry>> =>
+  (wikiCache ??= fetch(`${import.meta.env.BASE_URL}data/wiki.json`)
+    .then((r): Promise<Record<string, WikiEntry>> => (r.ok ? r.json() : Promise.resolve({})))
+    .catch(() => ({})))
 
 const wikiLabel = (href: string) => (href.includes('wikipedia') ? 'Wikipedia' : 'Wikidata')
 
@@ -86,7 +91,11 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
       : POI_MIN_ZOOM.other
     const link = wiki ? { href: wiki, label: wikiLabel(wiki) } : undefined
     const sub = school ? t('poi.school') : poiSub[kind]
-    const onClick = () => openPopup({ title: name, sub, link })
+    // opis i zdjęcie z Wikipedii (public/data/wiki.json), jeśli są; wczytywane leniwie przy pierwszym kliknięciu
+    const onClick = async () => {
+      const w = wiki ? (await wikiData())[wiki] : undefined
+      openPopup({ title: name, sub, link, text: w?.[lang()] ?? w?.pl ?? w?.en, img: w?.img, credit: w?.credit })
+    }
     // uczelnie i szkoły jak napisy uczelni z ciekawostek (niebieskie, z czapką)
     const cls = church ? 'poi church' : kind === 'edu' ? 'uni' : `poi poi-${kind}`
     labels.addLabel(name, lat, lon, minZoom, onClick, cls, poiFrom(kind), university ? 'unis' : 'pois')

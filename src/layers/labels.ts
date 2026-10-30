@@ -1,7 +1,7 @@
 // Napisy nad zabytkami i znaczniki ciekawostek (HTML nakładany na rzut 3D).
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
-import type { Egg, Landmark } from '../history/content.ts'
+import type { Egg, Landmark } from '../content/index.ts'
 
 // Grupy znaczników (osobne przełączniki w panelu „Znaczniki”).
 export type PinGroup = 'labels' | 'places' | 'pois' | 'unis' | 'eggs' | 'cult'

@@ -3,7 +3,7 @@
 import * as THREE from 'three'
 import { hash, toLocal } from '../engine/geo.ts'
 import { lang } from '../i18n/index.ts'
-import { NEONS, type NeonSpec } from './neons.data.ts'
+import { NEONS, type NeonSpec } from '../content/index.ts'
 
 const FONT = { block: 'bold 10px "Courier New", monospace', script: 'italic bold 11px Georgia, serif' }
 const BIG = 'bold 13px "Courier New", monospace' // większe litery wyróżnienia (PZU)

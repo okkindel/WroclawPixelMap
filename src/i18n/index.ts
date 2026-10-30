@@ -3,7 +3,7 @@ import { EN, PL, type Key } from './dict.ts'
 
 export type Lang = 'pl' | 'en'
 export type { Key }
-export { dwarfFacts, eggs, epochs, landmarkRank, landmarks, trivia } from './content.ts'
+export { dwarfFacts, eggs, epochs, landmarkRank, landmarks, trivia } from '../content/index.ts'
 
 const STORE = 'wpm.lang'
 const SITE = 'https://okkindel.github.io/projects/wroclaw-w-pikselach/'

@@ -1,5 +1,5 @@
 // Panel ustawień, oś czasu i karta informacyjna epoki.
-import type { Epoch } from '../history/content.ts'
+import type { Epoch } from '../content/index.ts'
 import { lang } from '../i18n/index.ts'
 import { byId } from './dom.ts'
 
