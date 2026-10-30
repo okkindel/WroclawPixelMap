@@ -88,3 +88,33 @@ export function strip(geo: Geo, p: Flat, w: number, y: number, color: string, ex
     geo.quad([sx + nx, y, -(sy + ny)], [sx - nx, y, -(sy - ny)], [ex - nx, y, -(ey - ny)], [ex + nx, y, -(ey + ny)], [0, 1, 0], color)
   }
 }
+
+// Uproszczenie zamkniętego pierścienia (Douglas–Peucker, odchyłka tol [m]); za mało punktów → oryginał.
+export function simplifyRing(ring: Flat, tol: number): Flat {
+  const n = ring.length / 2
+  if (n <= 4) return ring
+  // dzielimy w najdalszym od punktu 0 wierzchołku, potem każdą połowę osobno
+  let far = 0, fd = -1
+  for (let i = 1; i < n; i++) {
+    const d = Math.hypot(ring[i * 2] - ring[0], ring[i * 2 + 1] - ring[1])
+    if (d > fd) { fd = d; far = i }
+  }
+  const keep = new Uint8Array(n + 1)
+  keep[0] = keep[far] = keep[n] = 1
+  const X = (i: number) => ring[(i % n) * 2], Y = (i: number) => ring[(i % n) * 2 + 1]
+  const stack = [0, far, far, n]
+  while (stack.length) {
+    const b = stack.pop()!, a = stack.pop()!
+    const ax = X(a), ay = Y(a), dx = X(b) - ax, dy = Y(b) - ay
+    const L = Math.hypot(dx, dy) || 1
+    let best = -1, bd = tol
+    for (let i = a + 1; i < b; i++) {
+      const d = Math.abs((X(i) - ax) * dy - (Y(i) - ay) * dx) / L
+      if (d > bd) { bd = d; best = i }
+    }
+    if (best >= 0) { keep[best] = 1; stack.push(a, best, best, b) }
+  }
+  const out: Flat = []
+  for (let i = 0; i < n; i++) if (keep[i]) out.push(ring[i * 2], ring[i * 2 + 1])
+  return out.length >= 6 ? out : ring
+}

@@ -84,8 +84,8 @@ export const NEONS: NeonSpec[] = [
     source: RUSKA3,
   },
   {
-    id: 'zoo', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wroc%C5%82awskie_ZOO_neon_fot_BMaliszewska.jpg?width=480', credit: 'Barbara Maliszewska, CC BY-SA 3.0 PL', lines: ['ZOO'], color: '#ffd23c', bg: '#1f7a3a', sprite: 'lion', kind: 'gate',
-    lat: 51.105621, lon: 17.076231, h: 5, az: 28, letter: 2.5, span: 12, from: 1962,
+    id: 'zoo', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/Wroc%C5%82awskie_ZOO_neon_fot_BMaliszewska.jpg?width=480', credit: 'Barbara Maliszewska, CC BY-SA 3.0 PL', lines: ['ZOO'], color: '#ffd23c', bg: '#1f7a3a', sprite: 'lion', kind: 'roof',
+    lat: 51.105621, lon: 17.076231, h: 7.5, az: 28, letter: 2.5, span: 12, from: 1962,
     title: { pl: 'Lew nad bramą ZOO', en: 'The zoo gate lion' },
     text: {
       pl: 'Złoty lew na zielonym tle i napis „ZOO” nad wejściem do ogrodu zoologicznego przy ul. Wróblewskiego (lata 60., proj. Stanisław Chronowski). W 2015 r. burza strąciła lwa na bruk — wrócił po naprawie.',

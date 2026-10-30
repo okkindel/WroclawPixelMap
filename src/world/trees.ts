@@ -21,6 +21,13 @@ export function buildTrees(trees: Flat, palette: string[], seed = 0) {
     mesh.setMatrixAt(i, m)
   }
   recolorTrees(mesh, palette)
+  // pnie: osobne instancje z tymi samymi macierzami (korona ma kolor z palety pory roku, pień zawsze brązowy)
+  const trunkGeo = new THREE.CylinderGeometry(0.09, 0.12, 1.4, 5)
+  trunkGeo.translate(0, 0.15, 0)
+  const trunks = new THREE.InstancedMesh(trunkGeo, new THREE.MeshLambertMaterial({ color: '#5a2e22' }), n)
+  for (let i = 0; i < n; i++) { mesh.getMatrixAt(i, m); trunks.setMatrixAt(i, m) }
+  trunks.castShadow = true
+  mesh.add(trunks)
   mesh.castShadow = true
   mesh.receiveShadow = true
   return mesh

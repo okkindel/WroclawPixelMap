@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { C } from '../engine/palette.ts'
 import { hash, signedArea } from '../engine/geo.ts'
 import type { Building, Flat } from '../types/world.ts'
-import { Geo, flatPoly, walls, type V3 } from './geometry.ts'
+import { Geo, flatPoly, simplifyRing, walls, type V3 } from './geometry.ts'
 
 const col = new THREE.Color()
 function parseColor(c: string | undefined, fallback: string) {
@@ -81,6 +81,8 @@ export interface BuildingMod { H?: number; wall?: string; roof?: string; flat?: 
 export interface BuildOpts {
   keep?: (b: Building, idx: number) => boolean
   mod?: (b: Building, idx: number) => BuildingMod | undefined
+  // uproszczona wersja dla dalekich widoków: graniastosłupy z płaskim dachem, bez okien i szpiców
+  simple?: boolean
 }
 
 // seed: przesunięcie dla wariantów kolorów, żeby sąsiednie kafle nie wyglądały tak samo
@@ -109,6 +111,21 @@ export function buildBuildings(buildings: Building[], opts: BuildOpts = {}, seed
     }
     if (H <= base + 0.3) return
     const win = kind === 'low' || kind === 'roof' || kind === 'ruin' || kind === 'chimney' || kind === 'tank' || (m && m.flat) ? 0 : 1
+    if (opts.simple && kind !== 'chimney') {
+      // dach spadzisty → płaski w połowie jego wysokości, szpic → płaski na wysokości okapu
+      let top = H
+      if (shape && SPIRES.has(shape) && !b.h && H - base > 4) {
+        const area = Math.abs(signedArea(b.o))
+        const rh = b.rh ?? (area < 900 ? Math.min((H - base) * 0.45, Math.sqrt(area) * 1.6) : 0)
+        if (rh > 1) top = Math.max(base + 1, H - rh)
+      } else if (!m?.flat && H - base > 6 && kind !== 'tank' && (TILE_ROOFS.has(shape ?? '') || tileColour(roof))) top = H - 2
+      // obrys bez dziedzińców upraszczamy (wierzchołki odchylone < 2 m, piksel to wtedy ~4 m), z dziedzińcami zostaje cały
+      const o = b.h ? b.o : simplifyRing(b.o, 2)
+      walls(geo, o, base, top, wall, 0)
+      if (b.h) for (const h of b.h) walls(geo, h, base, top, wall, 0)
+      flatPoly(geo, o, b.h, top, roof)
+      return
+    }
     let wallTop = H
     let pitched = false
     // hełmy wież: stożek / ostrosłup / cebula na wąskiej bryle — szpic do pełnej wysokości

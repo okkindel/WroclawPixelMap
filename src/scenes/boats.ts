@@ -7,26 +7,46 @@ import { Path, box, merge, place, vertexLambert } from './util.ts'
 
 export type BoatKind = 'barge' | 'cruise' | 'kayak'
 
+// Dziób: klin z dwóch obróconych prostopadłościanów (zwęża kadłub do szpica).
+function bow(len: number, h: number, w: number, x: number, y = 0) {
+  const parts: THREE.BufferGeometry[] = []
+  for (const side of [1, -1]) {
+    const L = Math.hypot(len, w / 2)
+    const g = new THREE.BoxGeometry(L, h, 0.6)
+    g.rotateY(-side * Math.atan2(w / 2, len))
+    g.translate(x + len / 2, y + h / 2, side * w / 4)
+    parts.push(g)
+  }
+  return parts
+}
+
 // Kadłuby niskie (mosty leżą ok. 1 m nad wodą); dziób w stronę +X.
 const GEOMETRY: Record<BoatKind, () => THREE.BufferGeometry> = {
-  // zestaw pchany: barka z ładunkiem (węgiel / kruszywo) i pchacz z wysoką sterówką
+  // zestaw pchany: barka z burtami i hałdami ładunku, z tyłu pchacz z wysoką białą sterówką
   barge: () => merge([
-    [box(48, 0.8, 8.4), '#2b2d42'],
-    [box(48.2, 0.2, 8.6, 0, 0.6), '#b5523a'],
-    [box(38, 0.6, 7, 3, 0.8), '#4a4744'],
-    [box(10, 1.0, 8, -29, 0), '#2b2d42'],
-    [box(4, 2.6, 5, -31, 1.0), '#f4f1e6'],
-    [box(4.1, 0.6, 5.1, -31, 2.6), '#1d3557'],
-    [box(4.4, 0.2, 5.4, -31, 3.6), '#e05a47'],
+    [box(44, 1.2, 9), '#1d2340'],
+    ...bow(4, 1.2, 9, 22).map((g): [THREE.BufferGeometry, string] => [g, '#1d2340']),
+    [box(44, 0.5, 0.5, 0, 1.2, 4.3), '#c8312f'],
+    [box(44, 0.5, 0.5, 0, 1.2, -4.3), '#c8312f'],
+    [box(10, 1.4, 6, 12, 0.9), '#3d3f58'],
+    [box(10, 1.4, 6, -2, 0.9), '#5a4a44'],
+    [box(10, 1.4, 6, -16, 0.9), '#3d3f58'],
+    [box(11, 1.4, 8.4, -28, 0), '#c8312f'],
+    [box(5, 3.2, 6, -30, 1.4), '#f4f1e6'],
+    [box(5.1, 0.8, 6.1, -30, 3.4), '#1d2340'],
+    [box(0.6, 1.6, 0.6, -32, 4.6), '#2b2d42'],
   ]),
-  // statek spacerowy: biały kadłub z niebieskim pasem, przeszklony salon i górny pokład
+  // statek spacerowy: biały kadłub z dziobem, niebieski pas, dwa pokłady z oknami, flaga
   cruise: () => merge([
-    [box(24, 0.9, 5.6), '#f4f1e6'],
-    [box(24.2, 0.3, 5.7, 0, 0.3), '#2c5d8a'],
-    [box(16, 1.8, 4.6, -1.5, 0.9), '#cfd2dc'],
-    [box(16.2, 0.7, 4.7, -1.5, 1.6), '#1d3557'],
-    [box(17, 0.2, 5.2, -1.5, 2.7), '#2c5d8a'],
-    [box(2, 0.9, 5.2, 9.5, 0.9), '#e05a47'],
+    [box(22, 1.2, 6), '#f4f1e6'],
+    ...bow(5, 1.2, 6, 11).map((g): [THREE.BufferGeometry, string] => [g, '#f4f1e6']),
+    [box(22.1, 0.35, 6.1, 0, 0.4), '#2f6fa8'],
+    [box(16, 2.2, 5, -1, 1.2), '#f4f1e6'],
+    [box(16.1, 0.8, 5.1, -1, 2.0), '#1d2340'],
+    [box(10, 1.6, 4.4, -3, 3.4), '#f4f1e6'],
+    [box(10.1, 0.6, 4.5, -3, 4.0), '#1d2340'],
+    [box(0.3, 2.4, 0.3, -9, 3.4), '#2b2d42'],
+    [box(0.1, 1.0, 1.6, -9, 5.0, 0.8), '#c8312f'],
   ]),
   // kajak z kajakarzem (powiększony, inaczej to pojedynczy piksel)
   kayak: () => merge([
@@ -38,9 +58,10 @@ const GEOMETRY: Record<BoatKind, () => THREE.BufferGeometry> = {
 }
 // liczba, prędkość [m/s], przesunięcie od osi rzeki [m], skala
 const SPEC: Record<BoatKind, { n: number; speed: number; lane: number; scale: number }> = {
-  barge: { n: 3, speed: 2.4, lane: 6, scale: 1 },
-  cruise: { n: 6, speed: 3.2, lane: 9, scale: 1 },
-  kayak: { n: 16, speed: 1.6, lane: 14, scale: 1.8 },
+  // osobne pasy dla rodzajów (barki środkiem, statki dalej, kajaki przy brzegu), żeby się nie przenikały
+  barge: { n: 3, speed: 2.4, lane: 7, scale: 1 },
+  cruise: { n: 6, speed: 3.2, lane: 18, scale: 1 },
+  kayak: { n: 16, speed: 1.6, lane: 27, scale: 1.8 },
 }
 
 interface Boat { path: Path; s: number; dir: 1 | -1; speed: number; lane: number; seed: number }
@@ -66,7 +87,8 @@ export class Boats {
         // barki na najdłuższych odcinkach (główny nurt), reszta po wszystkich
         const path = kind === 'barge' ? paths[i % Math.min(2, paths.length)] : paths[Math.floor(hash(i, ki + 7) * paths.length)]
         const seed = hash(i, ki)
-        return { path, s: seed * path.len, dir: hash(i, ki + 3) < 0.5 ? 1 : -1, speed: spec.speed * (0.8 + seed * 0.4), lane: spec.lane * (0.5 + hash(i, ki + 5) * 0.5), seed }
+        // start rozłożony równo wzdłuż odcinka, ta sama prędkość w obrębie rodzaju — łodzie się nie doganiają
+        return { path, s: ((i + 0.5) / spec.n) * path.len, dir: i % 2 ? 1 : -1, speed: spec.speed, lane: spec.lane * (0.85 + hash(i, ki + 5) * 0.3), seed }
       })
     })
   }

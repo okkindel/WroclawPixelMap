@@ -5,6 +5,7 @@ import jpeg from 'jpeg-js'
 import { readFile, readdir, writeFile, mkdir, rm } from 'node:fs/promises'
 import { BBOX, TILE } from './config.ts'
 import { loadNid, type NidHit } from './nid.ts'
+import { encodeTile } from '../src/world/tilecodec.ts'
 import type { Aerialway, Building, BuildingKind, Dwarf, Flat, GreenKind, Named, Place, Poi, PoiKind, Poly, Structure, TileData, World, WorldMeta } from '../src/types/world.ts'
 
 type Pt = [number, number]
@@ -43,6 +44,8 @@ for (const f of (await readdir('data/raw')).filter((f) => /^(world-[\w-]+|landco
 const rawDwarfs: OsmEl[] = JSON.parse(await readFile('data/raw/dwarfs.json', 'utf8')).elements
 const rawPlaces: OsmEl[] = existsSync('data/raw/places.json') ? JSON.parse(await readFile('data/raw/places.json', 'utf8')).elements : []
 const rawStructures: OsmEl[] = existsSync('data/raw/structures.json') ? JSON.parse(await readFile('data/raw/structures.json', 'utf8')).elements : []
+// szkoły i uczelnie jako obszary/punkty (zwykle nie są budynkiem, więc nie ma ich w danych świata)
+const rawSchools: OsmEl[] = existsSync('data/raw/schools.json') ? JSON.parse(await readFile('data/raw/schools.json', 'utf8')).elements : []
 const rawParts: OsmEl[] = existsSync('data/raw/parts.json') ? JSON.parse(await readFile('data/raw/parts.json', 'utf8')).elements : []
 const rawExtras: OsmEl[] = existsSync('data/raw/extras.json') ? JSON.parse(await readFile('data/raw/extras.json', 'utf8')).elements : []
 // rejestr zabytków NID: rok budowy po adresie dla budynków bez start_date
@@ -214,7 +217,8 @@ function poiKind(t: Record<string, string>): PoiKind | null {
   if (t.amenity === 'hospital') return 'health'
   if (['stadium', 'sports_centre', 'ice_rink', 'water_park'].includes(t.leisure)) return 'sport'
   if (t.amenity === 'place_of_worship') return 'church'
-  if (t.wikidata || t.wikipedia) return 'notable'
+  if (['school', 'kindergarten'].includes(t.amenity)) return /Liceum/i.test(t.name ?? '') || t.wikipedia ? 'edu' : null
+  if (t.wikipedia) return 'notable'
   return null
 }
 // ogólnikowe nazwy (sama funkcja budynku) nie są warte napisu
@@ -599,7 +603,7 @@ function structures() {
     // promień z obrysu (dla linii) albo typowy
     const r = el.type === 'way' ? Math.max(1.5, Math.sqrt(ringArea(openRing(pts)) / Math.PI)) : m === 'water_tower' ? 7 : 2
     const h = H ?? ({ water_tower: 30, mast: 40, communications_tower: 60, tower: 25, obelisk: 12, lighthouse: 20 } as Record<string, number>)[m] ?? 20
-    const k: Structure['k'] = m === 'water_tower' ? 'water' : m === 'mast' || m === 'communications_tower' ? 'mast' : h / r > 12 ? 'needle' : 'tower'
+    const k: Structure['k'] = t['tower:type'] === 'lighting' || t['tower:type'] === 'floodlight' ? 'light' : m === 'water_tower' ? 'water' : m === 'mast' || m === 'communications_tower' ? 'mast' : h / r > 12 ? 'needle' : 'tower'
     if (inBox([cx, cy])) list.push({ x: r1(cx), y: r1(cy), H: r1(h), r: r1(r), k, n: t.name, yr: year(t.start_date) ?? undefined })
   }
   // słupy przypisujemy do najbliższej kolei linowej
@@ -612,6 +616,19 @@ function structures() {
       }
     }
     best?.pylons.push(p)
+  }
+  // jupitery świecą w stronę najbliższego stadionu albo boiska (środek obrysu)
+  for (const s of list) {
+    if (s.k !== 'light') continue
+    let best: [number, number] | null = null, bd = 400
+    for (const st of out.stadiums.length ? out.stadiums : []) {
+      let cx = 0, cy = 0
+      for (let i = 0; i < st.o.length; i += 2) { cx += st.o[i]; cy += st.o[i + 1] }
+      cx /= st.o.length / 2; cy /= st.o.length / 2
+      const d = Math.hypot(cx - s.x, cy - s.y)
+      if (d < bd) { bd = d; best = [cx, cy] }
+    }
+    if (best) s.az = Math.atan2(best[1] - s.y, best[0] - s.x)
   }
   return { list, lines }
 }
@@ -688,15 +705,24 @@ for (const [k, t] of tiles) {
 console.log(`dachy z ortofotomapy: ${sampled}`)
 if (nid) console.log(`NID: wierszy z Wrocławia ${nid.rows}, z rokiem ${nid.parsed}, dopasowanych do budynków ${nidRows.size}; budynków z rokiem z NID ${nidBuildings} (w tym ${nidNear} najbliższych punktowi adresowemu), z rokiem ogółem ${out.buildings.filter((b) => b.y != null).length}/${out.buildings.length}`)
 
-// Czyścimy tylko stare kafle (usunięcie całego katalogu myli serwer deweloperski Vite).
+// Czyścimy tylko stare kafle i pliki w innym formacie (usunięcie całego katalogu myli serwer deweloperski Vite).
 await mkdir('public/data/tiles', { recursive: true })
-for (const f of await readdir('public/data/tiles')) if (!tiles.has(f.replace('.json', ''))) await rm(`public/data/tiles/${f}`)
+for (const f of await readdir('public/data/tiles')) if (!f.endsWith('.bin') || !tiles.has(f.replace('.bin', ''))) await rm(`public/data/tiles/${f}`)
+// kafle binarne (src/world/tilecodec.ts), współrzędne względem rogu kafla
 let bytes = 0
 for (const [k, t] of tiles) {
-  const json = JSON.stringify(t)
-  bytes += json.length
-  await writeFile(`public/data/tiles/${k}.json`, json)
+  const [i, j] = k.split('_').map(Number)
+  const bin = encodeTile(t, MINX + i * TILE, MINY + j * TILE)
+  bytes += bin.length
+  await writeFile(`public/data/tiles/${k}.bin`, bin)
 }
+// szkoły-punkty: addPoi potrzebuje geometrii, więc punkt zamieniamy na jednopunktową linię
+for (const el of rawSchools) {
+  const t = el.tags || {}
+  if (el.type === 'node' && el.lat != null) addPoi({ ...el, type: 'way', geometry: [{ lat: el.lat, lon: el.lon! }] }, t)
+  else addPoi(el, t)
+}
+
 const meta: WorldMeta = {
   origin: out.origin, bounds: out.bounds, tile: TILE,
   tiles: [...tiles.entries()].map(([k, t]) => ({ k, n: t.buildings.length })),

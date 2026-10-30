@@ -6,6 +6,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { createInterface } from 'node:readline'
 import type { TramSchedule } from '../src/types/world.ts'
 import type { WorldMeta } from '../src/types/world.ts'
+import { decodeTile } from '../src/world/tilecodec.ts'
 
 const DIR = 'data/gtfs'
 if (!existsSync(`${DIR}/trips.txt`)) throw new Error('brak data/gtfs — uruchom najpierw npm run fetch-gtfs')
@@ -87,8 +88,8 @@ interface Seg { ax: number; ay: number; bx: number; by: number; z: number }
 const CELL = 50
 const grid = new Map<string, Seg[]>()
 for (const t of meta.tiles) {
-  const tile = JSON.parse(await readFile(`public/data/tiles/${t.k}.json`, 'utf8'))
-  for (const tr of tile.trams as { p: number[]; b?: 1 }[]) {
+  const tile = decodeTile(await readFile(`public/data/tiles/${t.k}.bin`))
+  for (const tr of tile.trams) {
     for (let i = 0; i + 3 < tr.p.length; i += 2) {
       const sg: Seg = { ax: tr.p[i], ay: tr.p[i + 1], bx: tr.p[i + 2], by: tr.p[i + 3], z: tr.b ? 1.2 : 0.2 }
       const x0 = Math.floor(Math.min(sg.ax, sg.bx) / CELL), x1 = Math.floor(Math.max(sg.ax, sg.bx) / CELL)

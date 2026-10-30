@@ -6,7 +6,23 @@ const lambert = (color: string) => new THREE.MeshLambertMaterial({ color })
 
 function structureMesh(s: Structure) {
   let m: THREE.Object3D
-  if (s.k === 'needle') {
+  if (s.k === 'light') {
+    // jupiter: kratowy maszt i bateria reflektorów zwrócona do boiska
+    const g = new THREE.Group()
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.6, s.H, 4), lambert('#a4a9bd'))
+    pole.position.y = s.H / 2
+    const head = new THREE.Group()
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.2, 6, 10), lambert('#565a75'))
+    const lamps = new THREE.Mesh(new THREE.BoxGeometry(0.3, 5, 9), new THREE.MeshBasicMaterial({ color: '#fff4c2' }))
+    lamps.position.x = 0.7
+    lamps.userData.lamp = true
+    head.add(frame, lamps)
+    head.position.y = s.H
+    // pochylenie w dół, w stronę środka stadionu
+    head.rotation.set(0, -(s.az ?? 0), -0.35)
+    g.add(pole, head)
+    m = g
+  } else if (s.k === 'needle') {
     // iglica: smukły stożek (np. Iglica przy Hali Stulecia)
     m = new THREE.Mesh(new THREE.ConeGeometry(Math.max(s.r, 1.2), s.H, 6), lambert('#cfd2dc'))
     m.position.y = s.H / 2

@@ -73,12 +73,13 @@ export interface World {
   stadiums: (Poly & { n?: string })[]
 }
 
-// Zawartość jednego kafla public/data/tiles/I_J.json
+// Zawartość jednego kafla public/data/tiles/I_J.bin (format binarny: src/world/tilecodec.ts)
 export type TileData = Pick<World, 'buildings' | 'water' | 'green' | 'plazas' | 'roads' | 'rails' | 'trams' | 'trees'>
 
 // public/data/meta.json: wszystko, co nie jest kaflowane
 // Konstrukcje, które nie są budynkami: wieże, maszty, iglice, wieże ciśnień.
-export interface Structure { x: number; y: number; H: number; r: number; k: 'needle' | 'tower' | 'mast' | 'water'; n?: string; yr?: number }
+// k: 'light' = maszt oświetleniowy (jupiter), az = kierunek reflektorów [rad]
+export interface Structure { x: number; y: number; H: number; r: number; k: 'needle' | 'tower' | 'mast' | 'water' | 'light'; n?: string; yr?: number; az?: number }
 // Kolej linowa: trasa i słupy (x, y, wysokość)
 export interface Aerialway { p: Flat; pylons: [number, number, number][]; n?: string; yr?: number }
 

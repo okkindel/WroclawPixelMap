@@ -1,8 +1,8 @@
 // Service worker „Wrocław w pikselach”.
 // index.html (nawigacja): network-first z kopią offline.
-// Dane (data/**/*.json), assety builda, ikony i fonty: stale-while-revalidate (z cache od razu, w tle odświeżenie).
+// Dane (data/**/*.json, kafle data/tiles/*.bin), assety builda, ikony i fonty: stale-while-revalidate (z cache od razu, w tle odświeżenie).
 // Zmiana VERSION czyści stare cache przy aktywacji.
-const VERSION = 'v1'
+const VERSION = 'v2'
 const PAGES = `wpm-pages-${VERSION}`
 const STATIC = `wpm-static-${VERSION}`
 const KEEP = [PAGES, STATIC]
@@ -28,7 +28,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url)
   if (req.mode === 'navigate') return e.respondWith(networkFirst(req))
   const local = url.origin === location.origin && url.pathname.startsWith(new URL(self.registration.scope).pathname)
-  if ((local && /\.(json|js|css|png|svg|webp|jpg|woff2?|webmanifest)$/.test(url.pathname)) || FONTS.test(req.url)) {
+  if ((local && /\.(json|bin|js|css|png|svg|webp|jpg|woff2?|webmanifest)$/.test(url.pathname)) || FONTS.test(req.url)) {
     if (local && url.pathname.endsWith('/sw.js')) return
     e.respondWith(staleWhileRevalidate(req, e))
   }
