@@ -7,6 +7,7 @@ import type { Neons } from '../layers/neons.ts'
 import type { Timetable } from '../life/timetable.ts'
 import type { Scenes } from '../scenes/index.ts'
 import { openPopup } from '../ui/popup.ts'
+import { wikiInfo } from './wiki.ts'
 import type { Tiles } from '../world/tiles.ts'
 import type { Building } from '../types/world.ts'
 import { byId } from '../ui/dom.ts'
@@ -29,6 +30,8 @@ export interface Pickables {
   onDwarf: (i: number) => void
   // scena podświetlenia filtra pikselowego (PixelPass.highlight)
   highlight: THREE.Scene
+  // adres artykułu Wikipedii dla budynku o danej nazwie i położeniu
+  wikiFor: (name: string, x: number, y: number) => string | undefined
 }
 
 export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: Pickables) {
@@ -147,7 +150,9 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
       const sub = [b.y && t('building.built', { y: b.y }), `${Math.round(b.H)} m`].filter(Boolean).join(' · ')
       const name = b.n
       const shape = buildingShape(b)
-      return { open: () => openPopup({ title: name, sub }), shape: () => shape }
+      // opis i zdjęcie z Wikipedii, jeśli obiekt o tej nazwie w pobliżu ma artykuł
+      const open = async () => openPopup({ title: name, sub, ...(await wikiInfo(p.wikiFor(name, b.o[0], b.o[1]))) })
+      return { open, shape: () => shape }
     }
     return null
   }

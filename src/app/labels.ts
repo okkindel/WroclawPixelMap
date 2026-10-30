@@ -8,6 +8,7 @@ import type { PoiKind, WorldMeta } from '../types/world.ts'
 import { openPopup } from '../ui/popup.ts'
 import { byId } from '../ui/dom.ts'
 import { showEgg, showLandmark, showNeon, showTrivia } from './popups.ts'
+import { wikiInfo } from './wiki.ts'
 
 // minimalne przybliżenie, od którego widać napis
 // (z daleka widać główny napis uczelni; ciekawostki o uczelniach i jej jednostki dopiero z bliska)
@@ -33,14 +34,6 @@ const UNIVERSITY = /^(Uniwersytet|Politechnika|Akademia|Szkoła Wyższa|Wyższa 
 // obiekt 'edu', który jest szkołą, a nie uczelnią: tylko z bliska, z podtytułem „Szkoła”
 const SCHOOL = /Liceum|Szkoła|Technikum|Gimnazjum|Zespół Szkół/i
 
-interface WikiEntry { pl?: string; en?: string; img?: string; credit?: string }
-let wikiCache: Promise<Record<string, WikiEntry>> | null = null
-const wikiData = (): Promise<Record<string, WikiEntry>> =>
-  (wikiCache ??= fetch(`${import.meta.env.BASE_URL}data/wiki.json`)
-    .then((r): Promise<Record<string, WikiEntry>> => (r.ok ? r.json() : Promise.resolve({})))
-    .catch(() => ({})))
-
-const wikiLabel = (href: string) => (href.includes('wikipedia') ? 'Wikipedia' : 'Wikidata')
 
 export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record<string, 1 | 2>, eggs: Egg[], trivia: Trivia[]) {
   const labels = new Labels(byId('pins'), landmarks, rank, showLandmark)
@@ -89,13 +82,9 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
       : church ? POI_MIN_ZOOM.church
       : poiRank === 1 || university ? POI_MIN_ZOOM.famous
       : POI_MIN_ZOOM.other
-    const link = wiki ? { href: wiki, label: wikiLabel(wiki) } : undefined
     const sub = school ? t('poi.school') : poiSub[kind]
     // opis i zdjęcie z Wikipedii (public/data/wiki.json), jeśli są; wczytywane leniwie przy pierwszym kliknięciu
-    const onClick = async () => {
-      const w = wiki ? (await wikiData())[wiki] : undefined
-      openPopup({ title: name, sub, link, text: w?.[lang()] ?? w?.pl ?? w?.en, img: w?.img, credit: w?.credit })
-    }
+    const onClick = async () => openPopup({ title: name, sub, ...(await wikiInfo(wiki)) })
     // uczelnie i szkoły jak napisy uczelni z ciekawostek (niebieskie, z czapką)
     const cls = church ? 'poi church' : kind === 'edu' ? 'uni' : `poi poi-${kind}`
     labels.addLabel(name, lat, lon, minZoom, onClick, cls, poiFrom(kind), university ? 'unis' : 'pois')
