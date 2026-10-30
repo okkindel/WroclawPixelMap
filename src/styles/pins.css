@@ -1,0 +1,125 @@
+/* --- napisy na mapie --- */
+#pins {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+
+  .label,
+  .egg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: auto;
+    border: 0;
+    white-space: nowrap;
+  }
+
+  .label {
+    font: 16px var(--head);
+    color: var(--ink);
+    background: var(--paper);
+    padding: 1px 5px;
+    box-shadow:
+      0 0 0 1px var(--ink),
+      2px 2px 0 1px var(--ink);
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -9px;
+      margin-left: -4px;
+      border: 4px solid transparent;
+      border-bottom: 0;
+      border-top-color: var(--ink);
+    }
+    &.poi {
+      font-size: 13px;
+    }
+    &.poi-mall {
+      background: var(--gold);
+    }
+    &.church {
+      background: #8a3b2a;
+      color: var(--paper);
+    }
+    &.church::before {
+      content: "✝ ";
+    }
+    &.uni {
+      background: var(--odra);
+      color: var(--paper);
+      font-size: 13px;
+    }
+    &.uni::before {
+      content: "🎓 ";
+    }
+  }
+
+  .egg {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--paper);
+    /* skrót font ustawia też line-height (normal); wcześniejsze line-height: 1 i tak nie działało */
+    font: 18px var(--head);
+    box-shadow:
+      0 0 0 2px var(--paper),
+      2px 2px 0 2px var(--ink);
+    animation: bob 1.8s ease-in-out infinite;
+
+    &.cult {
+      background: var(--gold);
+      color: var(--ink);
+    }
+    &.neon {
+      background: #2f6fa8;
+      box-shadow:
+        0 0 0 2px var(--paper),
+        0 0 8px 2px #8fc1e3;
+    }
+    /* gwiazdka rysowana kształtem (znak z fontu pikselowego jest przesunięty) */
+    &.cult::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      background: var(--ink);
+      clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+  }
+
+  .place {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    white-space: nowrap;
+    font: 26px var(--head);
+    color: var(--paper);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow:
+      2px 0 var(--ink),
+      -2px 0 var(--ink),
+      0 2px var(--ink),
+      0 -2px var(--ink),
+      3px 3px var(--ink);
+  }
+  .place-1 {
+    font-size: 20px;
+  }
+  .place-2 {
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+}
+@keyframes bob {
+  50% {
+    margin-top: -5px;
+  }
+}

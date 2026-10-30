@@ -1,0 +1,91 @@
+/* --- okienka --- */
+#popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, calc(100vw - 32px));
+  max-height: 80vh;
+  overflow: auto;
+  padding: 16px 18px;
+  z-index: 10;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+
+  h2 {
+    font: 23px var(--head);
+    color: var(--red);
+    margin: 0 26px 4px 0;
+  }
+  .sub {
+    font: 16px var(--head);
+    color: var(--odra);
+    margin-bottom: 8px;
+  }
+  .photo {
+    margin: 8px 0;
+  }
+  img {
+    max-width: 100%;
+    max-height: 240px;
+    display: block;
+    margin-bottom: 8px;
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  a {
+    color: var(--odra);
+    font-weight: 600;
+  }
+  .credit {
+    display: block;
+    margin: -4px 0 8px;
+    font-size: 11px;
+    color: var(--ink2);
+  }
+  /* szkielet zdjęcia do czasu wczytania: pole w kolorze papieru z przesuwającym się jaśniejszym pasem (skokowo, jak piksele) */
+  .photo.loading {
+    height: 180px;
+    box-shadow: 0 0 0 2px var(--ink);
+    background: linear-gradient(90deg, var(--paper2) 0 35%, var(--paper) 35% 50%, var(--paper2) 50%) 0 0 / 300% 100%;
+    animation: skeleton 1.2s steps(12) infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+
+    > * {
+      display: none;
+    }
+  }
+  .close {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: none;
+    border: 0;
+    font-size: 24px;
+    color: var(--ink2);
+  }
+}
+@keyframes skeleton {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* --- komunikat u góry ekranu --- */
+#toast {
+  position: fixed;
+  left: 50%;
+  top: 70px;
+  transform: translateX(-50%);
+  background: var(--red);
+  color: var(--paper);
+  font: 18px var(--head);
+  padding: 8px 14px;
+  box-shadow: var(--shadow);
+  z-index: 20;
+}

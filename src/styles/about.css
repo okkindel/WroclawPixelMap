@@ -1,0 +1,48 @@
+/* --- okno „O mapie” --- */
+#about {
+  width: min(560px, calc(100vw - 32px));
+  max-height: 80vh;
+  padding: 16px 20px;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+
+  &::backdrop {
+    background: rgb(29 35 64 / 0.5);
+  }
+  h2 {
+    font: 26px var(--head);
+    color: var(--red);
+    margin: 0 0 6px;
+  }
+  h3 {
+    font: 17px var(--head);
+    color: var(--odra);
+    text-transform: uppercase;
+    margin: 14px 0 4px;
+  }
+  ul {
+    padding-left: 18px;
+    margin: 0;
+  }
+  li {
+    margin: 4px 0;
+  }
+  a {
+    color: var(--odra);
+  }
+  .version {
+    font-size: 12px;
+    color: var(--ink2);
+  }
+  .close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    background: none;
+    border: 0;
+    font-size: 24px;
+    color: var(--ink2);
+  }
+}

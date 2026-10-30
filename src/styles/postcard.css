@@ -1,0 +1,121 @@
+/* --- flagi epok (na znaczku pocztówki) --- */
+.flag {
+  display: inline-block;
+  width: 30px;
+  height: 20px;
+  border: 2px solid var(--ink);
+  flex: none;
+}
+.flag-pl,
+.flag-prl {
+  background: linear-gradient(#f4f1e6 50%, #c8312f 50%);
+}
+/* biały lew na czerwieni */
+.flag-cz {
+  background: radial-gradient(circle at 50% 50%, #f4f1e6 28%, #c8312f 30%);
+}
+.flag-hab {
+  background: linear-gradient(#e3b341 50%, #1d2340 50%);
+}
+.flag-pru {
+  background: linear-gradient(#1d2340 50%, #f4f1e6 50%);
+}
+.flag-de {
+  background: linear-gradient(#1d2340 33%, #f4f1e6 33% 66%, #c8312f 66%);
+}
+
+/* --- pocztówka z epoką: stempel, znaczek i przycisk zwijania --- */
+.postmark {
+  display: flex;
+  gap: 8px;
+  font: 16px var(--head);
+  color: var(--ink2);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+
+  span + span::before {
+    content: "· ";
+  }
+}
+.stamp {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  width: 64px;
+  padding: 6px 4px 4px;
+  background: var(--paper2);
+  text-align: center;
+  font: 20px var(--head);
+  color: var(--ink);
+  transform: rotate(4deg);
+  outline: 2px dotted var(--ink2);
+  outline-offset: -4px;
+
+  .flag {
+    display: block;
+    margin: 0 auto 4px;
+  }
+}
+.fold {
+  position: absolute;
+  left: 50%;
+  top: -14px;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 16px;
+  background: var(--paper);
+  border: 0;
+  box-shadow: var(--shadow);
+  font: 17px / 1 var(--head);
+}
+
+/* sama pocztówka; zwinięta chowa opis i nazwę państwa */
+.postcard {
+  position: fixed;
+  left: 14px;
+  bottom: 122px;
+  width: min(380px, calc(100vw - 28px));
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  padding: 14px 16px 12px;
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(100% - 4px), transparent 0);
+
+  @media (max-width: 760px) {
+    bottom: 104px;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px dashed color-mix(in srgb, var(--red) 35%, transparent);
+    margin: 5px;
+    pointer-events: none;
+  }
+  h1 {
+    font: 29px / 1.1 var(--head);
+    color: var(--red);
+    margin: 0 76px 4px 0;
+  }
+  .state {
+    font: 16px var(--head);
+    color: var(--odra);
+    text-transform: uppercase;
+  }
+  p {
+    margin: 8px 0 0;
+
+    @media (max-width: 760px) {
+      display: none;
+    }
+  }
+  &.folded {
+    p,
+    .state {
+      display: none;
+    }
+    .fold {
+      content: "+";
+    }
+  }
+}

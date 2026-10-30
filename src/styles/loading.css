@@ -1,0 +1,21 @@
+/* --- ekran wczytywania --- */
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 16px;
+  background: var(--paper);
+  font: 25px var(--head);
+  color: var(--red);
+  z-index: 30;
+
+  img {
+    image-rendering: pixelated;
+    animation: bob 1s ease-in-out infinite;
+  }
+  &.done {
+    display: none;
+  }
+}

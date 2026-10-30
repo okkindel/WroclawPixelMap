@@ -1,0 +1,126 @@
+/* --- szuflada ustawień --- */
+#drawer {
+  position: fixed;
+  top: 70px;
+  right: 14px;
+  width: 290px;
+  max-height: calc(100vh - 200px);
+  overflow: auto;
+  background: var(--paper);
+  box-shadow: var(--shadow);
+  padding: 4px 14px 12px;
+  z-index: 12;
+
+  @media (max-width: 760px) {
+    left: 14px;
+    right: 14px;
+    width: auto;
+  }
+
+  h2 {
+    font: 17px var(--head);
+    color: var(--red);
+    text-transform: uppercase;
+    margin: 12px 0 6px;
+    border-bottom: 2px solid var(--ink);
+  }
+}
+
+/* przełącznik segmentowy */
+.seg {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 6px;
+
+  button {
+    flex: 1;
+    background: var(--paper2);
+    border: 0;
+    padding: 6px 2px;
+    font: 16px var(--head);
+
+    &.on {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+}
+
+.slider {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+
+  input {
+    flex: 1;
+    accent-color: var(--red);
+  }
+  output {
+    font: 19px var(--head);
+    width: 28px;
+    text-align: right;
+  }
+}
+
+/* przełączniki warstw: wyłączona warstwa ma przekreśloną etykietę, sam checkbox jest ukryty */
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 6px 0;
+
+  label {
+    cursor: pointer;
+  }
+  input {
+    position: absolute;
+    opacity: 0;
+  }
+  span {
+    display: inline-block;
+    padding: 4px 8px;
+    font: 16px var(--head);
+    background: var(--paper2);
+    color: var(--ink2);
+    text-decoration: line-through;
+  }
+  input:checked + span {
+    background: var(--odra);
+    color: var(--paper);
+    text-decoration: none;
+  }
+  input:focus-visible + span {
+    outline: 2px solid var(--red);
+  }
+  /* znaczniki wyłączone głównym przełącznikiem (ich stan zostaje) */
+  input:disabled + span {
+    opacity: 0.45;
+    cursor: default;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+
+  button {
+    flex: 1;
+    background: var(--gold);
+    border: 0;
+    box-shadow: 0 0 0 2px var(--ink);
+    padding: 8px;
+    font: 16px var(--head);
+    text-transform: uppercase;
+  }
+}
+.hint,
+.credits {
+  font-size: 11px;
+  color: var(--ink2);
+  margin: 10px 0 0;
+}
+.credits a {
+  color: var(--odra);
+}
