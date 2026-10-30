@@ -3,7 +3,7 @@ import type { Epoch } from '../content/index.ts'
 import type { Season } from '../engine/sun.ts'
 import type { EpochScene } from '../history/epochs.ts'
 import type { Life } from '../life/life.ts'
-import { PIXEL_DEFAULT } from '../rules/render.ts'
+import { PIXEL_DEFAULT, PIXEL_MAX, PIXEL_MIN } from '../rules/render.ts'
 import type { PinGroup } from '../rules/labels.ts'
 import { SCENE_NAMES, type SceneName, type Scenes } from '../scenes/index.ts'
 import { oneOf } from '../ui/dom.ts'
@@ -40,10 +40,29 @@ export function initialState(epoch: Epoch): State {
     layers,
     hour: DEFAULT_HOUR,
     season: 'summer',
-    px: PIXEL_DEFAULT,
+    px: storedPixel(),
     life: null,
     scenes: null,
     forcedScenes: forcedScenesFromMenu(),
+  }
+}
+
+// Wielkość piksela wybrana suwakiem zapamiętana w przeglądarce (tryb oszczędny jej nie zmienia).
+const PIXEL_STORE = 'wpm.pixel'
+function storedPixel() {
+  try {
+    const v = Number(localStorage.getItem(PIXEL_STORE))
+    if (v >= PIXEL_MIN && v <= PIXEL_MAX) return v
+  } catch {
+    /* tryb prywatny */
+  }
+  return PIXEL_DEFAULT
+}
+export function savePixel(v: number) {
+  try {
+    localStorage.setItem(PIXEL_STORE, String(v))
+  } catch {
+    /* tryb prywatny */
   }
 }
 

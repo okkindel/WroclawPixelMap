@@ -12,7 +12,7 @@ import { initKeys } from './keys.ts'
 import { initPicking } from './picking.ts'
 import { showDwarf, showEgg } from './popups.ts'
 import { searchItems } from './search.ts'
-import type { App } from './state.ts'
+import { type App, savePixel } from './state.ts'
 
 export function initControls(app: App) {
   const { city, state, labels } = app
@@ -40,6 +40,7 @@ export function initControls(app: App) {
     season: (v) => applySeason(app, v),
     pixel: (v) => {
       state.px = v
+      savePixel(v)
       resize(app)
     },
     look: (opt, on) => {
@@ -53,6 +54,9 @@ export function initControls(app: App) {
     },
   })
   addEventListener('resize', () => resize(app))
+  // suwak piksela pokazuje zapamiętaną wartość
+  byId<HTMLInputElement>('pixel').value = String(state.px)
+  byId('pixel-v').textContent = String(state.px)
 
   // --- wersja w oknie „O mapie” (vite.config.ts) ---
   const v = __APP_VERSION__

@@ -18,5 +18,8 @@ export const SAVER_WINDOW_S = 4
 export const SAVER_MIN_FPS = 24
 // Wielkość piksela: domyślna i największa, do której schodzi tryb oszczędny.
 export const PIXEL_DEFAULT = 1.5
+// zakres suwaka wielkości piksela (index.html)
+export const PIXEL_MIN = 1
+export const PIXEL_MAX = 3
 export const PIXEL_SAVER_MAX = 3
 export const PIXEL_SAVER_STEP = 0.5
