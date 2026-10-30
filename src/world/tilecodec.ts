@@ -227,6 +227,13 @@ export function encodeTile(t: TileData, x0: number, y0: number): Uint8Array {
   return w.buf.slice(0, w.len)
 }
 
+// Pobranie i odczyt kafla; brak pliku albo błąd serwera to wyjątek (a nie np. strona HTML odczytana jako kafel).
+export async function loadTile(url: string): Promise<TileData> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`HTTP ${res.status}: ${url}`)
+  return decodeTile(await res.arrayBuffer())
+}
+
 export function decodeTile(buf: ArrayBuffer | Uint8Array): TileData {
   const r = new Reader(buf instanceof Uint8Array ? buf : new Uint8Array(buf))
   if (r.u() !== MAGIC) throw new Error('kafel: zły format')

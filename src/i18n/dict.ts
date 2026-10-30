@@ -88,6 +88,8 @@ export const PL = {
   'about.dwarfs': 'Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.',
   'about.monuments.html': 'Pomniki: dane z OpenStreetMap i Wikidanych; zdjęcia z Wikimedia Commons (autor i licencja przy zdjęciu).',
   'about.trivia': 'Ciekawostki: opracowanie własne na podstawie źródeł podanych przy każdej z nich.',
+  'about.wiki.html':
+    'Opisy miejsc: skróty artykułów z <a href="https://pl.wikipedia.org/" target="_blank" rel="noopener">Wikipedii</a> (link do artykułu w okienku), <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pl" target="_blank" rel="noopener">CC BY-SA 4.0</a>; zdjęcia z Wikimedia Commons.',
   'about.fonts': 'Fonty: VT323 i Work Sans (SIL Open Font License).',
   'about.inspirations': 'Inspiracje',
   'about.author.html':
@@ -231,6 +233,8 @@ export const EN: Record<Key, string> = {
   'about.monuments.html':
     'Monuments: data from OpenStreetMap and Wikidata; photos from Wikimedia Commons (author and licence shown with each photo).',
   'about.trivia': 'Trivia: our own write-ups based on the sources linked from each item.',
+  'about.wiki.html':
+    'Place descriptions: excerpts of <a href="https://en.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> articles (linked in each popup), <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>; photos from Wikimedia Commons.',
   'about.fonts': 'Fonts: VT323 and Work Sans (SIL Open Font License).',
   'about.inspirations': 'Inspirations',
   'about.author.html':

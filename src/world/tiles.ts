@@ -6,7 +6,7 @@ import { buildBuildings, type BuildOpts } from './buildings.ts'
 import { buildGround } from './ground.ts'
 import { buildTrees, recolorTrees } from './trees.ts'
 import { unpack, type Packed } from './packed.ts'
-import { decodeTile } from './tilecodec.ts'
+import { loadTile } from './tilecodec.ts'
 
 // progi uproszczonych brył (z histerezą) i budżet przebudowy na klatkę
 import { LOD_BUDGET, LOD_IN, LOD_OUT } from '../rules/render.ts'
@@ -78,17 +78,23 @@ export class Tiles {
     const run = async (w: Worker | null) => {
       for (let t = queue.shift(); t; t = queue.shift()) {
         const seed = this.seeds++ * 100003
-        if (w && this.defaultOpts) {
-          const key = t.k
-          const msg = await new Promise<WorkerResult>((resolve) => {
-            w.onmessage = (e) => resolve(e.data)
-            w.postMessage({ url: url(key), key, seed })
-          })
-          this.add(key, msg.data, seed, msg)
-        } else {
-          this.add(t.k, decodeTile(await (await fetch(url(t.k))).arrayBuffer()), seed)
-          // oddaj klatkę przeglądarce, żeby mapa rysowała się w trakcie wczytywania
-          await new Promise((r) => requestAnimationFrame(r))
+        // kafel, którego nie da się wczytać, pomijamy (dziura w mapie zamiast wiecznego „Wczytuję…”)
+        try {
+          if (w && this.defaultOpts) {
+            const key = t.k
+            const msg = await new Promise<WorkerResult>((resolve, reject) => {
+              w.onmessage = (e) => (e.data.error ? reject(new Error(e.data.error)) : resolve(e.data))
+              w.onerror = (e) => reject(new Error(e.message))
+              w.postMessage({ url: url(key), key, seed })
+            })
+            this.add(key, msg.data, seed, msg)
+          } else {
+            this.add(t.k, await loadTile(url(t.k)), seed)
+            // oddaj klatkę przeglądarce, żeby mapa rysowała się w trakcie wczytywania
+            await new Promise((r) => requestAnimationFrame(r))
+          }
+        } catch (err) {
+          console.warn(`kafel ${t.k} pominięty:`, err)
         }
         onProgress(++done, this.meta.tiles.length)
       }

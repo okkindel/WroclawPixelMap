@@ -8,7 +8,7 @@ import type { PoiKind, WorldMeta } from '../types/world.ts'
 import { openPopup } from '../ui/popup.ts'
 import { byId } from '../ui/dom.ts'
 import { showEgg, showLandmark, showNeon, showTrivia } from './popups.ts'
-import { CULT_FROM, POI_DEDUP_RADIUS, STADIUM_MIN_ZOOM, UNI_TRIVIA_MIN_ZOOM, firstWord, poiFrom, poiLabelRule } from '../rules/labels.ts'
+import { CULT_FROM, POI_DEDUP_RADIUS, STADIUM_MIN_ZOOM, UNI_TRIVIA_MIN_ZOOM, poiFrom, poiLabelRule, sameName } from '../rules/labels.ts'
 import { wikiInfo } from './wiki.ts'
 
 export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record<string, 1 | 2>, eggs: Egg[], trivia: Trivia[]) {
@@ -33,8 +33,8 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
   for (const [name, x, y, placeRank] of meta.places) labels.addPlace(name, x, y, placeRank)
 
   // rozpoznawalne obiekty z OSM (galerie, teatry, kościoły, obiekty z Wikidaty), bez dublowania zabytków z listy
-  // zabytki z listy: pozycja i pierwsze znaczące słowo nazwy (do wykrywania duplikatów z OSM)
-  const landmarkXY = landmarks.map((l) => [...toLocal(l.lat, l.lon), firstWord(l.name)] as const)
+  // zabytki z listy: pozycja i nazwa (do wykrywania duplikatów z OSM)
+  const landmarkXY = landmarks.map((l) => [...toLocal(l.lat, l.lon), l.name] as const)
   const poiSub: Record<PoiKind, string> = {
     mall: t('poi.mall'),
     culture: t('poi.culture'),
@@ -46,7 +46,7 @@ export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record
   }
   for (const [name, x, y, kind, poiRank, wiki, from] of meta.pois) {
     // duplikat zabytku z listy (src/rules/labels.ts)
-    if (landmarkXY.some(([lx, ly, w]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && w === firstWord(name))) continue
+    if (landmarkXY.some(([lx, ly, n]) => Math.hypot(lx - x, ly - y) < POI_DEDUP_RADIUS && sameName(n, name))) continue
     const [lat, lon] = toLatLon(x, y)
     const church = kind === 'church'
     const { minZoom, university, school } = poiLabelRule(name, kind, poiRank)

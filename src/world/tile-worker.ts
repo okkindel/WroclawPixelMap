@@ -2,11 +2,20 @@
 import { buildBuildings } from './buildings.ts'
 import { buildGround } from './ground.ts'
 import { pack, transfers } from './packed.ts'
-import { decodeTile } from './tilecodec.ts'
+import type { TileData } from '../types/world.ts'
+import { loadTile } from './tilecodec.ts'
 
+// Błąd (brak pliku, zły format) wraca jako { key, error }, żeby wczytywanie mapy nie czekało w nieskończoność.
 self.onmessage = async (e: MessageEvent<{ url: string; key: string; seed: number }>) => {
   const { url, key, seed } = e.data
-  const data = decodeTile(await (await fetch(url)).arrayBuffer())
+  try {
+    build(key, await loadTile(url), seed)
+  } catch (err) {
+    self.postMessage({ key, error: String(err) })
+  }
+}
+
+function build(key: string, data: TileData, seed: number) {
   const g = buildGround(data)
   const out = {
     key,

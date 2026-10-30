@@ -64,7 +64,7 @@ reguły przeglądarki w `src/rules/`. Zmiana progu = zmiana w jednym miejscu (i 
 | Jednostki uczelni | Wydział, Instytut, Katedra, Kampus… tylko z bliska | tłok napisów na kampusach | „Katedra” u świątyń to kościół, nie jednostka | `poiLabelRule` (`UNIT`) |
 | Uczelnie główne | Uniwersytet, Politechnika, Akademia… zawsze z daleka, grupa „unis” | punkt orientacyjny | — | `UNIVERSITY` |
 | Szkoły | Liceum, Technikum… z bliska, podtytuł „Szkoła” | to nie uczelnie | — | `SCHOOL` |
-| Deduplikacja z zabytkami | POI < 150 m od zabytku z listy i z tym samym pierwszym słowem → pomijany | „Hala Targowa” jest już na liście | sąsiad o innej nazwie zostaje („Pasaż” vs „Plac Grunwaldzki”) | `POI_DEDUP_RADIUS`, `firstWord` |
+| Deduplikacja z zabytkami | POI < 150 m od zabytku z listy, gdy znaczące słowa jednej nazwy zawierają się w drugiej („NMP” = „Najświętszej Marii Panny”, bez „św.”, „pw.”, „Wrocław”) → pomijany | „Hala Targowa” jest już na liście | sąsiad o innej nazwie zostaje („Kamienica Pod Złotym Słońcem” obok „Pod Gryfami”) | `POI_DEDUP_RADIUS`, `sameName` |
 | Od kiedy POI | `start_date` z OSM; bez niego galerie od 2000, świątynie zawsze, reszta od 1950 | funkcje współczesne; większość galerii we Wrocławiu to lata 2001–2007 | — | `poiFrom` |
 | Rok zabytku | pierwszy rok z opisu albo środek wieku (XIII w. / 13th c. → 1250) | napis znika w epokach sprzed budowy | — | `yearOf` |
 | Ranga zabytku | ranga 1 od zoomu 0, ranga 2 od 0.9, reszta od 1.6 | z daleka tylko ikony miasta | — | `landmarkMinZoom` |

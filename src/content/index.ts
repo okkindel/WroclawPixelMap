@@ -34,7 +34,7 @@ export const epochs = (): Epoch[] =>
   }))
 
 export const landmarks = (): Landmark[] =>
-  LANDMARKS.map(({ lat, lon, year, [lang()]: l }) => ({ name: l.name, lat, lon, year: (year ?? l.year)!, text: l.text }))
+  LANDMARKS.map(({ lat, lon, year, [lang()]: l }) => ({ name: l.name, lat, lon, year: year ?? l.year, text: l.text }))
 
 // Napisy widoczne z daleka (ranga 1) i przy średnim przybliżeniu (ranga 2), kluczami są nazwy w bieżącym języku.
 export const landmarkRank = (): Record<string, 1 | 2> =>

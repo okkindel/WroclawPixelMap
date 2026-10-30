@@ -9,7 +9,8 @@ export const landmarkMinZoom = (rank: 1 | 2 | undefined) => (rank === 1 ? 0 : ra
 export const SACRED = /Kości|Katedr|Kolegiat|Synagog|Cerkiew|Kaplic|Church|Cathedral|Collegiate|Synagogue|Chapel/
 
 // Rok z opisu zabytku (od kiedy pokazywać napis): pierwszy czterocyfrowy rok albo wiek (XIII w. / 13th c. → 1250, środek wieku).
-export function yearOf(text: string): number | undefined {
+export function yearOf(text: string | undefined): number | undefined {
+  if (!text) return undefined
   const y = text.match(/\d{4}/)
   if (y) return +y[0]
   // angielskie „14th c.”
@@ -45,11 +46,43 @@ export const CULT_FROM = 1950
 // ---------- obiekty z OSM (POI) ----------
 
 export const POI_MIN_ZOOM = { church: 1.5, famous: 0.3, other: 1.2, unit: 2.2, school: 1.5 }
-// Obiekt z OSM bliżej zabytku z listy niż tyle metrów i z tym samym pierwszym słowem nazwy to ten sam obiekt
+// Obiekt z OSM bliżej zabytku z listy niż tyle metrów i o tej samej nazwie (sameName) to ten sam obiekt
 // (np. „Hala Targowa”), a nie tylko sąsiad („Pasaż Grunwaldzki” obok „Plac Grunwaldzki”).
 export const POI_DEDUP_RADIUS = 150
-// pierwsze słowo nazwy bez polskich znaków, małymi literami
-export const firstWord = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').split(/[\s(]/)[0]
+// słowa bez znaczenia przy porównaniu nazw; „NMP” = „Najświętszej Marii Panny”
+const NAME_STOP = new Set([
+  'pw',
+  'sw',
+  'swietego',
+  'swietej',
+  'swietych',
+  'najswietszego',
+  'najswietszej',
+  'i',
+  'na',
+  'pod',
+  'we',
+  'w',
+  'wroclaw',
+  'wroclawiu',
+])
+const nameWords = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ł/g, 'l')
+    .replace(/\bnmp\b/g, 'marii panny')
+    .split(/[^a-z0-9]+/)
+    .filter((w) => w && !NAME_STOP.has(w))
+// ta sama nazwa: znaczące słowa jednej zawierają się w drugiej („Kościół NMP na Piasku” i „Kościół Najświętszej Marii Panny
+// na Piasku”, „Dworzec Główny” i „Dworzec Wrocław Główny”), ale nie „Kamienica Pod Gryfami” i „Kamienica Pod Złotym Słońcem”
+export function sameName(a: string, b: string) {
+  const wa = nameWords(a),
+    wb = nameWords(b)
+  const within = (x: string[], y: string[]) => x.length > 0 && x.every((w) => y.includes(w))
+  return within(wa, wb) || within(wb, wa)
+}
 
 // Od kiedy pokazywać obiekt z OSM bez daty: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1950 r.
 export const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 2000 : kind === 'church' ? undefined : 1950)

@@ -1,7 +1,7 @@
 // Epoki: które budynki pokazać, jak je zmienić i co dobudować (mury, bastiony, pas startowy, powódź).
 // Rekonstrukcje są przybliżone: OSM zna rok budowy tylko części budynków.
 import * as THREE from 'three'
-import { bbox, distToPolyline, hash, pointInRing, toLocal } from '../engine/geo.ts'
+import { bbox, centroid, distToPolyline, hash, pointInRing, toLocal } from '../engine/geo.ts'
 import type { BuildOpts } from '../world/buildings.ts'
 import type { Building, Flat, World } from '../types/world.ts'
 import type { Epoch, Walls } from '../content/index.ts'
@@ -28,8 +28,14 @@ export interface EpochScene {
 
 const lambert = (color: string, extra: THREE.MeshLambertMaterialParameters = {}) => new THREE.MeshLambertMaterial({ color, ...extra })
 const toFlat = (pts: [number, number][]) => pts.flatMap(([lat, lon]) => toLocal(lat, lon))
-// punkt zaczepienia budynku: pierwszy wierzchołek obrysu (nie środek!)
-const anchor = (b: Building) => [b.o[0], b.o[1]] as const
+// Punkt budynku do testów „w murach”, „blisko centrum”, „przy pasie startowym”: środek obrysu
+// (pierwszy wierzchołek leży w dowolnym narożniku). Liczony raz na budynek, bo filtr epoki przechodzi po wszystkich.
+const mids = new WeakMap<Building, [number, number]>()
+const anchor = (b: Building) => {
+  let m = mids.get(b)
+  if (!m) mids.set(b, (m = centroid(b.o)))
+  return m
+}
 const RYNEK = { lat: 51.1099, lon: 17.0326 }
 
 // Pas muru wzdłuż polilinii: prostopadłościany na każdym odcinku + baszty co `every` metrów.
@@ -174,7 +180,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   const outer = closedRing(toFlat(walls.outer))
   const inner = closedRing(toFlat(walls.inner))
   const cityCenter = toLocal(RYNEK.lat, RYNEK.lon)
-  const inside = (ring: Flat, b: Building) => ring.length > 6 && pointInRing(b.o[0], b.o[1], ring)
+  const inside = (ring: Flat, b: Building) => ring.length > 6 && pointInRing(...anchor(b), ring)
 
   if (epoch.mode === 'walls' || epoch.mode === 'medieval') {
     const medieval = epoch.mode === 'medieval'
@@ -187,7 +193,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
         if (early) return false
         const town = inside(medieval ? inner : outer, b)
         if (town) return b.k === 'church' || b.H < (medieval ? WALLED_MAX_H.medieval : WALLED_MAX_H.fortress)
-        return !!b.y || (b.k === 'church' && Math.hypot(b.o[0] - cathedral[0], b.o[1] - cathedral[1]) < CATHEDRAL_RADIUS)
+        return !!b.y || (b.k === 'church' && Math.hypot(anchor(b)[0] - cathedral[0], anchor(b)[1] - cathedral[1]) < CATHEDRAL_RADIUS)
       },
       mod: (b) => (b.y ? undefined : { roof: b.k === 'church' ? undefined : '#b5523a' }),
     }
@@ -205,7 +211,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
 
   if (epoch.mode === 'festung') {
     const runway = world.runway ?? []
-    const nearRunway = (b: Building) => runway.some((p) => distToPolyline(b.o[0], b.o[1], p) < 70)
+    const nearRunway = (b: Building) => runway.some((p) => distToPolyline(...anchor(b), p) < 70)
     for (const p of runway) {
       const g = wallAlong(p, 70, 0.3, '#a4a9bd')
       extras.add(g)
@@ -247,4 +253,4 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   return { opts: { keep: (b) => (b.y ? b.y <= Y : !looksLaterThan(b, Y)) }, extras, update, life }
 }
 
-const near = (b: Building, [x, y]: [number, number], r: number) => Math.hypot(b.o[0] - x, b.o[1] - y) < r
+const near = (b: Building, [x, y]: [number, number], r: number) => Math.hypot(anchor(b)[0] - x, anchor(b)[1] - y) < r

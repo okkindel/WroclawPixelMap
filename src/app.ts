@@ -395,7 +395,7 @@ export async function startApp() {
     tiles.setZoom(camera.zoom)
     saver.tick(dt)
     if (timetable) {
-      timetable.mesh.visible = layers.trams && epoch.year >= SINCE.trams
+      timetable.mesh.visible = layers.trams && !!epochState?.life.trams
       if (timetable.mesh.visible) timetable.update(now)
     }
     dwarfs.setZoom(px / camera.zoom)

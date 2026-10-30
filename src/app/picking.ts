@@ -85,9 +85,19 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
   }
   // Budynek z częściami: dokładnie te trójkąty, z których jest narysowany (te same dachy i hełmy),
   // ze wszystkich brył o tej samej nazwie w pobliżu. Każdy trójkąt siatki kafla zna swój budynek (owners).
-  const buildingShape = (b: Building): THREE.Object3D[] => {
+  // Kształt liczony raz na budynek (najechanie odświeża się co HOVER_INTERVAL_MS); przy zmianie budynku
+  // własne bufory poprzedniego zwalniamy (kopie instancji i obiektów dzielą geometrię z oryginałem, ich nie).
+  let shapeOf: { b: Building; shape: THREE.Mesh[] } | null = null
+  const cachedBuildingShape = (b: Building) => {
+    if (shapeOf?.b !== b) {
+      for (const m of shapeOf?.shape ?? []) m.geometry.dispose()
+      shapeOf = { b, shape: buildingShape(b) }
+    }
+    return shapeOf.shape
+  }
+  const buildingShape = (b: Building): THREE.Mesh[] => {
     const [x, y] = [b.o[0], b.o[1]]
-    const out: THREE.Object3D[] = []
+    const out: THREE.Mesh[] = []
     for (const tile of p.tiles.list) {
       const mesh = tile.far ? tile.simple : tile.buildings
       const owners: Int32Array | undefined = mesh.geometry.userData.owners
@@ -167,7 +177,7 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     if (b?.n && (opener || b.y)) {
       const name = b.n,
         year = b.y
-      const shape = buildingShape(b)
+      const shape = cachedBuildingShape(b)
       const open = opener ?? (() => openPopup({ title: name, sub: t('building.built', { y: year! }) }))
       return { open, shape: () => shape }
     }

@@ -21,7 +21,8 @@ export interface Landmark {
   name: string
   lat: number
   lon: number
-  year: string
+  // brak = obiekt bez daty (np. wyspa): popup bez podtytułu, napis we wszystkich epokach
+  year?: string
   text: string
 }
 
