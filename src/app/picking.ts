@@ -1,5 +1,6 @@
 // Kliknięcia w mapę: krasnale, tramwaje z rozkładu, pomniki, neony, scenki, żużel i budynki (w tej kolejności).
 import * as THREE from 'three'
+import { bbox } from '../engine/geo.ts'
 import { t } from '../i18n/index.ts'
 import type { Dwarfs } from '../layers/dwarfs.ts'
 import type { Monuments } from '../layers/monuments.ts'
@@ -83,8 +84,6 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     while (top.parent && top.parent !== root) top = top.parent
     return () => objectCopy(top)
   }
-  // Budynek z częściami: dokładnie te trójkąty, z których jest narysowany (te same dachy i hełmy),
-  // ze wszystkich brył o tej samej nazwie w pobliżu. Każdy trójkąt siatki kafla zna swój budynek (owners).
   // Kształt liczony raz na budynek (najechanie odświeża się co HOVER_INTERVAL_MS); przy zmianie budynku
   // własne bufory poprzedniego zwalniamy (kopie instancji i obiektów dzielą geometrię z oryginałem, ich nie).
   let shapeOf: { b: Building; shape: THREE.Mesh[] } | null = null
@@ -95,21 +94,36 @@ export function initPicking(canvas: HTMLCanvasElement, camera: THREE.Camera, p: 
     }
     return shapeOf.shape
   }
+  // Bryły jednego budynku: o tej samej nazwie i stykające się ze sobą (część dotyka części), zaczynając od trafionej.
+  // Sama nazwa nie wystarcza: dwie różne kamienice przy Rynku potrafią nazywać się tak samo.
+  const TOUCH_M = 1
+  const sameBuilding = (b: Building) => {
+    const named = p.tiles.list.flatMap((t) =>
+      t.data.buildings.filter((o) => o.n === b.n && Math.hypot(o.o[0] - b.o[0], o.o[1] - b.o[1]) < 250),
+    )
+    const boxes = new Map(named.map((o) => [o, bbox(o.o)]))
+    const touch = (a: Building, c: Building) => {
+      const [ax0, ay0, ax1, ay1] = boxes.get(a)!,
+        [cx0, cy0, cx1, cy1] = boxes.get(c)!
+      return ax0 <= cx1 + TOUCH_M && cx0 <= ax1 + TOUCH_M && ay0 <= cy1 + TOUCH_M && cy0 <= ay1 + TOUCH_M
+    }
+    const group = new Set<Building>([b])
+    if (!boxes.has(b)) boxes.set(b, bbox(b.o))
+    for (const a of group) for (const c of named) if (!group.has(c) && touch(a, c)) group.add(c)
+    return group
+  }
+  // Dokładnie te trójkąty, z których budynek jest narysowany (te same dachy i hełmy). Każdy trójkąt siatki kafla zna swój budynek (owners).
   const buildingShape = (b: Building): THREE.Mesh[] => {
-    const [x, y] = [b.o[0], b.o[1]]
+    const group = sameBuilding(b)
     const out: THREE.Mesh[] = []
     for (const tile of p.tiles.list) {
       const mesh = tile.far ? tile.simple : tile.buildings
       const owners: Int32Array | undefined = mesh.geometry.userData.owners
       const pos = mesh.geometry.getAttribute('position')
       if (!owners || !pos) continue
-      const mine = (i: number) => {
-        const o = tile.data.buildings[owners[i]]
-        return !!o && o.n === b.n && Math.hypot(o.o[0] - x, o.o[1] - y) < 250
-      }
       const tris: number[] = []
       for (let f = 0; f < owners.length; f++) {
-        if (!mine(f)) continue
+        if (!group.has(tile.data.buildings[owners[f]])) continue
         for (let k = 0; k < 9; k++) tris.push(pos.array[f * 9 + k])
       }
       if (!tris.length) continue
