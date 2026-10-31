@@ -1,4 +1,5 @@
 // Przenosi stan (src/app/state.ts) na scenę: epoka, widoczność warstw, pora roku i rozmiar obrazu.
+import * as THREE from 'three'
 import { WALLS, type Epoch } from '../content/index.ts'
 import { C } from '../engine/palette.ts'
 import type { Season } from '../engine/sun.ts'
@@ -11,9 +12,20 @@ import { type App, PIN_GROUPS } from './state.ts'
 // Plan miasta pod epoką (gdy plany są włączone w menu).
 const planOf = (state: App['state'], year: number) => (state.layers.plans ? historyPlanFor(year) : null)
 
+// Dekoracje poprzedniej epoki (mury, dym, powódź): każda epoka buduje własne geometrie i materiały, więc po zdjęciu
+// ze sceny zwalniamy je z GPU.
+function disposeExtras(scene: THREE.Scene, extras: THREE.Object3D) {
+  scene.remove(extras)
+  extras.traverse((o) => {
+    if (!(o instanceof THREE.Mesh || o instanceof THREE.Points || o instanceof THREE.Line)) return
+    o.geometry.dispose()
+    for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose()
+  })
+}
+
 export function applyEpoch({ city, state }: App, e: Epoch) {
   state.epoch = e
-  if (state.epochState) city.scene.remove(state.epochState.extras)
+  if (state.epochState) disposeExtras(city.scene, state.epochState.extras)
   state.epochState = epochScene(e, city.world, WALLS)
   const plan = planOf(state, e.year)
   city.history.show(plan)

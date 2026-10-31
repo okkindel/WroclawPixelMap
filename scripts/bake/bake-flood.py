@@ -21,6 +21,8 @@ URL = 'https://wro.city/wp-content/uploads/2024/07/powodz{}.jpg'
 
 # lewy górny róg fragmentu w pikselach mozaiki
 OFFSET = {1: (0, 111), 2: (794, 0), 3: (31, 791), 4: (807, 800)}
+# wymiary fragmentów (szer., wys.), dla których wyznaczono OFFSET i T: inny plik dałby przesunięty zasięg
+SHAPE = {1: (806, 681), 2: (1091, 807), 3: (777, 838), 4: (1078, 833)}
 # piksel mozaiki -> metry lokalne (x = wschód, y = północ)
 T = np.array([[10.23429, 0.026005, -10490.74], [0.009383, -10.27368, 8383.59]])
 SIZE = (1885, 1633)
@@ -35,9 +37,14 @@ def fetch(i):
     if not os.path.exists(path):
         os.makedirs(SRC, exist_ok=True)
         req = urllib.request.Request(URL.format(i), headers={'User-Agent': 'WroclawPixelMap bake'})
-        with urllib.request.urlopen(req, timeout=60) as r, open(path, 'wb') as f:
+        # najpierw do pliku tymczasowego: przerwane pobieranie nie zostawia niepełnego obrazu
+        with urllib.request.urlopen(req, timeout=60) as r, open(path + '.part', 'wb') as f:
             f.write(r.read())
-    return np.array(Image.open(path).convert('RGB'))
+        os.replace(path + '.part', path)
+    im = Image.open(path)
+    if im.size != SHAPE[i]:
+        raise SystemExit(f'{path}: {im.size}, oczekiwano {SHAPE[i]}; georeferencja dotyczy innego obrazu')
+    return np.array(im.convert('RGB'))
 
 
 def mosaic():
@@ -46,8 +53,7 @@ def mosaic():
     for i in (1, 3, 2, 4):
         im = fetch(i)
         x, y = OFFSET[i]
-        h, w = min(im.shape[0], H - y), min(im.shape[1], W - x)
-        canvas[y:y + h, x:x + w] = im[:h, :w]
+        canvas[y:y + im.shape[0], x:x + im.shape[1]] = im
     return canvas
 
 
@@ -62,22 +68,25 @@ def flood_mask(im):
     m = cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((7, 7), np.uint8))
     # droga w środku zalania jest zalana, gdy woda stoi po obu jej stronach
     m[road & (cv2.morphologyEx(m, cv2.MORPH_CLOSE, np.ones((21, 21), np.uint8)) > 0)] = 255
-    px = abs(np.linalg.det(T[:, :2]))
-    n, lab, st, _ = cv2.connectedComponentsWithStats(m, connectivity=8)
-    keep = np.zeros(n, bool)
-    keep[1:] = st[1:, cv2.CC_STAT_AREA] * px >= SPECK_M2
-    m = keep[lab].astype(np.uint8) * 255
-    inv = 255 - m
-    n, lab, st, _ = cv2.connectedComponentsWithStats(inv, connectivity=4)
-    small = np.zeros(n, bool)
-    small[1:] = st[1:, cv2.CC_STAT_AREA] * px < HOLE_M2
-    m[small[lab]] = 255
-    # tylko obszar mapy (mozaika sięga dalej)
+    # najpierw tylko obszar mapy (mozaika sięga dalej), potem progi pól: plama ucięta brzegiem mapy też musi być duża,
+    # a sucha kieszeń przy brzegu łączy się z obszarem poza mapą i nie jest zalewana
     bx0, by0, bx1, by1 = json.load(open(os.path.join(REPO, 'data/plans/water-today.json')))['bounds']
     ys, xs = np.mgrid[0:m.shape[0], 0:m.shape[1]]
     X = xs * T[0, 0] + ys * T[0, 1] + T[0, 2]
     Y = xs * T[1, 0] + ys * T[1, 1] + T[1, 2]
     m[(X < bx0) | (X > bx1) | (Y < by0) | (Y > by1)] = 0
+    m = cv2.copyMakeBorder(m, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
+    px = abs(np.linalg.det(T[:, :2]))
+    n, lab, st, _ = cv2.connectedComponentsWithStats(m, connectivity=8)
+    keep = np.zeros(n, bool)
+    keep[1:] = st[1:, cv2.CC_STAT_AREA] * px >= SPECK_M2
+    m = keep[lab].astype(np.uint8) * 255
+    n, lab, st, _ = cv2.connectedComponentsWithStats(255 - m, connectivity=4)
+    small = np.zeros(n, bool)
+    small[1:] = st[1:, cv2.CC_STAT_AREA] * px < HOLE_M2
+    small[lab[0, 0]] = False  # obszar poza mapą
+    m[small[lab]] = 255
+    m = m[1:-1, 1:-1].copy()
     return m
 
 
@@ -89,7 +98,7 @@ def polygons(m):
         if hier[0][k][3] != -1:
             continue
         c = cv2.approxPolyDP(c, 1.0, True)
-        if len(c) < 3:
+        if len(c) < 3 or cv2.contourArea(c) * abs(np.linalg.det(T[:, :2])) < SPECK_M2:
             continue
         holes = []
         h = hier[0][k][2]

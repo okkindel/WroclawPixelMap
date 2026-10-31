@@ -112,53 +112,52 @@ def plan_water(pid):
 
 
 def join_at_edges(water, covers):
-    """Rzeka urwana na brzegu arkusza (plan rysuje dawne koryto, dalej dzisiejsze płynie gdzie indziej): duże kawałki wody,
-    których najbliższe punkty leżą przy brzegu któregoś arkusza i są bliżej niż JOIN_M m, łączymy kanałem o ich szerokości."""
+    """Rzeka urwana na brzegu arkusza (plan rysuje dawne koryto, dalej dzisiejsze płynie gdzie indziej): wydłużone koryto
+    leżące w całości w arkuszu, które kończy się przy jego brzegu, łączymy z najbliższą wodą sięgającą poza arkusze
+    (do JOIN_M m) kanałem o szerokości węższego z dwóch koryt."""
     s = WATER_M
+    inside_all = np.zeros_like(water, bool)
     edge_zone = np.zeros_like(water, bool)
     for cover in covers:
-        e = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
-        out = cv2.distanceTransform(np.pad(1 - cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
-        edge_zone |= ((cover > 0) & (e < EDGE_ZONE_M)) | ((cover == 0) & (out < JOIN_M))
-    n, lab, stats, _ = cv2.connectedComponentsWithStats(water, connectivity=8)
-    big = [k for k in range(1, n) if stats[k, cv2.CC_STAT_AREA] * s * s >= JOIN_MIN_M2]
-    width = cv2.distanceTransform(water, cv2.DIST_L2, 5)
-    pts = {}
-    for k in big:
-        ys, xs = np.nonzero((lab == k) & edge_zone)
-        if len(xs):
-            step = max(1, len(xs) // 4000)
-            pts[k] = np.stack([xs[::step], ys[::step]], -1)
-    # tylko koryto w całości w zasięgu arkusza (urwane na jego brzegu) z wodą sięgającą poza arkusz
-    inside_all = np.zeros_like(water, bool)
-    for cover in covers:
         inside_all |= cover > 0
-    outside_ids = set(np.unique(lab[(water > 0) & ~inside_all]).tolist())
-    # każde urwane koryto z planu łączymy raz, z najbliższą wodą spoza arkusza
-    inner_keys = [k for k in pts if k not in outside_ids]
-    outer_keys = [k for k in pts if k in outside_ids]
-    for a in inner_keys:
-        best = None
-        for b in outer_keys:
-            pa, pb = pts[a], pts[b]
-            if len(pa) * len(pb) > 4e7:
-                continue
-            d = np.hypot(pa[:, None, 0] - pb[None, :, 0], pa[:, None, 1] - pb[None, :, 1])
-            i, j = np.unravel_index(np.argmin(d), d.shape)
-            if best is None or d[i, j] < best[0]:
-                best = (d[i, j], pa[i], pb[j])
-        if best is None or best[0] * s > JOIN_M:
+        e = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
+        edge_zone |= (cover > 0) & (e < EDGE_ZONE_M)
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(water, connectivity=8)
+    width = cv2.distanceTransform(water, cv2.DIST_L2, 5)
+    outer = np.isin(lab, np.unique(lab[(water > 0) & ~inside_all])) & (water > 0)
+    if not outer.any():
+        return
+    # odległość każdego piksela do najbliższej wody spoza arkuszy i współrzędne tego punktu (dokładnie, bez próbkowania)
+    dist, near = cv2.distanceTransformWithLabels(np.where(outer, 0, 255).astype(np.uint8), cv2.DIST_L2, 5, labelType=cv2.DIST_LABEL_PIXEL)
+    oy, ox = np.nonzero(outer)  # etykiety DIST_LABEL_PIXEL numerują zera wierszami, od 1
+    for k in range(1, n):
+        comp = lab == k
+        if stats[k, cv2.CC_STAT_AREA] * s * s < JOIN_MIN_M2 or outer[comp].any():
             continue
-        _, (x1, y1), (x2, y2) = best
-        # połowa szerokości koryta w okolicy końca (na samym brzegu odległość od lądu jest bliska zera)
-        local = lambda x, y: float(width[max(0, y - 40) : y + 40, max(0, x - 40) : x + 40].max())
-        r = int(min(local(x1, y1), local(x2, y2)))
+        # koryto, a nie zamknięty staw: długość (pole / szerokość) kilka razy większa od szerokości
+        half = float(width[comp].max())
+        if stats[k, cv2.CC_STAT_AREA] / (2 * half) < 3 * 2 * half:
+            continue
+        cand = comp & edge_zone
+        if not cand.any():
+            continue
+        d = np.where(cand, dist, np.inf)
+        y1, x1 = np.unravel_index(np.argmin(d), d.shape)
+        if d[y1, x1] * s > JOIN_M:
+            continue
+        i = near[y1, x1] - 1
+        x2, y2 = int(ox[i]), int(oy[i])
+        # połowa szerokości koryta przy końcu, liczona tylko w obrębie danego koryta (nie sąsiedniej szerokiej rzeki)
+        def local(x, y, mask):
+            win = (slice(max(0, y - 40), y + 40), slice(max(0, x - 40), x + 40))
+            return float(np.where(mask[win], width[win], 0).max())
+        r = int(min(local(x1, y1, comp), local(x2, y2, lab == lab[y2, x2])))
         if r * s < JOIN_MIN_HALF_WIDTH_M:
             continue
         if os.environ.get('JOIN_DEBUG'):
             to_m = lambda x, y: (round(bx0 + x * s), round(by0 + H - y * s))
             print('  łączę', to_m(x1, y1), to_m(x2, y2), 'szerokość px', r)
-        cv2.line(water, (int(x1), int(y1)), (int(x2), int(y2)), 255, 2 * r)
+        cv2.line(water, (int(x1), int(y1)), (x2, y2), 255, 2 * r)
 
 
 def overlay(water, w, cover):

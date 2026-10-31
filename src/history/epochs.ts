@@ -83,12 +83,18 @@ function closedRing(p: Flat): Flat {
 }
 
 // Powódź 1997: zasięg zalania z mapy Urzędu Miejskiego (scripts/bake/bake-flood.py), półprzezroczysta woda 1.4 m nad
-// terenem. Wielokąty dochodzą asynchronicznie; do tego czasu grupa jest pusta.
+// terenem. Wielokąty pobierane raz na sesję; mesh dochodzi asynchronicznie, a gdy epoka zdążyła się zmienić
+// (grupa epoki zdjęta ze sceny), nie jest budowany.
 const FLOOD_Y = 1.4
+let floodPolys: Promise<Poly[] | null> | null = null
 function floodLayer() {
   const g = new THREE.Group()
-  loadJson<Poly[]>('history/flood1997.json').then((polys) => {
-    if (!polys) return
+  floodPolys ??= loadJson<Poly[]>('history/flood1997.json').then((polys) => {
+    if (!polys) floodPolys = null // błąd sieci: następna wizyta w epoce spróbuje ponownie
+    return polys
+  })
+  floodPolys.then((polys) => {
+    if (!polys || !g.parent?.parent) return
     const geo = new Geo()
     for (const p of polys) flatPoly(geo, p.o, p.h, 0, '#4b8bbf')
     const m = new THREE.Mesh(geo.build(), lambert('#ffffff', { vertexColors: true, transparent: true, opacity: 0.82 }))
