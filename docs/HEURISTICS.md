@@ -82,7 +82,7 @@ reguły przeglądarki w `src/rules/`. Zmiana progu = zmiana w jednym miejscu (i 
 | Wygląda na powojenne | > 35 m, albo > 17 m / handel / mieszkalny > 12 m bez starego dachu | przedwojenny Wrocław nie miał wysokościowców | kościoły nigdy; dachy dwuspadowe, mansardowe, hełmy = stare | `looksPostwar` |
 | Wygląda na późniejsze | szkło/lustro, biurowiec > 20 m albo > 4000 m² przed 2000; > 100 m przed 2010 | galerie i biurowce to głównie lata 2001–2010 (Dominikańska 2001, Arkady i Magnolia 2007); Sky Tower 2012 | kominy wyjątkiem; od 2020 bez filtra | `looksLaterThan` |
 | Kamienie milowe | kolej 1842, tramwaj 1877, auta 1925, stadion 1928, żużel 1988, krasnale 2001, „dziś” od 2020 | warstwy istnieją od tych lat | — | `SINCE` |
-| Plany historyczne | plan 1732 w epokach 1242–1807, plan 1895 w 1850–1945 (nad dzisiejszymi drogami i torami) | plan przybliża tylko swój okres; na planie 1895 ulice są prawie białe, więc przezroczysty jest tylko biały margines | plan 1895 ułożony z dokładnością ok. 10–30 m (składana mapa) | `HISTORY_PLANS`, `historyPlanFor` |
+| Plany historyczne | 1732 w 1242–1807, 1895 w 1850–1909, Pharus 1901–1914 w 1910–1944, plan z 1947 w 1945–1950 (w 1945 tylko podkład); w zasięgu planu łąka, woda z planu blisko jego zabudowy (dalej dzisiejsze rzeki), budynki bez daty tylko na zabudowie planu | każda epoka pokazuje układ miasta ze swojego czasu | plany ułożone z dokładnością ok. 5–30 m; kafle i maski: scripts/bake/bake-plans.py | `HISTORY_PLANS`, `historyPlanFor`, `MASK` |
 
 ## Wydajność (`src/rules/render.ts`)
 

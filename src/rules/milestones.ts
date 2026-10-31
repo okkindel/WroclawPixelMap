@@ -19,12 +19,15 @@ export const SINCE = {
 
 // Historyczne plany miasta pod dawnymi epokami (public/data/history, scripts/bake/bake-plans.py). Każda epoka od lokacji
 // do 1946 r. ma swój plan; w jego zasięgu ulice, woda i zabudowa są z planu, wokół łąka i dzisiejsze rzeki.
+// buildings: maska zabudowy planu decyduje, które budynki stoją (false: tylko podkład, budynki według reguł epoki).
 export const HISTORY_PLANS = [
-  { id: '1732', from: 1242, to: 1807 }, // plan twierdzy, Stare Miasto z przedmieściami (SLUB, CC BY-SA)
-  { id: '1895', from: 1850, to: 1909 }, // Neuer Plan der Stadt Breslau
-  { id: 'pharus1914', from: 1910, to: 1924 }, // Pharus-Plan Breslau 1901–1914
-  { id: 'pharus1925', from: 1925, to: 1945 }, // Pharus-Plan Breslau 1925 (Festung 1945: najpóźniejszy przedwojenny plan)
-  { id: 'plan1947', from: 1946, to: 1950 }, // Plan m. Wrocławia, 6 V 1947 (miasto po zniszczeniach)
+  { id: '1732', from: 1242, to: 1807, buildings: true }, // plan twierdzy, Stare Miasto z przedmieściami (SLUB, CC BY-SA)
+  { id: '1895', from: 1850, to: 1909, buildings: true }, // Neuer Plan der Stadt Breslau
+  { id: 'pharus1914', from: 1910, to: 1944, buildings: true }, // Pharus-Plan Breslau 1901–1914
+  // Plan m. Wrocławia, 6 V 1947. Pod Festung 1945 tylko podkład (ulice, woda): zabudowa z 1947 r. to już miasto po
+  // zniszczeniach, więc budynki 1945 r. zostają według reguł epoki.
+  { id: 'plan1947', from: 1945, to: 1945, buildings: false },
+  { id: 'plan1947', from: 1946, to: 1950, buildings: true },
 ] as const
 export type HistoryPlan = (typeof HISTORY_PLANS)[number]
 export const historyPlanFor = (year: number) => HISTORY_PLANS.find((p) => year >= p.from && year <= p.to) ?? null

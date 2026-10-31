@@ -3,13 +3,13 @@ import { WALLS, type Epoch } from '../content/index.ts'
 import { C } from '../engine/palette.ts'
 import type { Season } from '../engine/sun.ts'
 import { epochScene } from '../history/epochs.ts'
-import { SINCE } from '../rules/milestones.ts'
+import { SINCE, historyPlanFor } from '../rules/milestones.ts'
 import { centroid } from '../engine/geo.ts'
-import { HistoryLayer, MASK } from '../world/history.ts'
+import { MASK } from '../world/history.ts'
 import { type App, PIN_GROUPS } from './state.ts'
 
 // Plan miasta pod epoką (gdy plany są włączone w menu).
-const planOf = (state: App['state'], year: number) => (state.layers.plans ? HistoryLayer.planFor(year) : null)
+const planOf = (state: App['state'], year: number) => (state.layers.plans ? historyPlanFor(year) : null)
 
 export function applyEpoch({ city, state }: App, e: Epoch) {
   state.epoch = e
@@ -20,14 +20,16 @@ export function applyEpoch({ city, state }: App, e: Epoch) {
   // Budynki pod planem: w jego zasięgu budynek bez daty stoi tylko na zabudowie planu (nigdy w jego wodzie),
   // z datą tylko od roku budowy; poza zasięgiem planu reguły epoki (src/history/epochs.ts).
   const opts = state.epochState.opts
-  if (plan) {
+  if (plan?.buildings) {
     const rule = opts.keep
     const Y = e.year
+    // reguła epoki obowiązuje też w zasięgu planu (np. pas startowy Festung), plan tylko ją zawęża
+    const epochKeep = (b: Parameters<NonNullable<typeof rule>>[0], i: number) => (rule ? rule(b, i) : true)
     opts.keep = (b, i) => {
       const v = city.history.maskAt(...centroid(b.o))
-      if (v === undefined || v === MASK.outside) return rule ? rule(b, i) : true
-      if (b.y) return b.y <= Y && v !== MASK.water
-      return v === MASK.built
+      if (v === undefined || v === MASK.outside) return epochKeep(b, i)
+      if (b.y) return b.y <= Y && v !== MASK.water && epochKeep(b, i)
+      return v === MASK.built && epochKeep(b, i)
     }
   }
   // „dziś” = wygląd budowany w wątkach roboczych (bez filtrowania budynków)
@@ -41,13 +43,14 @@ export function applyLayers({ city, state, labels }: App) {
   const year = state.epoch.year
   // Dawny teren (przed lokacją i pod każdym planem): łąka zamiast dzisiejszych ulic, torów, mostów, placów i parków,
   // woda z planu zamiast dzisiejszej; zabudowę i ulice pokazuje plan. Wyłączone plany = dzisiejszy teren.
-  const plan = planOf(state, year)
-  const old = !!state.epochState?.wild || !!plan
+  // plan liczy się dopiero, gdy jest gotowy (woda i maska); do tego czasu dzisiejszy teren i woda
+  const plan = !!planOf(state, year) && city.history.ready
+  const old = !!state.epochState?.wild || plan
   if (life) {
-    life.layers.trams = layers.trams && !!state.epochState?.life.trams
-    life.layers.trains = layers.trains && year >= SINCE.railway
+    // tramwaje, pociągi i ludzie jeżdżą i chodzą po dzisiejszych torach i chodnikach: na łące ich nie ma
+    life.layers.trams = layers.trams && !!state.epochState?.life.trams && !old
+    life.layers.trains = layers.trains && year >= SINCE.railway && !old
     life.layers.cars = layers.cars && !!state.epochState?.life.cars
-    // ludzie chodzą po dzisiejszych chodnikach: gdy zamiast nich jest łąka, chowamy ich
     life.layers.people = layers.people && !old
     life.layers.birds = layers.birds
     life.layers.clouds = layers.clouds

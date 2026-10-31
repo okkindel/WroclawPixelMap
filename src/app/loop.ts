@@ -80,7 +80,7 @@ export function startLoop(app: App) {
     tiles.setZoom(camera.zoom)
     saver.tick(dt)
     if (timetable) {
-      timetable.mesh.visible = layers.trams && !!state.epochState?.life.trams
+      timetable.mesh.visible = layers.trams && !!state.epochState?.life.trams && !city.meadow.visible
       if (timetable.mesh.visible) timetable.update(now)
     }
     dwarfs.setZoom(state.px / camera.zoom)

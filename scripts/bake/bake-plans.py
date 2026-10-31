@@ -6,7 +6,7 @@
 #  - Woda epoki: woda z planu blisko jego zabudowy, dzisiejsze rzeki dalej; w pasie na granicy obie naraz,
 #    żeby rzeka nie urywała się na krawędzi arkusza.
 #  - Maska zabudowy (MASK_M m/px, cała mapa): 255 kwartał lub gmach z planu, 128 woda planu, 0 reszta zasięgu planu,
-#    1 poza planem. Aplikacja zostawia w zasięgu planu tylko budynki bez daty stojące na zabudowie (src/history/epochs.ts).
+#    1 poza planem. Aplikacja zostawia w zasięgu planu tylko budynki bez daty stojące na zabudowie (src/app/apply.ts).
 #
 # Klasy (classes/I_J.png): 0 poza planem, 1 ulica, 2 kwartał, 3 gmach, 4 woda, 5 zieleń, 6 ruiny.
 # Użycie: python3 scripts/bake/bake-plans.py   (potrzebuje numpy, opencv-python, pillow; najpierw node scripts/bake/export-water.ts)
@@ -23,7 +23,6 @@ PLANS = {  # rok, od którego w planie są kanały i porty (późniejsza woda z 
     '1732': {'late_water': False, 'trust': 200},  # arkusz kończy się tuż za miastem, odnogi urywają się na jego brzegu
     '1895': {'late_water': True},
     'pharus1914': {'late_water': True},
-    'pharus1925': {'late_water': True},
     'plan1947': {'late_water': True},
 }
 TILE_PX = 1000  # kafle źródłowe: 1 m/px
@@ -164,27 +163,30 @@ def bake(pid, spec):
     m = MASK_M
     mask = np.ones((H // m, W // m), np.uint8)
     cls_s = cv2.resize(cls, (W // m, H // m), interpolation=cv2.INTER_NEAREST)
+    # zabudowa poszerzona o piksel (budynki na granicy kwartału), ale tylko na lądzie w zasięgu planu
     built = cv2.dilate(((cls_s == BUILT_A) | (cls_s == BUILT_B)).astype(np.uint8), np.ones((3, 3), np.uint8))
     mask[cls_s != OUTSIDE] = 0
-    mask[(cls_s == WATER)] = 128
-    mask[built > 0] = 255
+    mask[(built > 0) & (cls_s != OUTSIDE) & (cls_s != WATER)] = 255
+    mask[cls_s == WATER] = 128
     Image.fromarray(mask).save(f'{dst}/built.png', optimize=True)
     size = sum(os.path.getsize(f'{dst}/{f}') for f in os.listdir(dst))
     print(f'{pid}: {len(tiles)} kafli, {size / 1e6:.1f} MB')
     return {'tiles': tiles, 'mask': m}
 
 
-index = {}
-for pid, spec in PLANS.items():
-    if len(sys.argv) > 1 and pid not in sys.argv[1:]:
-        old = json.load(open('public/data/history/index.json')) if os.path.exists('public/data/history/index.json') else {}
-        if pid in old:
-            index[pid] = old[pid]
-        continue
-    r = bake(pid, spec)
+# Wypieka wybrane plany (argumenty) albo wszystkie; wpisy niewybranych zostają w spisie, a katalogi planów spoza PLANS
+# są usuwane tylko przy pełnym przebiegu.
+OUT = 'public/data/history'
+os.makedirs(OUT, exist_ok=True)
+old = json.load(open(f'{OUT}/index.json')) if os.path.exists(f'{OUT}/index.json') else {}
+chosen = sys.argv[1:] or list(PLANS)
+index = {pid: old[pid] for pid in PLANS if pid not in chosen and pid in old}
+for pid in chosen:
+    r = bake(pid, PLANS[pid])
     if r:
         index[pid] = r
-for d in os.listdir('public/data/history'):
-    if os.path.isdir(f'public/data/history/{d}') and d not in index:
-        shutil.rmtree(f'public/data/history/{d}')
-json.dump({**index, '_': {'bounds': today['bounds'], 'tile': T}}, open('public/data/history/index.json', 'w'))
+if not sys.argv[1:]:
+    for d in os.listdir(OUT):
+        if os.path.isdir(f'{OUT}/{d}') and d not in PLANS:
+            shutil.rmtree(f'{OUT}/{d}')
+json.dump(index, open(f'{OUT}/index.json', 'w'))

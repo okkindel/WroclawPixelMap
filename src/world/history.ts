@@ -6,7 +6,7 @@
 import * as THREE from 'three'
 import { loadJson } from '../engine/data.ts'
 import { C } from '../engine/palette.ts'
-import { type HistoryPlan, historyPlanFor } from '../rules/milestones.ts'
+import type { HistoryPlan } from '../rules/milestones.ts'
 import type { Poly, WorldMeta } from '../types/world.ts'
 import { Geo, flatPoly } from './geometry.ts'
 
@@ -24,34 +24,31 @@ export const MASK = { built: 255, water: 128, outside: 1 } as const
 
 interface Loaded {
   group: THREE.Group
-  mask?: { data: Uint8ClampedArray; w: number; h: number; m: number }
+  mask: { data: Uint8ClampedArray; w: number; h: number; m: number }
 }
 
 export class HistoryLayer {
   group = new THREE.Group()
-  // wywoływane, gdy wczytała się maska bieżącego planu (epoka przebudowuje wtedy budynki)
-  onMask: () => void = () => {}
+  // wywoływane, gdy bieżący plan jest gotowy (woda i maska): epoka przebudowuje wtedy teren i budynki
+  onReady: () => void = () => {}
   private meta: WorldMeta
   private water: THREE.Material
-  private index: Promise<Record<string, PlanIndex>>
+  private index: Promise<Record<string, PlanIndex>> | null = null
   private loaded = new Map<string, Loaded>()
+  private loading = new Set<string>()
   private current: string | null = null
 
   constructor(meta: WorldMeta, water: THREE.Material) {
     this.meta = meta
     this.water = water
-    this.index = loadJson<Record<string, PlanIndex>>('history/index.json').then((index) => index ?? {})
   }
 
-  // Plan dla danego roku epoki (src/rules/milestones.ts).
-  static planFor = historyPlanFor
-
-  // Czy bieżący plan ma własną wodę (wtedy dzisiejsza woda kafli jest schowana).
-  get hasWater() {
+  // Bieżący plan jest gotowy: ma wodę i maskę zabudowy. Dopóki nie jest, epoka pokazuje dzisiejszy teren i wodę.
+  get ready() {
     return !!this.current && this.loaded.has(this.current)
   }
 
-  // Wartość maski zabudowy bieżącego planu w punkcie (metry lokalne); undefined, gdy maska jeszcze się nie wczytała.
+  // Wartość maski zabudowy bieżącego planu w punkcie (metry lokalne); undefined, gdy plan nie jest gotowy.
   maskAt(x: number, y: number): number | undefined {
     const mask = this.current ? this.loaded.get(this.current)?.mask : undefined
     if (!mask) return undefined
@@ -66,19 +63,38 @@ export class HistoryLayer {
     const plan = spec?.id ?? null
     this.current = plan
     for (const [k, l] of this.loaded) l.group.visible = k === plan
-    const index = await this.index
-    const entry = plan ? index[plan] : undefined
-    if (!plan || !entry || this.loaded.has(plan)) return
-    const loaded: Loaded = { group: new THREE.Group() }
-    this.loaded.set(plan, loaded)
-    this.group.add(loaded.group)
-    const base = `${import.meta.env.BASE_URL}data/history/${plan}`
-    loaded.group.add(this.waterMesh(await loadJson<Poly[]>(`history/${plan}/water.json`)))
-    loaded.mask = await loadMask(`${base}/built.png`, entry.mask)
-    if (this.current === plan) this.onMask()
+    if (!plan || this.loaded.has(plan) || this.loading.has(plan)) return
+    this.loading.add(plan)
+    try {
+      // spis planów; po błędzie (null) następna próba pobiera go od nowa
+      this.index ??= loadJson<Record<string, PlanIndex>>('history/index.json').then((index) => {
+        if (!index) this.index = null
+        return index ?? {}
+      })
+      const entry = (await this.index)[plan]
+      if (!entry) return
+      const base = `${import.meta.env.BASE_URL}data/history/${plan}`
+      const polys = await loadJson<Poly[]>(`history/${plan}/water.json`)
+      if (!polys) return
+      const loaded: Loaded = { group: new THREE.Group(), mask: await loadMask(`${base}/built.png`, entry.mask) }
+      loaded.group.add(this.waterMesh(polys))
+      loaded.group.visible = this.current === plan
+      this.loaded.set(plan, loaded)
+      this.group.add(loaded.group)
+      if (this.current === plan) this.onReady()
+      await this.addTiles(loaded.group, base, entry.tiles)
+    } catch (err) {
+      // brak pliku albo błąd sieci: plan nie jest gotowy, następne pokazanie spróbuje ponownie
+      console.warn(`plan ${plan}:`, err)
+    } finally {
+      this.loading.delete(plan)
+    }
+  }
+
+  private async addTiles(group: THREE.Group, base: string, tiles: string[]) {
     const loader = new THREE.TextureLoader()
     const { bounds, tile } = this.meta
-    for (const k of entry.tiles) {
+    for (const k of tiles) {
       const [i, j] = k.split('_').map(Number)
       const tex = await loader.loadAsync(`${base}/${k}.png`)
       tex.colorSpace = THREE.SRGBColorSpace
@@ -90,9 +106,8 @@ export class HistoryLayer {
       m.rotation.x = -Math.PI / 2
       m.position.set(bounds[0] + (i + 0.5) * tile, PLAN_Y, -(bounds[1] + (j + 0.5) * tile))
       m.receiveShadow = true
-      loaded.group.add(m)
+      group.add(m)
     }
-    loaded.group.visible = this.current === plan
   }
 
   // Woda epoki na wysokości dzisiejszej wody (0.1 m), tym samym materiałem (odblaski).

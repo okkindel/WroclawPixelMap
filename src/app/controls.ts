@@ -20,8 +20,8 @@ export function initControls(app: App) {
 
   // --- epoki ---
   const markEpoch = initTimeline(epochs(), (e) => setEpoch(e))
-  // maska zabudowy planu wczytuje się po chwili: wtedy przebudowujemy budynki epoki
-  city.history.onMask = () => setEpoch(state.epoch)
+  // plan (woda i maska zabudowy) wczytuje się po chwili: wtedy przebudowujemy teren i budynki epoki
+  city.history.onReady = () => setEpoch(state.epoch)
   function setEpoch(e: Epoch) {
     applyEpoch(app, e)
     showEpoch(e)
