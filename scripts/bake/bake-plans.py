@@ -3,9 +3,9 @@
 #
 #  - Kafle: woda planu przezroczysta (pod spodem rysujemy ją jako wodę 3D), brzeg planu przechodzi w łąkę
 #    ditherowanym pasem FADE_M metrów.
-#  - Woda epoki odtworzona z planów: w zasięgu planu jego woda, dalej woda z planów najbliższych w czasie (starszy
-#    przed młodszym), dzisiejsza tylko tam, gdzie nie sięga żaden plan; w pasie BLEND_M m przy brzegu arkusza wody
-#    sumowane, żeby koryta przechodziły z planu na plan bez urwania. 'early' to sama woda dla epok sprzed lokacji.
+#  - Woda epoki odtworzona z planów (epoch_water): przed kanałami z 1897 r. Odra z planu 1895 z detalem z 1732,
+#    później plan epoki i plany najbliższe w czasie; dzisiejsze rzeki tylko tam, gdzie nie sięga żaden plan.
+#    'early' to sama woda dla epok sprzed lokacji.
 #  - Maska zabudowy (MASK_M m/px, cała mapa): 255 kwartał lub gmach z planu, 128 woda planu, 0 reszta zasięgu planu,
 #    1 poza planem. Aplikacja zostawia w zasięgu planu tylko budynki bez daty stojące na zabudowie (src/app/apply.ts).
 #
@@ -33,6 +33,10 @@ TILE_PX = 1000  # kafle źródłowe: 1 m/px
 OUT_PX = 512
 FADE_M = 200
 BLEND_M = 250  # pas przy brzegu arkusza, w którym woda planu i woda źródła o niższym priorytecie są sumowane
+BRIDGE_M = 35  # przerwy w korytach do tylu metrów (mosty) są zamykane
+SPECK_M2 = 800  # mniejsze plamy wody z planu są pomijane
+NEAR_M = 60  # woda z planu 1732 tylko tak blisko odtworzonego biegu rzek
+CANALS_YEAR = 1897  # kanały Żeglugowy i Powodziowy
 WATER_M = 2  # rozdzielczość rastra wody (m/px)
 PALETTE_COLORS = 48  # kolory kafla PNG (plan ma płaskie kolory klas i tusz)
 KEY = (255, 0, 255)  # kolor przezroczystości w palecie
@@ -87,30 +91,54 @@ def plan_classes(pid, s):
     return _classes[(pid, s)]
 
 
-def epoch_water(pid, spec):
-    """Woda epoki (raster WATER_M m/px) złożona z planów w kolejności priorytetu, na dzisiejszej wodzie."""
+def plan_water(pid):
+    """Woda planu (raster WATER_M m/px) i jego zasięg. Przerwy do BRIDGE_M m są zamykane (mosty na planach przecinają
+    koryta), plamki mniejsze niż SPECK_M2 m² usuwane."""
     s = WATER_M
-    year = spec['year']
-    others = [p for p in PLANS if p != pid and not PLANS[p].get('water_only')]
-    # najbliższe w czasie, przy remisie starszy; własny plan na końcu (najwyższy priorytet)
-    order = sorted(others, key=lambda p: (abs(PLANS[p]['year'] - year), PLANS[p]['year'] > year), reverse=True)
-    if not spec.get('water_only'):
-        order.append(pid)
-    water = today_water(False)
-    for p in order:
-        cls = plan_classes(p, s)
-        if cls is None:
-            continue
-        cover = (cls != OUTSIDE).astype(np.uint8)
-        edge = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
-        w = (cls == WATER).astype(np.uint8) * 255
-        inner = (cover > 0) & (edge >= BLEND_M)
-        band = (cover > 0) & (edge < BLEND_M)
-        water[inner] = w[inner]
-        water[band] |= w[band]
+    cls = plan_classes(pid, s)
+    cover = (cls != OUTSIDE).astype(np.uint8)
+    w = (cls == WATER).astype(np.uint8) * 255
+    k = int(BRIDGE_M / s) | 1
+    w = cv2.morphologyEx(w, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k)))
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(w, connectivity=8)
+    small = stats[:, cv2.CC_STAT_AREA] * s * s < SPECK_M2
+    small[0] = False
+    w[small[lab]] = 0
+    return w, cover
+
+
+def overlay(water, w, cover):
+    """Woda planu w jego zasięgu; w pasie BLEND_M m przy brzegu arkusza sumowana z wodą pod spodem."""
+    edge = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * WATER_M
+    inner = (cover > 0) & (edge >= BLEND_M)
+    band = (cover > 0) & (edge < BLEND_M)
+    water[inner] = w[inner]
+    water[band] |= w[band]
+
+
+def epoch_water(pid, spec):
+    """Woda epoki (raster WATER_M m/px) odtworzona z planów.
+
+    Przed kanałami (plan starszy niż 1897 r.): podstawą jest Odra z planu 1895 (cały ówczesny bieg w mieście), dalej
+    dzisiejsze rzeki bez kanałów; plan 1732 dokłada tylko szczegóły blisko tej podstawy (jego dalekie odnogi urywają się
+    na brzegu arkusza). Później: plan epoki, pod nim plany najbliższe w czasie, a na wierzchu dzisiejsze kanały i porty."""
+    s = WATER_M
+    if spec['year'] < CANALS_YEAR:
+        water = today_water(False)
+        overlay(water, *plan_water('1895'))
+        if pid in ('1732', 'early'):
+            w, cover = plan_water('1732')
+            near = cv2.dilate(water, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (int(NEAR_M / s) | 1,) * 2))
+            water |= w & near & (cover * 255)
+    else:
+        water = today_water(False)
+        others = [p for p in PLANS if p != pid and not PLANS[p].get('water_only')]
+        order = sorted(others, key=lambda p: (abs(PLANS[p]['year'] - spec['year']), PLANS[p]['year'] > spec['year']), reverse=True)
+        for p in order + [pid]:
+            if plan_classes(p, s) is not None:
+                overlay(water, *plan_water(p))
     if spec['late_water']:
-        late = today_water(True) & ~today_water(False)
-        water |= late
+        water |= today_water(True) & ~today_water(False)
     return cv2.morphologyEx(water, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
 
 
