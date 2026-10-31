@@ -32,6 +32,8 @@ FADE_M = 200
 BLEND_M = 250  # pas przy granicy wiarygodnej wody planu, w którym woda z planu i dzisiejsza są sumowane
 TRUST_M = 500  # woda z planu obowiązuje do tylu metrów od jego zabudowy (plan może podać mniej: 'trust')
 WATER_M = 2  # rozdzielczość rastra wody (m/px)
+PALETTE_COLORS = 48  # kolory kafla PNG (plan ma płaskie kolory klas i tusz)
+KEY = (255, 0, 255)  # kolor przezroczystości w palecie
 MASK_M = 4
 WATER, BUILT_A, BUILT_B, OUTSIDE = 4, 2, 3, 0
 
@@ -131,8 +133,13 @@ def bake(pid, spec):
             yy, xx = np.indices((OUT_PX, OUT_PX))
             fade = np.clip(e_s / FADE_M, 0, 1)
             keep = (a_s >= 0.5) & (fade > bayer[(yy + y // 2) % 8, (xx + i * OUT_PX) % 8])
-            out = np.dstack([np.clip(c_s, 0, 255), keep * 255]).astype(np.uint8)
-            Image.fromarray(out, 'RGBA').save(f'{dst}/{i}_{j}.png', optimize=True)
+            # PNG z paletą (płaskie kolory planu): przezroczystość to osobny kolor palety (magenta)
+            out = np.clip(c_s, 0, 255).astype(np.uint8)
+            out[~keep] = KEY
+            pal = Image.fromarray(out, 'RGB').quantize(colors=PALETTE_COLORS, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE)
+            key = pal.getpalette()[: PALETTE_COLORS * 3]
+            idx = min(range(len(key) // 3), key=lambda n: sum((key[n * 3 + c] - KEY[c]) ** 2 for c in range(3)))
+            pal.save(f'{dst}/{i}_{j}.png', optimize=True, transparency=idx)
             tiles.append(f'{i}_{j}')
 
     # Woda epoki. Plan rozstrzyga o wodzie tylko blisko swojej zabudowy (TRUST_M m od kwartałów i gmachów): tam rysunek
