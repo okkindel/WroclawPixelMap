@@ -13,8 +13,6 @@ import type { City } from './city.ts'
 
 // grupy znaczników (każda z własnym przełącznikiem, wszystkie pod głównym „markers”)
 export const PIN_GROUPS: PinGroup[] = ['labels', 'places', 'pois', 'unis', 'eggs', 'cult']
-// pora dnia na starcie: 14:00 (słońce wysoko, ale już z cieniami)
-const DEFAULT_HOUR = 14 * 60
 
 export interface State {
   epoch: Epoch
@@ -22,6 +20,8 @@ export interface State {
   layers: Record<Layer, boolean>
   // godzina z suwaka (minuty od północy) albo „teraz”: zegar na żywo
   hour: number | 'now'
+  // kiedy ustawiono godzinę (performance.now()): od niej czas płynie dalej, inaczej tramwaje i słońce by stały
+  hourSetAt: number
   season: Season
   px: number
   // ruch w mieście i scenki powstają dopiero, gdy wczytają się wszystkie kafle (potrzebują całej sieci ulic)
@@ -38,7 +38,9 @@ export function initialState(epoch: Epoch): State {
     epoch,
     epochState: null,
     layers,
-    hour: DEFAULT_HOUR,
+    // na starcie „teraz”: zegar na żywo
+    hour: 'now',
+    hourSetAt: performance.now(),
     season: 'summer',
     px: storedPixel(),
     life: null,

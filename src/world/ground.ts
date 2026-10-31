@@ -24,6 +24,10 @@ export function buildBase(bounds: World['bounds']) {
   return ground.build()
 }
 
+// odstęp poziomów dróg różnych rodzajów i wysokość torów (nad najwyższym poziomem dróg)
+const ROAD_STEP = 0.006
+const RAILS_Y = 0.3
+
 export function buildGround(data: TileData) {
   const ground = new Geo()
 
@@ -37,13 +41,19 @@ export function buildGround(data: TileData) {
   for (const w of data.water) flatPoly(water, w.o, w.h, 0.1, S('water'))
 
   const roads = new Geo()
+  // Każdy kolor drogi (rodzaj) na własnym poziomie, co ROAD_STEP m, węższe niżej: drogi różnych rodzajów
+  // nachodzące na siebie na tej samej wysokości migotały (z-fighting). Ta sama barwa może leżeć równo.
   const sorted = data.roads.slice().sort((a, b) => a.w - b.w)
+  const level = new Map<string, number>()
   for (const r of sorted) {
     if (r.b) continue
-    strip(roads, r.p, r.w, r.car ? 0.14 : 0.12, roadColor(r.k, r.car))
+    const color = roadColor(r.k, r.car)
+    if (!level.has(color)) level.set(color, level.size)
+    strip(roads, r.p, r.w, (r.car ? 0.14 : 0.12) + level.get(color)! * ROAD_STEP, color)
   }
-  for (const r of data.rails) if (!r.b) strip(roads, r.p, 3.2, 0.16, S('rail'))
-  for (const t of data.trams) if (!t.b) strip(roads, t.p, 1.6, 0.18, S('tramTrack'))
+  // tory nad wszystkimi jezdniami (tramwaj jedzie środkiem ulicy)
+  for (const r of data.rails) if (!r.b) strip(roads, r.p, 3.2, RAILS_Y, S('rail'))
+  for (const t of data.trams) if (!t.b) strip(roads, t.p, 1.6, RAILS_Y + 0.02, S('tramTrack'))
 
   // Mosty: pomost nad wodą + jezdnia na nim.
   const bridges = new Geo()

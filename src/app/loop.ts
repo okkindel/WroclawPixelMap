@@ -56,7 +56,8 @@ export function startLoop(app: App) {
     view.keepInside(city.world.bounds)
 
     // słońce, noc i śnieg w materiałach
-    const now = state.hour === 'now' ? new Date() : clockAt(state.hour)
+    // „teraz” albo wybrana godzina, od której czas płynie dalej
+    const now = state.hour === 'now' ? new Date() : new Date(clockAt(state.hour).getTime() + performance.now() - state.hourSetAt)
     const extent = Math.max(innerWidth, innerHeight) / camera.zoom
     sun.set(now, view.target, Math.min(extent * 0.9, SHADOW_EXTENT_MAX))
     city.uniforms.uNight.value = sun.night
@@ -66,7 +67,7 @@ export function startLoop(app: App) {
     pixel.material.uniforms.uMpp.value = state.px / camera.zoom
     if (performance.now() - lastClock > CLOCK_REFRESH_MS) {
       setClock(now)
-      if (state.hour === 'now') showHour(minutesOf(now))
+      showHour(minutesOf(now))
       lastClock = performance.now()
     }
 

@@ -32,10 +32,12 @@ export function initControls(app: App) {
   initPanel({
     time: (v) => {
       state.hour = v === 'now' ? 'now' : minutesOf(clockFor(v))
+      state.hourSetAt = performance.now()
       showHour(state.hour === 'now' ? minutesOf(new Date()) : state.hour)
     },
     hour: (m) => {
       state.hour = m
+      state.hourSetAt = performance.now()
     },
     season: (v) => applySeason(app, v),
     pixel: (v) => {
