@@ -37,6 +37,10 @@ BRIDGE_M = 35  # przerwy w korytach do tylu metrów (mosty) są zamykane
 SPECK_M2 = 800  # mniejsze plamy wody z planu są pomijane
 NEAR_M = 60  # woda z planu 1732 tylko tak blisko odtworzonego biegu rzek
 CANALS_YEAR = 1897  # kanały Żeglugowy i Powodziowy
+JOIN_M = 1300  # rzeki urwane na brzegu arkusza łączymy z wodą do tylu metrów
+EDGE_ZONE_M = 900  # „przy brzegu arkusza” (rzeki na planach bywają urwane kilkaset metrów przed jego krawędzią)
+JOIN_MIN_M2 = 20000  # tylko większe kawałki wody (koryta rzek)
+JOIN_MIN_HALF_WIDTH_M = 10  # i tylko rzeki szersze niż 20 m (nie rowy)
 WATER_M = 2  # rozdzielczość rastra wody (m/px)
 PALETTE_COLORS = 48  # kolory kafla PNG (plan ma płaskie kolory klas i tusz)
 KEY = (255, 0, 255)  # kolor przezroczystości w palecie
@@ -107,6 +111,56 @@ def plan_water(pid):
     return w, cover
 
 
+def join_at_edges(water, covers):
+    """Rzeka urwana na brzegu arkusza (plan rysuje dawne koryto, dalej dzisiejsze płynie gdzie indziej): duże kawałki wody,
+    których najbliższe punkty leżą przy brzegu któregoś arkusza i są bliżej niż JOIN_M m, łączymy kanałem o ich szerokości."""
+    s = WATER_M
+    edge_zone = np.zeros_like(water, bool)
+    for cover in covers:
+        e = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
+        out = cv2.distanceTransform(np.pad(1 - cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
+        edge_zone |= ((cover > 0) & (e < EDGE_ZONE_M)) | ((cover == 0) & (out < JOIN_M))
+    n, lab, stats, _ = cv2.connectedComponentsWithStats(water, connectivity=8)
+    big = [k for k in range(1, n) if stats[k, cv2.CC_STAT_AREA] * s * s >= JOIN_MIN_M2]
+    width = cv2.distanceTransform(water, cv2.DIST_L2, 5)
+    pts = {}
+    for k in big:
+        ys, xs = np.nonzero((lab == k) & edge_zone)
+        if len(xs):
+            step = max(1, len(xs) // 4000)
+            pts[k] = np.stack([xs[::step], ys[::step]], -1)
+    # tylko koryto w całości w zasięgu arkusza (urwane na jego brzegu) z wodą sięgającą poza arkusz
+    inside_all = np.zeros_like(water, bool)
+    for cover in covers:
+        inside_all |= cover > 0
+    outside_ids = set(np.unique(lab[(water > 0) & ~inside_all]).tolist())
+    # każde urwane koryto z planu łączymy raz, z najbliższą wodą spoza arkusza
+    inner_keys = [k for k in pts if k not in outside_ids]
+    outer_keys = [k for k in pts if k in outside_ids]
+    for a in inner_keys:
+        best = None
+        for b in outer_keys:
+            pa, pb = pts[a], pts[b]
+            if len(pa) * len(pb) > 4e7:
+                continue
+            d = np.hypot(pa[:, None, 0] - pb[None, :, 0], pa[:, None, 1] - pb[None, :, 1])
+            i, j = np.unravel_index(np.argmin(d), d.shape)
+            if best is None or d[i, j] < best[0]:
+                best = (d[i, j], pa[i], pb[j])
+        if best is None or best[0] * s > JOIN_M:
+            continue
+        _, (x1, y1), (x2, y2) = best
+        # połowa szerokości koryta w okolicy końca (na samym brzegu odległość od lądu jest bliska zera)
+        local = lambda x, y: float(width[max(0, y - 40) : y + 40, max(0, x - 40) : x + 40].max())
+        r = int(min(local(x1, y1), local(x2, y2)))
+        if r * s < JOIN_MIN_HALF_WIDTH_M:
+            continue
+        if os.environ.get('JOIN_DEBUG'):
+            to_m = lambda x, y: (round(bx0 + x * s), round(by0 + H - y * s))
+            print('  łączę', to_m(x1, y1), to_m(x2, y2), 'szerokość px', r)
+        cv2.line(water, (int(x1), int(y1)), (int(x2), int(y2)), 255, 2 * r)
+
+
 def overlay(water, w, cover):
     """Woda planu w jego zasięgu; w pasie BLEND_M m przy brzegu arkusza sumowana z wodą pod spodem."""
     edge = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * WATER_M
@@ -125,7 +179,9 @@ def epoch_water(pid, spec):
     s = WATER_M
     if spec['year'] < CANALS_YEAR:
         water = today_water(False)
-        overlay(water, *plan_water('1895'))
+        w95, c95 = plan_water('1895')
+        overlay(water, w95, c95)
+        join_at_edges(water, [c95])
         if pid in ('1732', 'early'):
             w, cover = plan_water('1732')
             near = cv2.dilate(water, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (int(NEAR_M / s) | 1,) * 2))
