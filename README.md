@@ -69,7 +69,7 @@ npm run bake-monuments  # sieć przy pierwszym uruchomieniu (Overpass, Wikidane,
 npm run bake-scenes     # sieć przy pierwszym uruchomieniu (Overpass) → public/data/scenes.json
 npm run bake-wiki       # sieć przy pierwszym uruchomieniu (Wikipedia, Commons) → public/data/wiki.json
 npm run fetch-history   # sieć: plany historyczne SLUB → data/history
-npm run bake-history    # → public/data/history (tylko plan z ok. 1732 na otwartej licencji)
+npm run bake-plans      # → public/data/history: plany 1732, 1895, Pharus 1914 i 1925, 1947 (z data/plans, python3 + numpy, opencv, pillow)
 ```
 
 Opcjonalnie: `npm run fetch-terrain` (sieć, model terenu GUGiK) i `npm run test-tilecodec` (test formatu kafli).

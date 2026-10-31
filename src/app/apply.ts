@@ -4,15 +4,34 @@ import { C } from '../engine/palette.ts'
 import type { Season } from '../engine/sun.ts'
 import { epochScene } from '../history/epochs.ts'
 import { SINCE } from '../rules/milestones.ts'
-import { HistoryLayer } from '../world/history.ts'
+import { centroid } from '../engine/geo.ts'
+import { HistoryLayer, MASK } from '../world/history.ts'
 import { type App, PIN_GROUPS } from './state.ts'
+
+// Plan miasta pod epoką (gdy plany są włączone w menu).
+const planOf = (state: App['state'], year: number) => (state.layers.plans ? HistoryLayer.planFor(year) : null)
 
 export function applyEpoch({ city, state }: App, e: Epoch) {
   state.epoch = e
   if (state.epochState) city.scene.remove(state.epochState.extras)
   state.epochState = epochScene(e, city.world, WALLS)
+  const plan = planOf(state, e.year)
+  city.history.show(plan)
+  // Budynki pod planem: w jego zasięgu budynek bez daty stoi tylko na zabudowie planu (nigdy w jego wodzie),
+  // z datą tylko od roku budowy; poza zasięgiem planu reguły epoki (src/history/epochs.ts).
+  const opts = state.epochState.opts
+  if (plan) {
+    const rule = opts.keep
+    const Y = e.year
+    opts.keep = (b, i) => {
+      const v = city.history.maskAt(...centroid(b.o))
+      if (v === undefined || v === MASK.outside) return rule ? rule(b, i) : true
+      if (b.y) return b.y <= Y && v !== MASK.water
+      return v === MASK.built
+    }
+  }
   // „dziś” = wygląd budowany w wątkach roboczych (bez filtrowania budynków)
-  city.tiles.setBuildOpts(state.epochState.opts, e.mode === 'today' && e.year >= SINCE.today)
+  city.tiles.setBuildOpts(opts, e.mode === 'today' && e.year >= SINCE.today)
   city.scene.add(state.epochState.extras)
 }
 
@@ -20,10 +39,10 @@ export function applyEpoch({ city, state }: App, e: Epoch) {
 export function applyLayers({ city, state, labels }: App) {
   const { layers, life, scenes } = state
   const year = state.epoch.year
-  // Dawny teren: przed lokacją zawsze, a pod planem z 1895 r. (gdy plany są włączone) łąka zamiast dzisiejszych ulic,
-  // torów, mostów, placów i parków; zabudowę i ulice pokazuje plan. Wyłączone plany = dzisiejszy teren.
-  const plan = layers.plans ? HistoryLayer.planFor(year) : null
-  const old = !!state.epochState?.wild || !!plan?.meadow
+  // Dawny teren (przed lokacją i pod każdym planem): łąka zamiast dzisiejszych ulic, torów, mostów, placów i parków,
+  // woda z planu zamiast dzisiejszej; zabudowę i ulice pokazuje plan. Wyłączone plany = dzisiejszy teren.
+  const plan = planOf(state, year)
+  const old = !!state.epochState?.wild || !!plan
   if (life) {
     life.layers.trams = layers.trams && !!state.epochState?.life.trams
     life.layers.trains = layers.trains && year >= SINCE.railway
@@ -37,10 +56,12 @@ export function applyLayers({ city, state, labels }: App) {
   city.stands.visible = year >= SINCE.stadium
   if (scenes) scenes.boatsOn = layers.boats
   city.structures.setYear(year)
-  city.history.show(plan)
   city.tiles.setModernGround(!old)
+  city.tiles.setWater(!plan)
   city.tiles.setLateWater(year >= SINCE.canals)
+  // łąka zastępuje podkład terenu (dwie płaszczyzny 5 cm od siebie z daleka migotały w pola)
   city.meadow.visible = old
+  city.base.visible = !old
   labels.year = year
   city.dwarfs.mesh.visible = layers.dwarfs && year >= SINCE.dwarfs
   for (const g of PIN_GROUPS) labels.show[g] = layers.markers && layers[g]

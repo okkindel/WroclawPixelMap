@@ -34,6 +34,7 @@ export interface Tile {
   trees: THREE.InstancedMesh | null
   // dzisiejszy teren: place i zieleń, drogi z torami, mosty (chowany przed lokacją miasta)
   modern: THREE.Mesh[]
+  water: THREE.Mesh
   // późniejsza woda: kanały, porty, zbiorniki (src/rules/milestones.ts SINCE.canals)
   waterLate: THREE.Mesh
 }
@@ -150,9 +151,10 @@ export class Tiles implements Pickable {
     }
     const modern = [mesh(ground.ground, this.mats.ground), mesh(ground.roads, this.mats.roads), mesh(ground.bridges, this.mats.roads)]
     modern[2].castShadow = true
-    mesh(ground.water, this.mats.water)
+    const water = mesh(ground.water, this.mats.water)
+    water.visible = this.waterOn
     const waterLate = mesh(ground.waterLate, this.mats.water)
-    waterLate.visible = this.lateWaterOn
+    waterLate.visible = this.lateWaterOn && this.waterOn
     for (const m of modern) m.visible = this.modernOn
     // z wątku przychodzą obie wersje w wyglądzie „dziś”; inaczej budujemy tylko widoczną, drugą przy pierwszym pokazaniu
     const ready = !!pre && this.defaultOpts,
@@ -186,6 +188,7 @@ export class Tiles implements Pickable {
       stale: { full: !ready && far, simple: !ready && !far },
       trees,
       modern,
+      water,
       waterLate,
     }
     this.list.push(t)
@@ -245,6 +248,10 @@ export class Tiles implements Pickable {
   }
 
   // drzewa tylko przy pełnych bryłach
+  get waterMaterial() {
+    return this.mats.water
+  }
+
   private modernOn = true
   // Dzisiejsze ulice, tory, mosty, place i parki (wyłączone przed lokacją miasta, src/history/epochs.ts).
   setModernGround(v: boolean) {
@@ -255,7 +262,16 @@ export class Tiles implements Pickable {
   private lateWaterOn = true
   setLateWater(v: boolean) {
     this.lateWaterOn = v
-    for (const t of this.list) t.waterLate.visible = v
+    for (const t of this.list) t.waterLate.visible = v && this.waterOn
+  }
+  // Dzisiejsza woda (schowana, gdy epoka ma własną wodę z planu, src/world/history.ts).
+  private waterOn = true
+  setWater(v: boolean) {
+    this.waterOn = v
+    for (const t of this.list) {
+      t.water.visible = v
+      t.waterLate.visible = v && this.lateWaterOn
+    }
   }
 
   setTreesVisible(v: boolean) {

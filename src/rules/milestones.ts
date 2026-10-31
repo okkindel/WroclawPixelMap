@@ -17,14 +17,14 @@ export const SINCE = {
   today: 2020,
 } as const
 
-// Historyczne plany kładzione pod epoki, które przybliżają (public/data/history, scripts/bake/bake-history.ts),
-// nad dzisiejszymi drogami i torami (do 0.32 m, src/world/ground.ts).
-// paper: jasność, od której piksel planu jest przezroczysty (papier poza rysunkiem). Na planie z 1895 r. ulice są
-// prawie tak jasne jak papier, więc przezroczysty jest tylko biały margines.
-// meadow: poza planem łąka zamiast dzisiejszego terenu (plan z 1895 r. obejmuje całe ówczesne miasto); plan z 1732 r.
-// pokazuje tylko Stare Miasto, więc wokół zostaje dzisiejsza mapa.
+// Historyczne plany miasta pod dawnymi epokami (public/data/history, scripts/bake/bake-plans.py). Każda epoka od lokacji
+// do 1946 r. ma swój plan; w jego zasięgu ulice, woda i zabudowa są z planu, wokół łąka i dzisiejsze rzeki.
 export const HISTORY_PLANS = [
-  { id: '1732', from: 1242, to: 1807, paper: 0.86, meadow: false }, // plan twierdzy, Stare Miasto
-  { id: '1895', from: 1850, to: 1945, paper: 0.97, meadow: true }, // Neuer Plan der Stadt Breslau, całe miasto z przedmieściami
+  { id: '1732', from: 1242, to: 1807 }, // plan twierdzy, Stare Miasto z przedmieściami (SLUB, CC BY-SA)
+  { id: '1895', from: 1850, to: 1909 }, // Neuer Plan der Stadt Breslau
+  { id: 'pharus1914', from: 1910, to: 1924 }, // Pharus-Plan Breslau 1901–1914
+  { id: 'pharus1925', from: 1925, to: 1945 }, // Pharus-Plan Breslau 1925 (Festung 1945: najpóźniejszy przedwojenny plan)
+  { id: 'plan1947', from: 1946, to: 1950 }, // Plan m. Wrocławia, 6 V 1947 (miasto po zniszczeniach)
 ] as const
+export type HistoryPlan = (typeof HISTORY_PLANS)[number]
 export const historyPlanFor = (year: number) => HISTORY_PLANS.find((p) => year >= p.from && year <= p.to) ?? null

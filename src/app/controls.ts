@@ -20,6 +20,8 @@ export function initControls(app: App) {
 
   // --- epoki ---
   const markEpoch = initTimeline(epochs(), (e) => setEpoch(e))
+  // maska zabudowy planu wczytuje się po chwili: wtedy przebudowujemy budynki epoki
+  city.history.onMask = () => setEpoch(state.epoch)
   function setEpoch(e: Epoch) {
     applyEpoch(app, e)
     showEpoch(e)
@@ -52,7 +54,9 @@ export function initControls(app: App) {
     },
     layer: (l, on) => {
       state.layers[l] = on
-      applyLayers(app)
+      // plany zmieniają też zabudowę epoki (maska planu), więc przebudowujemy epokę
+      if (l === 'plans') setEpoch(state.epoch)
+      else applyLayers(app)
     },
   })
   addEventListener('resize', () => resize(app))

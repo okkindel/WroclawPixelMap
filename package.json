@@ -13,7 +13,7 @@
     "fetch": "node scripts/fetch/fetch-osm.ts",
     "bake": "node scripts/bake/bake.ts",
     "fetch-ortho": "node scripts/fetch/fetch-ortho.ts",
-    "bake-history": "node scripts/bake/bake-history.ts",
+    "bake-plans": "node scripts/bake/export-water.ts && python3 scripts/bake/bake-plans.py",
     "fetch-history": "node scripts/fetch/fetch-history.ts",
     "fetch-terrain": "node scripts/fetch/fetch-terrain.ts",
     "fetch-gtfs": "node scripts/fetch/fetch-gtfs.ts",

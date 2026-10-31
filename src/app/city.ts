@@ -67,7 +67,7 @@ export async function buildCity(meta: WorldMeta) {
 
   const stands = buildStands(meta.stadiums)
   const structures = new Structures(meta.structures, meta.aerialways)
-  const history = new HistoryLayer(meta)
+  const history = new HistoryLayer(meta, tiles.waterMaterial)
   const neons = new Neons()
   const dwarfs = new Dwarfs(meta.dwarfs)
   scene.add(tiles.group, stands, structures.group, history.group, neons.group, dwarfs.mesh)
@@ -100,6 +100,7 @@ export async function buildCity(meta: WorldMeta) {
     dwarfs,
     sun,
     meadow,
+    base,
   }
 }
 

@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import { defineConfig } from 'vite'
+import { type Plugin, defineConfig } from 'vite'
 
 // wersja w oknie „O mapie”: numer z package.json, skrót commita i data budowania
 const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
@@ -12,9 +12,25 @@ const commit = (() => {
   }
 })()
 
+// Dev: adres /data/... to zawsze public/data/. Bez tego serwer podawał pliki o tych samych nazwach z katalogu roboczego
+// data/ (surowe dane i kafle robocze, np. data/history/index.json), zamiast wypieczonych.
+const publicData = (): Plugin => ({
+  name: 'public-data-first',
+  configureServer(server) {
+    server.middlewares.use((req, _res, next) => {
+      // PLAN_VARIANT=N: porównanie wersji podkładu planów (kafle w .variants/vN/history, poza repozytorium)
+      const variant = process.env.PLAN_VARIANT
+      if (variant && req.url?.startsWith('/data/history/')) req.url = `/.variants/v${variant}${req.url.slice(5)}`
+      else if (req.url?.startsWith('/data/')) req.url = `/public${req.url}`
+      next()
+    })
+  },
+})
+
 // względne ścieżki: mapa działa w dowolnym podkatalogu (np. okkindel.github.io/projects/wroclaw-w-pikselach/)
 export default defineConfig({
   base: './',
+  plugins: [publicData()],
   define: {
     __APP_VERSION__: JSON.stringify({ version, commit, date: new Date().toISOString().slice(0, 10) }),
   },

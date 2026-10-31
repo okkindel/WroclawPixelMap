@@ -4,6 +4,7 @@ dist/
 data/raw/
 data/ortho/
 data/history/
+data/plans/
 data/gtfs/
 data/lod2/
 .vite/

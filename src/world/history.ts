@@ -1,56 +1,123 @@
-// Podkład z historycznego planu miasta (1732, 1895) kładziony na terenie w dawnych epokach, nad dzisiejszymi drogami
-// i torami (w obszarze planu widać ówczesny układ ulic). Jasny papier jest przezroczysty: poza rysunkiem widać zwykły teren.
+// Historyczne plany miasta w dawnych epokach (public/data/history, scripts/bake/bake-plans.py):
+//  - podkład planu nad dzisiejszymi drogami i torami; biel (poza planem, woda, ditherowany brzeg) jest przezroczysta,
+//  - woda epoki (woda z planu w jego zasięgu, dzisiejsze rzeki dalej) jako woda 3D w miejsce dzisiejszej,
+//  - maska zabudowy: gdzie plan ma kwartały, gdzie wodę, a gdzie nic (src/history/epochs.ts zostawia budynki
+//    bez daty tylko na zabudowie planu).
 import * as THREE from 'three'
 import { loadJson } from '../engine/data.ts'
-import { type HISTORY_PLANS, historyPlanFor } from '../rules/milestones.ts'
-import type { WorldMeta } from '../types/world.ts'
+import { C } from '../engine/palette.ts'
+import { type HistoryPlan, historyPlanFor } from '../rules/milestones.ts'
+import type { Poly, WorldMeta } from '../types/world.ts'
+import { Geo, flatPoly } from './geometry.ts'
 
+// nad drogami i torami (do 0.32 m, src/world/ground.ts), pod mostami
 const PLAN_Y = 0.36
+const WATER_COLOR = typeof C.water === 'string' ? C.water : '#2c5d8a'
+// piksele planu jaśniejsze niż tyle są przezroczyste (biel z bake-plans.py po kompresji JPEG)
+const PAPER = 0.97
+
+interface PlanIndex {
+  tiles: string[]
+  mask: number // metry na piksel maski zabudowy
+}
+
+// Wartości maski zabudowy (bake-plans.py): zabudowa, woda planu, poza planem; reszta zasięgu planu = 0.
+export const MASK = { built: 255, water: 128, outside: 1 } as const
+
+interface Loaded {
+  group: THREE.Group
+  mask?: { data: Uint8ClampedArray; w: number; h: number; m: number }
+}
 
 export class HistoryLayer {
   group = new THREE.Group()
+  // wywoływane, gdy wczytała się maska bieżącego planu (epoka przebudowuje wtedy budynki)
+  onMask: () => void = () => {}
   private meta: WorldMeta
-  private index: Promise<Record<string, string[]>>
-  private loaded = new Map<string, THREE.Group>()
+  private water: THREE.Material
+  private index: Promise<Record<string, PlanIndex>>
+  private loaded = new Map<string, Loaded>()
   private current: string | null = null
 
-  constructor(meta: WorldMeta) {
+  constructor(meta: WorldMeta, water: THREE.Material) {
     this.meta = meta
-    this.index = loadJson<Record<string, string[]>>('history/index.json').then((index) => index ?? {})
+    this.water = water
+    this.index = loadJson<Record<string, PlanIndex>>('history/index.json').then((index) => index ?? {})
   }
 
   // Plan dla danego roku epoki (src/rules/milestones.ts).
   static planFor = historyPlanFor
 
-  async show(spec: (typeof HISTORY_PLANS)[number] | null) {
+  // Czy bieżący plan ma własną wodę (wtedy dzisiejsza woda kafli jest schowana).
+  get hasWater() {
+    return !!this.current && this.loaded.has(this.current)
+  }
+
+  // Wartość maski zabudowy bieżącego planu w punkcie (metry lokalne); undefined, gdy maska jeszcze się nie wczytała.
+  maskAt(x: number, y: number): number | undefined {
+    const mask = this.current ? this.loaded.get(this.current)?.mask : undefined
+    if (!mask) return undefined
+    const [bx0, by0] = this.meta.bounds
+    const col = Math.floor((x - bx0) / mask.m),
+      row = mask.h - 1 - Math.floor((y - by0) / mask.m)
+    if (col < 0 || row < 0 || col >= mask.w || row >= mask.h) return MASK.outside
+    return mask.data[(row * mask.w + col) * 4]
+  }
+
+  async show(spec: HistoryPlan | null) {
     const plan = spec?.id ?? null
     this.current = plan
-    for (const [k, g] of this.loaded) g.visible = k === plan
+    for (const [k, l] of this.loaded) l.group.visible = k === plan
     const index = await this.index
-    if (!spec || !plan || this.loaded.has(plan) || !index[plan]) return
-    const g = new THREE.Group()
-    this.loaded.set(plan, g)
-    this.group.add(g)
+    const entry = plan ? index[plan] : undefined
+    if (!plan || !entry || this.loaded.has(plan)) return
+    const loaded: Loaded = { group: new THREE.Group() }
+    this.loaded.set(plan, loaded)
+    this.group.add(loaded.group)
+    const base = `${import.meta.env.BASE_URL}data/history/${plan}`
+    loaded.group.add(this.waterMesh(await loadJson<Poly[]>(`history/${plan}/water.json`)))
+    loaded.mask = await loadMask(`${base}/built.png`, entry.mask)
+    if (this.current === plan) this.onMask()
     const loader = new THREE.TextureLoader()
     const { bounds, tile } = this.meta
-    for (const k of index[plan]) {
+    for (const k of entry.tiles) {
       const [i, j] = k.split('_').map(Number)
-      const tex = await loader.loadAsync(`${import.meta.env.BASE_URL}data/history/${plan}/${k}.jpg`)
+      const tex = await loader.loadAsync(`${base}/${k}.jpg`)
       tex.colorSpace = THREE.SRGBColorSpace
       const mat = new THREE.MeshLambertMaterial({ map: tex })
       mat.onBeforeCompile = (sh) => {
         sh.fragmentShader = sh.fragmentShader.replace(
           '#include <map_fragment>',
-          `#include <map_fragment>\nif (dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)) > ${spec.paper.toFixed(3)}) discard;`,
+          `#include <map_fragment>\nif (dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)) > ${PAPER.toFixed(3)}) discard;`,
         )
       }
       const m = new THREE.Mesh(new THREE.PlaneGeometry(tile, tile), mat)
       m.rotation.x = -Math.PI / 2
-      // nad drogami i torami (do 0.32 m, src/world/ground.ts), pod mostami
       m.position.set(bounds[0] + (i + 0.5) * tile, PLAN_Y, -(bounds[1] + (j + 0.5) * tile))
       m.receiveShadow = true
-      g.add(m)
+      loaded.group.add(m)
     }
-    g.visible = this.current === plan
+    loaded.group.visible = this.current === plan
   }
+
+  // Woda epoki na wysokości dzisiejszej wody (0.1 m), tym samym materiałem (odblaski).
+  private waterMesh(polys: Poly[] | null) {
+    const geo = new Geo()
+    for (const p of polys ?? []) flatPoly(geo, p.o, p.h, 0.1, WATER_COLOR)
+    const m = new THREE.Mesh(geo.build(), this.water)
+    m.receiveShadow = true
+    return m
+  }
+}
+
+async function loadMask(url: string, m: number) {
+  const img = new Image()
+  img.src = url
+  await img.decode()
+  const canvas = document.createElement('canvas')
+  canvas.width = img.width
+  canvas.height = img.height
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })!
+  ctx.drawImage(img, 0, 0)
+  return { data: ctx.getImageData(0, 0, img.width, img.height).data, w: img.width, h: img.height, m }
 }
