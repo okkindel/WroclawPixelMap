@@ -1,9 +1,9 @@
 # Historyczne plany miasta (data/plans/<id>: tiles/I_J.jpg w stylu mapy, classes/I_J.png z klasami) do aplikacji:
-# public/data/history/<id>/I_J.jpg (512 px), water.json (woda epoki), built.png (maska zabudowy) i index.json.
+# public/data/history/<id>/I_J.png (512 px, z przezroczystością), water.json (woda epoki), built.png (maska zabudowy) i index.json.
 #
 #  - Kafle: woda planu przezroczysta (pod spodem rysujemy ją jako wodę 3D), brzeg planu przechodzi w łąkę
-#    ditherowanym pasem FADE_M metrów (piksele białe są w aplikacji przezroczyste).
-#  - Woda epoki: woda z planu w jego zasięgu, dzisiejsze rzeki poza nim; w pasie przy brzegu planu obie naraz,
+#    ditherowanym pasem FADE_M metrów.
+#  - Woda epoki: woda z planu blisko jego zabudowy, dzisiejsze rzeki dalej; w pasie na granicy obie naraz,
 #    żeby rzeka nie urywała się na krawędzi arkusza.
 #  - Maska zabudowy (MASK_M m/px, cała mapa): 255 kwartał lub gmach z planu, 128 woda planu, 0 reszta zasięgu planu,
 #    1 poza planem. Aplikacja zostawia w zasięgu planu tylko budynki bez daty stojące na zabudowie (src/history/epochs.ts).
@@ -20,7 +20,7 @@ import numpy as np
 from PIL import Image
 
 PLANS = {  # rok, od którego w planie są kanały i porty (późniejsza woda z dzisiejszej mapy poza zasięgiem planu)
-    '1732': {'late_water': False},
+    '1732': {'late_water': False, 'trust': 200},  # arkusz kończy się tuż za miastem, odnogi urywają się na jego brzegu
     '1895': {'late_water': True},
     'pharus1914': {'late_water': True},
     'pharus1925': {'late_water': True},
@@ -29,7 +29,8 @@ PLANS = {  # rok, od którego w planie są kanały i porty (późniejsza woda z 
 TILE_PX = 1000  # kafle źródłowe: 1 m/px
 OUT_PX = 512
 FADE_M = 200
-BLEND_M = 150  # pas przy brzegu planu, w którym woda z planu i dzisiejsza są sumowane
+BLEND_M = 250  # pas przy granicy wiarygodnej wody planu, w którym woda z planu i dzisiejsza są sumowane
+TRUST_M = 500  # woda z planu obowiązuje do tylu metrów od jego zabudowy (plan może podać mniej: 'trust')
 WATER_M = 2  # rozdzielczość rastra wody (m/px)
 MASK_M = 4
 WATER, BUILT_A, BUILT_B, OUTSIDE = 4, 2, 3, 0
@@ -103,38 +104,51 @@ def bake(pid, spec):
     # odległość od brzegu planu (m) w jego zasięgu
     edge = cv2.distanceTransform(np.pad(inside, 1), cv2.DIST_L2, 5)[1:-1, 1:-1]
 
-    # kafle: woda i pas brzegowy (ditherowany Bayerem 8×8 w krokach 2 m) przezroczyste
+    # Kafle PNG z przezroczystością: przezroczyste poza planem i na wodzie planu (pod spodem woda 3D). Kolor zmniejszamy
+    # z wagą krycia (bez mieszania z bielą), a pas brzegowy ditherujemy Bayerem dopiero w docelowej rozdzielczości,
+    # piksel w piksel: krycie jest zero-jedynkowe, bez szarych obwódek.
     bayer = np.array([[0, 32, 8, 40, 2, 34, 10, 42], [48, 16, 56, 24, 50, 18, 58, 26], [12, 44, 4, 36, 14, 46, 6, 38],
                       [60, 28, 52, 20, 62, 30, 54, 22], [3, 35, 11, 43, 1, 33, 9, 41], [51, 19, 59, 27, 49, 17, 57, 25],
                       [15, 47, 7, 39, 13, 45, 5, 37], [63, 31, 55, 23, 61, 29, 53, 21]]) / 64
-    yy, xx = np.indices((H, W), np.int32) // 2
-    threshold = bayer[yy % 8, xx % 8]
-    fade = np.clip(edge / FADE_M, 0, 1)
-    clear = (inside == 0) | (cls == WATER) | (fade < threshold)
-    col[clear] = 255
+    opaque = ((inside > 0) & (cls != WATER)).astype(np.float32)
+    rgb = cv2.cvtColor(col, cv2.COLOR_BGR2RGB).astype(np.float32)
 
     if os.path.isdir(dst):
         shutil.rmtree(dst)
     os.makedirs(dst)
     tiles = []
+    k = T / OUT_PX
     for j in range(NJ):
         for i in range(NI):
             y = (NJ - 1 - j) * T
-            block = col[y : y + T, i * T : i * T + T]
-            if (block < 250).any(axis=2).mean() < 0.002:
+            sl = (slice(y, y + T), slice(i * T, i * T + T))
+            a = opaque[sl]
+            if a.mean() < 0.002:
                 continue
-            Image.fromarray(cv2.cvtColor(block, cv2.COLOR_BGR2RGB)).resize((OUT_PX, OUT_PX), Image.BOX).save(f'{dst}/{i}_{j}.jpg', quality=82)
+            a_s = cv2.resize(a, (OUT_PX, OUT_PX), interpolation=cv2.INTER_AREA)
+            c_s = cv2.resize(rgb[sl] * a[..., None], (OUT_PX, OUT_PX), interpolation=cv2.INTER_AREA) / np.maximum(a_s[..., None], 1e-3)
+            e_s = cv2.resize(edge[sl], (OUT_PX, OUT_PX), interpolation=cv2.INTER_AREA)
+            yy, xx = np.indices((OUT_PX, OUT_PX))
+            fade = np.clip(e_s / FADE_M, 0, 1)
+            keep = (a_s >= 0.5) & (fade > bayer[(yy + y // 2) % 8, (xx + i * OUT_PX) % 8])
+            out = np.dstack([np.clip(c_s, 0, 255), keep * 255]).astype(np.uint8)
+            Image.fromarray(out, 'RGBA').save(f'{dst}/{i}_{j}.png', optimize=True)
             tiles.append(f'{i}_{j}')
 
-    # woda epoki
+    # Woda epoki. Plan rozstrzyga o wodzie tylko blisko swojej zabudowy (TRUST_M m od kwartałów i gmachów): tam rysunek
+    # rzek jest wiarygodny, a dalej na polach bywa umowny i urywa się na brzegu arkusza. Poza tym obszarem dzisiejsze
+    # rzeki; w pasie BLEND_M m przy granicy obie wody naraz, żeby koryta się łączyły.
     s = WATER_M
     small = lambda m, interp=cv2.INTER_NEAREST: cv2.resize(m, (W // s, H // s), interpolation=interp)
-    in_s = small(inside)
-    edge_s = small(edge, cv2.INTER_LINEAR)
-    plan_w = small((cls == WATER).astype(np.uint8) * 255)
+    cls_w = small(cls)
+    built_w = ((cls_w == BUILT_A) | (cls_w == BUILT_B)).astype(np.uint8)
+    near_built = cv2.distanceTransform(1 - built_w, cv2.DIST_L2, 5) * s < spec.get('trust', TRUST_M)
+    trust = (near_built & (cls_w != OUTSIDE)).astype(np.uint8)
+    trust_edge = cv2.distanceTransform(np.pad(trust, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
+    plan_w = (cls_w == WATER).astype(np.uint8) * 255
     tw = today_water(spec['late_water'])
-    water = np.where(in_s > 0, plan_w, tw)
-    band = (in_s > 0) & (edge_s < BLEND_M)
+    water = np.where(trust > 0, plan_w, tw)
+    band = (trust > 0) & (trust_edge < BLEND_M)
     water[band] |= tw[band]
     water = cv2.morphologyEx(water, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
     json.dump(polygons(water), open(f'{dst}/water.json', 'w'), separators=(',', ':'))

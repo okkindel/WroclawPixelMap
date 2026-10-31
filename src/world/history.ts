@@ -1,5 +1,5 @@
 // Historyczne plany miasta w dawnych epokach (public/data/history, scripts/bake/bake-plans.py):
-//  - podkład planu nad dzisiejszymi drogami i torami; biel (poza planem, woda, ditherowany brzeg) jest przezroczysta,
+//  - podkład planu nad dzisiejszymi drogami i torami; przezroczysty poza planem, na wodzie i w ditherowanym brzegu,
 //  - woda epoki (woda z planu w jego zasięgu, dzisiejsze rzeki dalej) jako woda 3D w miejsce dzisiejszej,
 //  - maska zabudowy: gdzie plan ma kwartały, gdzie wodę, a gdzie nic (src/history/epochs.ts zostawia budynki
 //    bez daty tylko na zabudowie planu).
@@ -13,8 +13,6 @@ import { Geo, flatPoly } from './geometry.ts'
 // nad drogami i torami (do 0.32 m, src/world/ground.ts), pod mostami
 const PLAN_Y = 0.36
 const WATER_COLOR = typeof C.water === 'string' ? C.water : '#2c5d8a'
-// piksele planu jaśniejsze niż tyle są przezroczyste (biel z bake-plans.py po kompresji JPEG)
-const PAPER = 0.97
 
 interface PlanIndex {
   tiles: string[]
@@ -82,15 +80,12 @@ export class HistoryLayer {
     const { bounds, tile } = this.meta
     for (const k of entry.tiles) {
       const [i, j] = k.split('_').map(Number)
-      const tex = await loader.loadAsync(`${base}/${k}.jpg`)
+      const tex = await loader.loadAsync(`${base}/${k}.png`)
       tex.colorSpace = THREE.SRGBColorSpace
-      const mat = new THREE.MeshLambertMaterial({ map: tex })
-      mat.onBeforeCompile = (sh) => {
-        sh.fragmentShader = sh.fragmentShader.replace(
-          '#include <map_fragment>',
-          `#include <map_fragment>\nif (dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)) > ${PAPER.toFixed(3)}) discard;`,
-        )
-      }
+      // krycie kafla jest zero-jedynkowe (bake-plans.py): bez mieszania, piksel jest albo planem, albo dziurą
+      tex.magFilter = tex.minFilter = THREE.NearestFilter
+      tex.generateMipmaps = false
+      const mat = new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5 })
       const m = new THREE.Mesh(new THREE.PlaneGeometry(tile, tile), mat)
       m.rotation.x = -Math.PI / 2
       m.position.set(bounds[0] + (i + 0.5) * tile, PLAN_Y, -(bounds[1] + (j + 0.5) * tile))
