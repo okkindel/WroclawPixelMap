@@ -1,9 +1,11 @@
-// Podkład z historycznego planu miasta (np. 1732) kładziony na terenie w dawnych epokach.
-// Jasny papier planu jest przezroczysty, więc poza rysunkiem widać zwykły teren.
+// Podkład z historycznego planu miasta (1732, 1895) kładziony na terenie w dawnych epokach, nad dzisiejszymi drogami
+// i torami (w obszarze planu widać ówczesny układ ulic). Jasny papier jest przezroczysty: poza rysunkiem widać zwykły teren.
 import * as THREE from 'three'
 import { loadJson } from '../engine/data.ts'
-import { historyPlanFor } from '../rules/milestones.ts'
+import { type HISTORY_PLANS, historyPlanFor } from '../rules/milestones.ts'
 import type { WorldMeta } from '../types/world.ts'
+
+const PLAN_Y = 0.36
 
 export class HistoryLayer {
   group = new THREE.Group()
@@ -20,11 +22,12 @@ export class HistoryLayer {
   // Plan dla danego roku epoki (src/rules/milestones.ts).
   static planFor = historyPlanFor
 
-  async show(plan: string | null) {
+  async show(spec: (typeof HISTORY_PLANS)[number] | null) {
+    const plan = spec?.id ?? null
     this.current = plan
     for (const [k, g] of this.loaded) g.visible = k === plan
     const index = await this.index
-    if (!plan || this.loaded.has(plan) || !index[plan]) return
+    if (!spec || !plan || this.loaded.has(plan) || !index[plan]) return
     const g = new THREE.Group()
     this.loaded.set(plan, g)
     this.group.add(g)
@@ -38,13 +41,13 @@ export class HistoryLayer {
       mat.onBeforeCompile = (sh) => {
         sh.fragmentShader = sh.fragmentShader.replace(
           '#include <map_fragment>',
-          '#include <map_fragment>\nif (dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)) > 0.86) discard;',
+          `#include <map_fragment>\nif (dot(diffuseColor.rgb, vec3(0.299, 0.587, 0.114)) > ${spec.paper.toFixed(3)}) discard;`,
         )
       }
       const m = new THREE.Mesh(new THREE.PlaneGeometry(tile, tile), mat)
       m.rotation.x = -Math.PI / 2
-      // nad drogami (0.12–0.18 m), pod mostami
-      m.position.set(bounds[0] + (i + 0.5) * tile, 0.25, -(bounds[1] + (j + 0.5) * tile))
+      // nad drogami i torami (do 0.32 m, src/world/ground.ts), pod mostami
+      m.position.set(bounds[0] + (i + 0.5) * tile, PLAN_Y, -(bounds[1] + (j + 0.5) * tile))
       m.receiveShadow = true
       g.add(m)
     }

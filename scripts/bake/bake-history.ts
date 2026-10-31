@@ -1,10 +1,12 @@
 // Historyczne plany (data/history, npm run fetch-history) → public/data/history: kafle 512 px + spis.
-// Publikujemy tylko plany na otwartej licencji (CC BY-SA 4.0, SLUB Dresden / Deutsche Fotothek).
+// Publikujemy tylko plany na otwartej licencji: 1732 (CC BY-SA 4.0, SLUB Dresden / Deutsche Fotothek) i 1895
+// (Neuer Plan der Stadt Breslau, domena publiczna; skan GeoPortOst / IOS Regensburg, ułożony na mapie
+// skryptem poza repozytorium: punkty kontrolne + dopasowanie wody i ulic do OSM w każdym polu składanej mapy).
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import jpeg from 'jpeg-js'
 
-const OPEN = ['1732']
+const OPEN = ['1732', '1895']
 const SIZE = 512
 const index: Record<string, string[]> = {}
 for (const year of OPEN) {

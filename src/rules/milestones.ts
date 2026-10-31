@@ -15,6 +15,11 @@ export const SINCE = {
   today: 2020,
 } as const
 
-// Plan miasta ok. 1732 kładziemy pod epoki, które przybliża: od lokacji (1242) do Napoleona (1807).
-export const PLAN_1732 = { from: 1242, to: 1807 } as const
-export const historyPlanFor = (year: number) => (year >= PLAN_1732.from && year <= PLAN_1732.to ? '1732' : null)
+// Historyczne plany kładzione pod epoki, które przybliżają (public/data/history, scripts/bake/bake-history.ts).
+// paper: jasność, od której piksel planu jest przezroczysty (papier poza rysunkiem). Na planie z 1895 r. ulice są
+// prawie tak jasne jak papier, więc przezroczysty jest tylko biały margines (plan zakrywa wtedy dzisiejsze drogi).
+export const HISTORY_PLANS = [
+  { id: '1732', from: 1242, to: 1807, paper: 0.86 }, // plan twierdzy, Stare Miasto
+  { id: '1895', from: 1850, to: 1945, paper: 0.97 }, // Neuer Plan der Stadt Breslau, całe miasto z przedmieściami
+] as const
+export const historyPlanFor = (year: number) => HISTORY_PLANS.find((p) => year >= p.from && year <= p.to) ?? null

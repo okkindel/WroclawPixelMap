@@ -85,6 +85,8 @@ export const PL = {
     'Wysokości budynków: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">Modele 3D budynków LoD1 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/deed.pl" target="_blank" rel="noopener">CC BY 4.0</a>; dane przetworzone.',
   'about.plan1732.html':
     'Plan miasta z ok. 1732 r. (epoki 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pl" target="_blank" rel="noopener">CC BY-SA 4.0</a>; kafle przetworzone, udostępnione na tej samej licencji.',
+  'about.plan1895.html':
+    'Plan miasta z 1895 r. (epoki 1900–1945): „Neuer Plan der Stadt Breslau”, 1:10 000, E. Morgenstern / Wagner &amp; Debes, domena publiczna; skan: <a href="https://geoportost.ios-regensburg.de/" target="_blank" rel="noopener">GeoPortOst, IOS Regensburg</a>; ułożony na mapie przez autora.',
   'about.nid': 'Daty budowy zabytków: rejestr zabytków nieruchomych, Narodowy Instytut Dziedzictwa (dane.gov.pl); dane przetworzone.',
   'about.dwarfs': 'Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.',
   'about.monuments.html': 'Pomniki: dane z OpenStreetMap i Wikidanych; zdjęcia z Wikimedia Commons (autor i licencja przy zdjęciu).',
@@ -247,6 +249,8 @@ export const EN: Record<Key, string> = {
     'Building heights: <a href="https://www.geoportal.gov.pl/pl/dane/inne-dane/modele-3d-budynkow/" target="_blank" rel="noopener">LoD1 3D building models 2024</a>, GUGiK, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>; processed data.',
   'about.plan1732.html':
     'City plan of c. 1732 (epochs 1242–1807): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>; processed tiles shared under the same licence.',
+  'about.plan1895.html':
+    'City plan of 1895 (epochs 1900–1945): “Neuer Plan der Stadt Breslau”, 1:10,000, E. Morgenstern / Wagner &amp; Debes, public domain; scan: <a href="https://geoportost.ios-regensburg.de/" target="_blank" rel="noopener">GeoPortOst, IOS Regensburg</a>; georeferenced by the author.',
   'about.nid':
     'Construction dates of historic buildings: register of immovable monuments, National Heritage Board of Poland (Narodowy Instytut Dziedzictwa, dane.gov.pl); processed data.',
   'about.dwarfs': 'Dwarfs: data from OpenStreetMap; photos belong to their authors and are shown from their original addresses.',
