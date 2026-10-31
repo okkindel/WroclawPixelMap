@@ -88,6 +88,8 @@ export const PL = {
     'Plan miasta z ok. 1732 r. (epoki 1242–1807, przerysowany przez autora): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.pl" target="_blank" rel="noopener">CC BY-SA 4.0</a>; kafle przetworzone, udostępnione na tej samej licencji.',
   'about.plan1895.html':
     'Plany miasta z XIX i XX w. (domena publiczna, ułożone na mapie i przerysowane przez autora): „Neuer Plan der Stadt Breslau” z 1895 r. (epoka 1900; skan <a href="https://geoportost.ios-regensburg.de/" target="_blank" rel="noopener">GeoPortOst, IOS Regensburg</a>), Pharus-Plan Breslau 1901–1914 (epoka 1913; skan Biblioteki Narodowej, <a href="https://commons.wikimedia.org/wiki/File:Pharus-Plan_Breslau_(1901-1914)_sygn.ZZK_12_547.jpg" target="_blank" rel="noopener">Wikimedia Commons</a>) i „Plan m. Wrocławia” z 6 V 1947 r. (epoki 1945 i 1946; <a href="https://www.loc.gov/item/2010588048/" target="_blank" rel="noopener">Library of Congress</a>).',
+  'about.flood1997.html':
+    'Zasięg powodzi 1997 r.: mapa zalania Urzędu Miejskiego Wrocławia (fragmenty opublikowane przez <a href="https://wro.city/tak-byl-zalany-wroclaw-mapa-powodzi-1997/4427/" target="_blank" rel="noopener">wro.city</a>); z mapy odrysowany tylko zasięg wody.',
   'about.nid': 'Daty budowy zabytków: rejestr zabytków nieruchomych, Narodowy Instytut Dziedzictwa (dane.gov.pl); dane przetworzone.',
   'about.dwarfs': 'Krasnale: dane z OpenStreetMap; zdjęcia należą do ich autorów i są wyświetlane z oryginalnych adresów.',
   'about.monuments.html': 'Pomniki: dane z OpenStreetMap i Wikidanych; zdjęcia z Wikimedia Commons (autor i licencja przy zdjęciu).',
@@ -253,6 +255,8 @@ export const EN: Record<Key, string> = {
     'City plan of c. 1732 (epochs 1242–1807, redrawn by the author): <a href="https://kartenforum.slub-dresden.de/" target="_blank" rel="noopener">SLUB Dresden / Deutsche Fotothek, Virtuelles Kartenforum</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">CC BY-SA 4.0</a>; processed tiles shared under the same licence.',
   'about.plan1895.html':
     'City plans of the 19th and 20th centuries (public domain, georeferenced and redrawn by the author): “Neuer Plan der Stadt Breslau” of 1895 (1900 epoch; scan <a href="https://geoportost.ios-regensburg.de/" target="_blank" rel="noopener">GeoPortOst, IOS Regensburg</a>), Pharus-Plan Breslau 1901–1914 (1913 epoch; scan by the National Library of Poland, <a href="https://commons.wikimedia.org/wiki/File:Pharus-Plan_Breslau_(1901-1914)_sygn.ZZK_12_547.jpg" target="_blank" rel="noopener">Wikimedia Commons</a>) and “Plan m. Wrocławia” of 6 May 1947 (1945 and 1946 epochs; <a href="https://www.loc.gov/item/2010588048/" target="_blank" rel="noopener">Library of Congress</a>).',
+  'about.flood1997.html':
+    'Extent of the 1997 flood: flood map of the Wrocław City Office (fragments published by <a href="https://wro.city/tak-byl-zalany-wroclaw-mapa-powodzi-1997/4427/" target="_blank" rel="noopener">wro.city</a>); only the water extent was traced from it.',
   'about.nid':
     'Construction dates of historic buildings: register of immovable monuments, National Heritage Board of Poland (Narodowy Instytut Dziedzictwa, dane.gov.pl); processed data.',
   'about.dwarfs': 'Dwarfs: data from OpenStreetMap; photos belong to their authors and are shown from their original addresses.',

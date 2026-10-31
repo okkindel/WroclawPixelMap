@@ -1,9 +1,11 @@
 // Epoki: które budynki pokazać, jak je zmienić i co dobudować (mury, bastiony, pas startowy, powódź).
 // Rekonstrukcje są przybliżone: OSM zna rok budowy tylko części budynków.
 import * as THREE from 'three'
-import { bbox, centroid, distToPolyline, hash, pointInRing, toLocal } from '../engine/geo.ts'
+import { centroid, distToPolyline, hash, pointInRing, toLocal } from '../engine/geo.ts'
 import type { BuildOpts } from '../world/buildings.ts'
-import type { Building, Flat, World } from '../types/world.ts'
+import type { Building, Flat, Poly, World } from '../types/world.ts'
+import { loadJson } from '../engine/data.ts'
+import { Geo, flatPoly } from '../world/geometry.ts'
 import type { Epoch, Walls } from '../content/index.ts'
 import {
   CATHEDRAL_RADIUS,
@@ -80,63 +82,21 @@ function closedRing(p: Flat): Flat {
   return p.length ? p.concat([p[0], p[1]]) : p
 }
 
-// Powódź 1997: komórki siatki w zasięgu od wody (BFS po siatce), z poszarpanym brzegiem.
-const FLOOD_CELL = 15 // [m]
-const FLOOD_MAX_STEPS = 13 // BFS dalej nie idzie (13 × 15 m ≈ 195 m)
-function floodMesh(world: World) {
-  const cell = FLOOD_CELL
-  const [x0, y0, x1, y1] = world.bounds
-  const nx = Math.ceil((x1 - x0) / cell),
-    ny = Math.ceil((y1 - y0) / cell)
-  const dist = new Int16Array(nx * ny).fill(-1)
-  const queue: number[] = []
-  const polys = world.water.map((w) => ({ ring: w.o, box: bbox(w.o) }))
-  for (let j = 0; j < ny; j++)
-    for (let i = 0; i < nx; i++) {
-      const x = x0 + (i + 0.5) * cell,
-        y = y0 + (j + 0.5) * cell
-      if (polys.some((p) => x >= p.box[0] && x <= p.box[2] && y >= p.box[1] && y <= p.box[3] && pointInRing(x, y, p.ring))) {
-        dist[j * nx + i] = 0
-        queue.push(j * nx + i)
-      }
-    }
-  for (let q = 0; q < queue.length; q++) {
-    const id = queue[q],
-      i = id % nx,
-      j = (id / nx) | 0,
-      d = dist[id]
-    if (d >= FLOOD_MAX_STEPS) continue
-    for (const [di, dj] of [
-      [1, 0],
-      [-1, 0],
-      [0, 1],
-      [0, -1],
-    ]) {
-      const a = i + di,
-        b = j + dj
-      if (a < 0 || b < 0 || a >= nx || b >= ny || dist[b * nx + a] >= 0) continue
-      dist[b * nx + a] = d + 1
-      queue.push(b * nx + a)
-    }
-  }
-  const pos: number[] = []
-  for (let j = 0; j < ny; j++)
-    for (let i = 0; i < nx; i++) {
-      const d = dist[j * nx + i]
-      if (d <= 0 || d > 6 + hash(i >> 2, j >> 2) * 7) continue
-      const ax = x0 + i * cell,
-        ay = y0 + j * cell,
-        bx = ax + cell,
-        by = ay + cell
-      pos.push(ax, 0, -ay, bx, 0, -ay, bx, 0, -by, ax, 0, -ay, bx, 0, -by, ax, 0, -by)
-    }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
-  g.computeVertexNormals()
-  const m = new THREE.Mesh(g, lambert('#4b8bbf', { transparent: true, opacity: 0.82 }))
-  m.position.y = 1.4
-  m.receiveShadow = true
-  return m
+// Powódź 1997: zasięg zalania z mapy Urzędu Miejskiego (scripts/bake/bake-flood.py), półprzezroczysta woda 1.4 m nad
+// terenem. Wielokąty dochodzą asynchronicznie; do tego czasu grupa jest pusta.
+const FLOOD_Y = 1.4
+function floodLayer() {
+  const g = new THREE.Group()
+  loadJson<Poly[]>('history/flood1997.json').then((polys) => {
+    if (!polys) return
+    const geo = new Geo()
+    for (const p of polys) flatPoly(geo, p.o, p.h, 0, '#4b8bbf')
+    const m = new THREE.Mesh(geo.build(), lambert('#ffffff', { vertexColors: true, transparent: true, opacity: 0.82 }))
+    m.position.y = FLOOD_Y
+    m.receiveShadow = true
+    g.add(m)
+  })
+  return g
 }
 
 // Dym nad ruinami: kilka słupów dymu, każdy z kłębów, które rosną, unoszą się z wiatrem i znikają.
@@ -252,7 +212,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
     return { opts, extras, update, life: { trams: false, cars: false } }
   }
 
-  if (epoch.mode === 'flood') extras.add(floodMesh(world))
+  if (epoch.mode === 'flood') extras.add(floodLayer())
 
   if (Y < 1945) {
     // Przed wojną: przybliżony zasięg zabudowy (odległość od Rynku) i bez brył wyglądających na powojenne.
