@@ -151,6 +151,11 @@ def bake(pid, spec):
         return None
     cls = load(src, 'classes', '.png', cv2.IMREAD_UNCHANGED)
     col = load(src, 'tiles', '.jpg', cv2.IMREAD_COLOR)
+    if spec['late_water']:
+        # kanały i porty młodsze niż plan (z dzisiejszej mapy) są wodą także na kaflach i w masce
+        late = today_water(True) & ~today_water(False)
+        late_full = cv2.resize(late, (W, H), interpolation=cv2.INTER_NEAREST) > 0
+        cls[late_full & (cls != OUTSIDE)] = WATER
     inside = (cls != OUTSIDE).astype(np.uint8)
     # odległość od brzegu planu (m) w jego zasięgu
     edge = cv2.distanceTransform(np.pad(inside, 1), cv2.DIST_L2, 5)[1:-1, 1:-1]
