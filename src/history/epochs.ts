@@ -170,12 +170,27 @@ function smoke(world: World, count: number) {
   return { mesh, update }
 }
 
+// części jednego budynku o tej samej nazwie leżą najwyżej tyle metrów od siebie
+const LATER_PART_RADIUS = 300
+
 export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene {
   const Y = epoch.year
   const extras = new THREE.Group()
   let update = (_dt: number) => {}
   const notLater = (b: Building) => !b.y || b.y <= Y
   const life = { trams: Y >= SINCE.trams, cars: Y >= SINCE.cars }
+  // Budynek z częściami: jeśli któraś bryła o tej nazwie w pobliżu wygląda na późniejszą (galeria, biurowiec),
+  // chowamy wszystkie jego części (wieżyczki i niskie skrzydła Galerii Dominikańskiej osobno by zostały).
+  const laterParts = new Map<string, [number, number][]>()
+  for (const b of world.buildings)
+    if (b.n && !b.y && looksLaterThan(b, Y)) {
+      const list = laterParts.get(b.n) ?? []
+      list.push(anchor(b))
+      laterParts.set(b.n, list)
+    }
+  const later = (b: Building) =>
+    looksLaterThan(b, Y) ||
+    (!!b.n && (laterParts.get(b.n) ?? []).some(([x, y]) => Math.hypot(anchor(b)[0] - x, anchor(b)[1] - y) < LATER_PART_RADIUS))
 
   const outer = closedRing(toFlat(walls.outer))
   const inner = closedRing(toFlat(walls.inner))
@@ -242,6 +257,8 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
     const radius = prewarRadius(Y)
     const keep = (b: Building) => {
       if (b.y) return b.y <= Y
+      // galerie, biurowce i szkło także w Starym Mieście (Galeria Dominikańska stała w obrębie fosy)
+      if (later(b)) return false
       if (inside(outer, b)) return b.H < OLD_TOWN_MAX_H || b.k === 'church' || b.k === 'pub'
       if (looksPostwar(b)) return false
       return near(b, cityCenter, radius)
@@ -250,7 +267,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
   }
 
   // Po wojnie: bez daty w OSM chowamy bryły typowe dla późniejszych lat (biurowce, galerie, szkło).
-  return { opts: { keep: (b) => (b.y ? b.y <= Y : !looksLaterThan(b, Y)) }, extras, update, life }
+  return { opts: { keep: (b) => (b.y ? b.y <= Y : !later(b)) }, extras, update, life }
 }
 
 const near = (b: Building, [x, y]: [number, number], r: number) => Math.hypot(anchor(b)[0] - x, anchor(b)[1] - y) < r
