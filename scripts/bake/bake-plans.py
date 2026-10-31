@@ -20,11 +20,12 @@ import cv2
 import numpy as np
 from PIL import Image
 
-# year: rok planu (kolejność źródeł wody); late_water: czy poza wszystkimi planami są już kanały i porty
+# year: rok planu (kolejność źródeł wody); late_water: epoka planu jest po 1897 r., więc kanały i porty z dzisiejszej
+# mapy są dokładane na wierzch (plan 1895 leży pod epoką 1900, a kanały Żeglugowy i Powodziowy powstały w 1897 r.)
 PLANS = {
     'early': {'year': 1000, 'late_water': False, 'water_only': True},  # przed lokacją: sama woda z najstarszych planów
     '1732': {'year': 1732, 'late_water': False},
-    '1895': {'year': 1895, 'late_water': False},
+    '1895': {'year': 1895, 'late_water': True},
     'pharus1914': {'year': 1914, 'late_water': True},
     'plan1947': {'year': 1947, 'late_water': True},
 }
@@ -95,7 +96,7 @@ def epoch_water(pid, spec):
     order = sorted(others, key=lambda p: (abs(PLANS[p]['year'] - year), PLANS[p]['year'] > year), reverse=True)
     if not spec.get('water_only'):
         order.append(pid)
-    water = today_water(spec['late_water'])
+    water = today_water(False)
     for p in order:
         cls = plan_classes(p, s)
         if cls is None:
@@ -107,6 +108,9 @@ def epoch_water(pid, spec):
         band = (cover > 0) & (edge < BLEND_M)
         water[inner] = w[inner]
         water[band] |= w[band]
+    if spec['late_water']:
+        late = today_water(True) & ~today_water(False)
+        water |= late
     return cv2.morphologyEx(water, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
 
 

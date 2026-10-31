@@ -17,8 +17,9 @@ export const SINCE = {
   today: 2020,
 } as const
 
-// Historyczne plany miasta pod dawnymi epokami (public/data/history, scripts/bake/bake-plans.py). Każda epoka od lokacji
-// do 1946 r. ma swój plan; w jego zasięgu ulice, woda i zabudowa są z planu, wokół łąka i dzisiejsze rzeki.
+// Historyczne plany miasta pod dawnymi epokami (public/data/history, scripts/bake/bake-plans.py). Każda epoka do 1950 r.
+// ma swój plan; w jego zasięgu ulice i zabudowa są z planu, wokół łąka. Woda epoki jest odtworzona z planów najbliższych
+// w czasie, dzisiejsze rzeki tylko tam, gdzie nie sięga żaden plan.
 // buildings: maska zabudowy planu decyduje, które budynki stoją (false: tylko podkład, budynki według reguł epoki).
 export const HISTORY_PLANS = [
   // przed lokacją: tylko woda odtworzona z najstarszych planów (bez podkładu i bez maski zabudowy)
