@@ -126,10 +126,12 @@ export const constructionYear = (buildingTag: string) => (buildingTag === 'const
 export const isEstimatedHeight = (t: Tags, kind: BuildingKind) =>
   t.height == null && !t['roof:shape'] && kind !== 'church' && !t['building:part']
 
-// Woda powstała w XIX/XX w. (kanały, porty, zbiorniki, stawy, fontanny): w dawnych epokach jej nie ma (SINCE.canals).
-// Rzeki i starorzecza zostają zawsze.
+// Woda zbudowana przez człowieka (kanały, porty, zbiorniki, stawy, rowy, śluzy, fontanny): w dawnych epokach jej nie ma
+// (SINCE.canals). Rzeki, starorzecza i fosa (w OSM to także fragmenty dawnych odnóg Odry) zostają zawsze.
 export const lateWater = (t: Tags) =>
-  ['canal', 'reservoir', 'basin', 'pond', 'lagoon', 'wastewater', 'fishpond'].includes(t.water ?? '') ||
+  ['canal', 'reservoir', 'basin', 'pond', 'lagoon', 'wastewater', 'fishpond', 'drain', 'ditch', 'lock', 'reflecting_pool', 'pool'].includes(
+    t.water ?? '',
+  ) ||
   t.waterway === 'canal' ||
   t.waterway === 'dock' ||
   t.amenity === 'fountain' ||

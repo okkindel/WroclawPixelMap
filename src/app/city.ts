@@ -74,7 +74,8 @@ export async function buildCity(meta: WorldMeta) {
   if (timetable) scene.add(timetable.mesh)
   if (monuments) scene.add(monuments.group)
   const sun = new Sun(scene)
-  // łąka zamiast dzisiejszego terenu w dawnych epokach (src/app/apply.ts): nad podkładem, pod wodą (0.1 m)
+  // łąka zamiast dzisiejszego terenu w dawnych epokach (src/app/apply.ts), 60 cm pod wodą (0.1 m):
+  // przy 5 cm z daleka rzeki strzępiły się w łące (za mała różnica głębi)
   const meadow = meadowPlane(meta.bounds)
   scene.add(meadow)
 
@@ -107,7 +108,7 @@ export async function buildCity(meta: WorldMeta) {
 function meadowPlane([bx0, by0, bx1, by1]: WorldMeta['bounds']) {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, by1 - by0), new THREE.MeshLambertMaterial({ color: MEADOW }))
   m.rotation.x = -Math.PI / 2
-  m.position.set((bx0 + bx1) / 2, 0.05, -(by0 + by1) / 2)
+  m.position.set((bx0 + bx1) / 2, -0.5, -(by0 + by1) / 2)
   m.receiveShadow = true
   m.visible = false
   return m
@@ -121,6 +122,7 @@ function outsidePlane([bx0, by0, bx1, by1]: WorldMeta['bounds']) {
     new THREE.MeshBasicMaterial({ color: FOG_COLOR }),
   )
   plane.rotation.x = -Math.PI / 2
-  plane.position.set((bx0 + bx1) / 2, -0.3, -(by0 + by1) / 2)
+  // nisko: łąka ma przesunięcie głębi (polygonOffset) i nie może schować się za tłem
+  plane.position.set((bx0 + bx1) / 2, -3, -(by0 + by1) / 2)
   return plane
 }

@@ -18,10 +18,7 @@ const publicData = (): Plugin => ({
   name: 'public-data-first',
   configureServer(server) {
     server.middlewares.use((req, _res, next) => {
-      // PLAN_VARIANT=N: porównanie wersji podkładu planów (kafle w .variants/vN/history, poza repozytorium)
-      const variant = process.env.PLAN_VARIANT
-      if (variant && req.url?.startsWith('/data/history/')) req.url = `/.variants/v${variant}${req.url.slice(5)}`
-      else if (req.url?.startsWith('/data/')) req.url = `/public${req.url}`
+      if (req.url?.startsWith('/data/')) req.url = `/public${req.url}`
       next()
     })
   },
