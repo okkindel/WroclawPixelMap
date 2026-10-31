@@ -11,6 +11,7 @@ import { tramGeometry } from '../life/life.ts'
 import { Timetable } from '../life/timetable.ts'
 import type { TramSchedule, WorldMeta } from '../types/world.ts'
 import { byId } from '../ui/dom.ts'
+import { C } from '../engine/palette.ts'
 import { FOG_COLOR, buildCloudEdge } from '../world/edge.ts'
 import { buildBase } from '../world/ground.ts'
 import { HistoryLayer } from '../world/history.ts'
@@ -22,6 +23,8 @@ import { windowShader } from '../world/windows.ts'
 import { View } from './view.ts'
 
 export type City = Awaited<ReturnType<typeof buildCity>>
+
+const MEADOW = typeof C.grass === 'string' ? C.grass : '#7cb35a'
 
 export async function buildCity(meta: WorldMeta) {
   const canvas = byId<HTMLCanvasElement>('map')
@@ -71,6 +74,9 @@ export async function buildCity(meta: WorldMeta) {
   if (timetable) scene.add(timetable.mesh)
   if (monuments) scene.add(monuments.group)
   const sun = new Sun(scene)
+  // łąka zamiast dzisiejszego terenu w dawnych epokach (src/app/apply.ts): nad podkładem, pod wodą (0.1 m)
+  const meadow = meadowPlane(meta.bounds)
+  scene.add(meadow)
 
   return {
     meta,
@@ -93,7 +99,17 @@ export async function buildCity(meta: WorldMeta) {
     neons,
     dwarfs,
     sun,
+    meadow,
   }
+}
+
+function meadowPlane([bx0, by0, bx1, by1]: WorldMeta['bounds']) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(bx1 - bx0, by1 - by0), new THREE.MeshLambertMaterial({ color: MEADOW }))
+  m.rotation.x = -Math.PI / 2
+  m.position.set((bx0 + bx1) / 2, 0.05, -(by0 + by1) / 2)
+  m.receiveShadow = true
+  m.visible = false
+  return m
 }
 
 // Poza obszarem danych: płaska, nieoświetlona płaszczyzna w kolorze tła (pod wałem chmur).

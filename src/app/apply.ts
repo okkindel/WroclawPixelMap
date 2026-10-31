@@ -20,11 +20,16 @@ export function applyEpoch({ city, state }: App, e: Epoch) {
 export function applyLayers({ city, state, labels }: App) {
   const { layers, life, scenes } = state
   const year = state.epoch.year
+  // Dawny teren: przed lokacją zawsze, a pod planem z 1895 r. (gdy plany są włączone) łąka zamiast dzisiejszych ulic,
+  // torów, mostów, placów i parków; zabudowę i ulice pokazuje plan. Wyłączone plany = dzisiejszy teren.
+  const plan = layers.plans ? HistoryLayer.planFor(year) : null
+  const old = !!state.epochState?.wild || !!plan?.meadow
   if (life) {
     life.layers.trams = layers.trams && !!state.epochState?.life.trams
     life.layers.trains = layers.trains && year >= SINCE.railway
     life.layers.cars = layers.cars && !!state.epochState?.life.cars
-    life.layers.people = layers.people
+    // ludzie chodzą po dzisiejszych chodnikach: gdy zamiast nich jest łąka, chowamy ich
+    life.layers.people = layers.people && !old
     life.layers.birds = layers.birds
     life.layers.clouds = layers.clouds
   }
@@ -32,7 +37,9 @@ export function applyLayers({ city, state, labels }: App) {
   city.stands.visible = year >= SINCE.stadium
   if (scenes) scenes.boatsOn = layers.boats
   city.structures.setYear(year)
-  city.history.show(HistoryLayer.planFor(year))
+  city.history.show(plan)
+  city.tiles.setModernGround(!old)
+  city.meadow.visible = old
   labels.year = year
   city.dwarfs.mesh.visible = layers.dwarfs && year >= SINCE.dwarfs
   for (const g of PIN_GROUPS) labels.show[g] = layers.markers && layers[g]

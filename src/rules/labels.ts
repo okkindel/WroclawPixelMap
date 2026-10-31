@@ -98,8 +98,9 @@ export function sameName(a: string, b: string) {
   return within(wa, wb) || within(wb, wa)
 }
 
-// Od kiedy pokazywać obiekt z OSM bez daty: galerie od lat 90., świątynie zawsze, reszta (funkcje współczesne) od 1950 r.
-export const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 2000 : kind === 'church' ? undefined : 1950)
+// Od kiedy pokazywać obiekt z OSM bez daty: galerie od 2000 r., świątynie od 1850 r. (stare kościoły mają datę w OSM
+// albo są na liście zabytków, bez daty to zwykle parafie z XIX i XX w.), reszta (funkcje współczesne) od 1950 r.
+export const poiFrom = (kind: PoiKind) => (kind === 'mall' ? 2000 : kind === 'church' ? 1850 : 1950)
 
 // Jednostki uczelni i podobne obiekty (wydziały, instytuty, kampusy…): tłok napisów na kampusach.
 const UNIT = /Wydział|Instytut|Katedra|Zakład|Pracownia|Laboratorium|Biblioteka Główna|Centrum Kształcenia|Kampus/i

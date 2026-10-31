@@ -65,7 +65,7 @@ reguły przeglądarki w `src/rules/`. Zmiana progu = zmiana w jednym miejscu (i 
 | Uczelnie główne | Uniwersytet, Politechnika, Akademia… zawsze z daleka, grupa „unis” | punkt orientacyjny | — | `UNIVERSITY` |
 | Szkoły | Liceum, Technikum… z bliska, podtytuł „Szkoła” | to nie uczelnie | — | `SCHOOL` |
 | Deduplikacja z zabytkami | POI < 150 m od zabytku z listy, gdy znaczące słowa jednej nazwy zawierają się w drugiej („NMP” = „Najświętszej Marii Panny”, bez „św.”, „pw.”, „Wrocław”) → pomijany | „Hala Targowa” jest już na liście | sąsiad o innej nazwie zostaje („Kamienica Pod Złotym Słońcem” obok „Pod Gryfami”) | `POI_DEDUP_RADIUS`, `sameName` |
-| Od kiedy POI | `start_date` z OSM; bez niego galerie od 2000, świątynie zawsze, reszta od 1950 | funkcje współczesne; większość galerii we Wrocławiu to lata 2001–2007 | — | `poiFrom` |
+| Od kiedy POI | `start_date` z OSM; bez niego galerie od 2000, świątynie od 1850, reszta od 1950 | funkcje współczesne; większość galerii we Wrocławiu to lata 2001–2007 | — | `poiFrom` |
 | Rok zabytku | pierwszy rok z opisu albo środek wieku (XIII w. / 13th c. → 1250) | napis znika w epokach sprzed budowy | — | `yearOf` |
 | Ranga zabytku | ranga 1 od zoomu 0, ranga 2 od 0.9, reszta od 1.6 | z daleka tylko ikony miasta | — | `landmarkMinZoom` |
 | Osiedla, znaczniki | dzielnica/osiedle/okolica: osobne zakresy zoomu; ciekawostka od 0.75, ukryta („zoom”) od 3 | nazwy osiedli z bliska przeszkadzają | — | `PLACE_ZOOM`, `markerMinZoom` |
@@ -77,7 +77,7 @@ reguły przeglądarki w `src/rules/`. Zmiana progu = zmiana w jednym miejscu (i 
 | --- | --- | --- | --- | --- |
 | Rok budowy rozstrzyga | budynek z datą jest widoczny od swojego roku | jedyna pewna informacja | daty ma ~2,5% budynków | `src/history/epochs.ts` `epochScene` |
 | Gród | przed 1242: wał z palisadą wokół zachodniej części Ostrowa, rekonstrukcja katedry, św. Marcina, palatium i ok. 70 chat; budynki z OSM ukryte; do 1300 sam wał z resztkami palisady | miasto lokacyjne powstało później; wymiary katedry i przebieg wału z literatury | obwód odrysowany z dzisiejszych brzegów | `LOCATION_YEAR`, `GROD`, `GROD_RAMPART_UNTIL` |
-| W murach | bez daty: kościoły i bryły < 18 m (średniowiecze) / < 24 m (twierdza) | wyższe to XIX-wieczne kamienice i bloki | poza murami tylko kościoły do 900 m od katedry | `WALLED_MAX_H`, `CATHEDRAL_RADIUS` |
+| W murach | bez daty: kościoły i bryły < 18 m (średniowiecze) / < 24 m (twierdza) | wyższe to XIX-wieczne kamienice i bloki | poza murami tylko kościoły do 400 m od katedry (Ostrów Tumski, Piasek) | `WALLED_MAX_H`, `CATHEDRAL_RADIUS` |
 | Przed 1945 | zasięg zabudowy od Rynku: 1300 m (< 1850), 2600 m (< 1905), 3200 m | rozrost miasta w XIX w. | Stare Miasto: chowamy tylko bryły ≥ 28 m (oprócz kościołów i publicznych) | `prewarRadius`, `OLD_TOWN_MAX_H` |
 | Wygląda na powojenne | > 35 m, albo > 17 m / handel / mieszkalny > 12 m bez starego dachu | przedwojenny Wrocław nie miał wysokościowców | kościoły nigdy; dachy dwuspadowe, mansardowe, hełmy = stare | `looksPostwar` |
 | Wygląda na późniejsze | szkło/lustro, biurowiec > 20 m albo > 4000 m² przed 2000; > 100 m przed 2010 | galerie i biurowce to głównie lata 2001–2010 (Dominikańska 2001, Arkady i Magnolia 2007); Sky Tower 2012 | kominy wyjątkiem; od 2020 bez filtra | `looksLaterThan` |

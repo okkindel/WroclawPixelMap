@@ -24,6 +24,8 @@ export interface EpochScene {
   extras: THREE.Group
   update: (dt: number) => void
   life: { trams: boolean; cars: boolean }
+  // przed lokacją miasta: łąka zamiast dzisiejszych ulic, torów, mostów, placów i parków (src/app/apply.ts)
+  wild?: boolean
 }
 
 const lambert = (color: string, extra: THREE.MeshLambertMaterialParameters = {}) => new THREE.MeshLambertMaterial({ color, ...extra })
@@ -221,7 +223,7 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
         extras.add(modernFortifications(outer.slice(0, -2), bastions, cityCenter))
       }
     }
-    return { opts, extras, update, life }
+    return { opts, extras, update, life, wild: early }
   }
 
   if (epoch.mode === 'festung') {

@@ -59,8 +59,9 @@ export const GROD_RAMPART_UNTIL = 1300
 // W murach (średniowiecze / twierdza): bez daty zostają kościoły i bryły niższe niż tyle metrów
 // (wyższe to kamienice z XIX w. i bloki).
 export const WALLED_MAX_H = { medieval: 18, fortress: 24 } as const
-// Poza murami bez daty zostają tylko kościoły w tym promieniu od katedry (Ostrów Tumski, Piasek).
-export const CATHEDRAL_RADIUS = 900
+// Poza murami bez daty zostają tylko kościoły w tym promieniu od katedry: Ostrów Tumski i Piasek (NMP na Piasku 354 m);
+// dalej, np. na Ołbinie, stoją kościoły z XIX i XX w.
+export const CATHEDRAL_RADIUS = 400
 
 // Przed wojną: przybliżony zasięg zabudowy wokół Rynku [m] (rozrost miasta w XIX w. i na początku XX w.).
 export const prewarRadius = (Y: number) => (Y < 1850 ? 1300 : Y < 1905 ? 2600 : 3200)

@@ -16,6 +16,8 @@ export const LAYERS = [
   'birds',
   'clouds',
   'trees',
+  // podkład z dawnych planów miasta w starszych epokach
+  'plans',
   // znaczniki: główny przełącznik i grupy (PinGroup w layers/labels.ts)
   'markers',
   'labels',

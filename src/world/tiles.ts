@@ -32,6 +32,8 @@ export interface Tile {
   // wersja do przebudowania przy następnym pokazaniu (zmiana epoki, gdy była ukryta)
   stale: { full: boolean; simple: boolean }
   trees: THREE.InstancedMesh | null
+  // dzisiejszy teren: place i zieleń, drogi z torami, mosty (chowany przed lokacją miasta)
+  modern: THREE.Mesh[]
 }
 
 interface WorkerResult {
@@ -137,10 +139,10 @@ export class Tiles implements Pickable {
       group.add(x)
       return x
     }
-    mesh(ground.ground, this.mats.ground)
+    const modern = [mesh(ground.ground, this.mats.ground), mesh(ground.roads, this.mats.roads), mesh(ground.bridges, this.mats.roads)]
+    modern[2].castShadow = true
     mesh(ground.water, this.mats.water)
-    mesh(ground.roads, this.mats.roads)
-    mesh(ground.bridges, this.mats.roads).castShadow = true
+    for (const m of modern) m.visible = this.modernOn
     // z wątku przychodzą obie wersje w wyglądzie „dziś”; inaczej budujemy tylko widoczną, drugą przy pierwszym pokazaniu
     const ready = !!pre && this.defaultOpts,
       far = this.far
@@ -162,7 +164,18 @@ export class Tiles implements Pickable {
       trees.visible = this.treesOn && !far
       group.add(trees)
     }
-    const t: Tile = { key, seed, data, group, buildings, simple, far, stale: { full: !ready && far, simple: !ready && !far }, trees }
+    const t: Tile = {
+      key,
+      seed,
+      data,
+      group,
+      buildings,
+      simple,
+      far,
+      stale: { full: !ready && far, simple: !ready && !far },
+      trees,
+      modern,
+    }
     this.list.push(t)
     this.group.add(group)
     const w = this.world
@@ -220,6 +233,13 @@ export class Tiles implements Pickable {
   }
 
   // drzewa tylko przy pełnych bryłach
+  private modernOn = true
+  // Dzisiejsze ulice, tory, mosty, place i parki (wyłączone przed lokacją miasta, src/history/epochs.ts).
+  setModernGround(v: boolean) {
+    this.modernOn = v
+    for (const t of this.list) for (const m of t.modern) m.visible = v
+  }
+
   setTreesVisible(v: boolean) {
     this.treesOn = v
     for (const t of this.list) if (t.trees) t.trees.visible = v && !t.far
