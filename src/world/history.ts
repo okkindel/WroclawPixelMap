@@ -1,8 +1,8 @@
 // Historyczne plany miasta w dawnych epokach (public/data/history, scripts/bake/bake-plans.py):
 //  - podkład planu nad dzisiejszymi drogami i torami; przezroczysty poza planem, na wodzie i w ditherowanym brzegu,
-//  - woda epoki (woda z planu w jego zasięgu, dzisiejsze rzeki dalej) jako woda 3D w miejsce dzisiejszej,
-//  - maska zabudowy: gdzie plan ma kwartały, gdzie wodę, a gdzie nic (src/history/epochs.ts zostawia budynki
-//    bez daty tylko na zabudowie planu).
+//  - woda epoki odtworzona z planów (najbliższe w czasie, dzisiejsza tylko poza nimi) jako woda 3D w miejsce dzisiejszej,
+//  - maska zabudowy: gdzie plan ma kwartały, gdzie wodę, a gdzie nic (src/app/apply.ts zostawia budynki bez daty tylko
+//    na zabudowie planu; plan z buildings: false wyklucza tylko budynki w wodzie planu).
 import * as THREE from 'three'
 import { loadJson } from '../engine/data.ts'
 import { C } from '../engine/palette.ts'
@@ -82,6 +82,7 @@ export class HistoryLayer {
       this.loaded.set(plan, loaded)
       this.group.add(loaded.group)
       if (this.current === plan) this.onReady()
+      // kafle podkładu po kolei; brakujący kafel zostawia dziurę (teren pod nim i tak jest łąką z wodą planu)
       await this.addTiles(loaded.group, base, entry.tiles)
     } catch (err) {
       // brak pliku albo błąd sieci: plan nie jest gotowy, następne pokazanie spróbuje ponownie
@@ -96,7 +97,11 @@ export class HistoryLayer {
     const { bounds, tile } = this.meta
     for (const k of tiles) {
       const [i, j] = k.split('_').map(Number)
-      const tex = await loader.loadAsync(`${base}/${k}.png`)
+      const tex = await loader.loadAsync(`${base}/${k}.png`).catch((err) => {
+        console.warn(`kafel planu ${k}:`, err)
+        return null
+      })
+      if (!tex) continue
       tex.colorSpace = THREE.SRGBColorSpace
       // krycie kafla jest zero-jedynkowe (bake-plans.py): bez mieszania, piksel jest albo planem, albo dziurą
       tex.magFilter = tex.minFilter = THREE.NearestFilter

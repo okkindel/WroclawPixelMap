@@ -3,8 +3,9 @@
 #
 #  - Kafle: woda planu przezroczysta (pod spodem rysujemy ją jako wodę 3D), brzeg planu przechodzi w łąkę
 #    ditherowanym pasem FADE_M metrów.
-#  - Woda epoki: woda z planu blisko jego zabudowy, dzisiejsze rzeki dalej; w pasie na granicy obie naraz,
-#    żeby rzeka nie urywała się na krawędzi arkusza.
+#  - Woda epoki odtworzona z planów: w zasięgu planu jego woda, dalej woda z planów najbliższych w czasie (starszy
+#    przed młodszym), dzisiejsza tylko tam, gdzie nie sięga żaden plan; w pasie BLEND_M m przy brzegu arkusza wody
+#    sumowane, żeby koryta przechodziły z planu na plan bez urwania. 'early' to sama woda dla epok sprzed lokacji.
 #  - Maska zabudowy (MASK_M m/px, cała mapa): 255 kwartał lub gmach z planu, 128 woda planu, 0 reszta zasięgu planu,
 #    1 poza planem. Aplikacja zostawia w zasięgu planu tylko budynki bez daty stojące na zabudowie (src/app/apply.ts).
 #
@@ -19,17 +20,18 @@ import cv2
 import numpy as np
 from PIL import Image
 
-PLANS = {  # rok, od którego w planie są kanały i porty (późniejsza woda z dzisiejszej mapy poza zasięgiem planu)
-    '1732': {'late_water': False, 'trust': 200},  # arkusz kończy się tuż za miastem, odnogi urywają się na jego brzegu
-    '1895': {'late_water': True},
-    'pharus1914': {'late_water': True},
-    'plan1947': {'late_water': True},
+# year: rok planu (kolejność źródeł wody); late_water: czy poza wszystkimi planami są już kanały i porty
+PLANS = {
+    'early': {'year': 1000, 'late_water': False, 'water_only': True},  # przed lokacją: sama woda z najstarszych planów
+    '1732': {'year': 1732, 'late_water': False},
+    '1895': {'year': 1895, 'late_water': False},
+    'pharus1914': {'year': 1914, 'late_water': True},
+    'plan1947': {'year': 1947, 'late_water': True},
 }
 TILE_PX = 1000  # kafle źródłowe: 1 m/px
 OUT_PX = 512
 FADE_M = 200
-BLEND_M = 250  # pas przy granicy wiarygodnej wody planu, w którym woda z planu i dzisiejsza są sumowane
-TRUST_M = 500  # woda z planu obowiązuje do tylu metrów od jego zabudowy (plan może podać mniej: 'trust')
+BLEND_M = 250  # pas przy brzegu arkusza, w którym woda planu i woda źródła o niższym priorytecie są sumowane
 WATER_M = 2  # rozdzielczość rastra wody (m/px)
 PALETTE_COLORS = 48  # kolory kafla PNG (plan ma płaskie kolory klas i tusz)
 KEY = (255, 0, 255)  # kolor przezroczystości w palecie
@@ -72,6 +74,42 @@ def today_water(late):
     return img
 
 
+_classes = {}
+
+
+def plan_classes(pid, s):
+    """Klasy planu w rozdzielczości s m/px (cała siatka); None, gdy planu nie ma."""
+    if (pid, s) not in _classes:
+        d = f'data/plans/{pid}'
+        cls = load(d, 'classes', '.png', cv2.IMREAD_UNCHANGED) if os.path.isdir(f'{d}/classes') else None
+        _classes[(pid, s)] = None if cls is None else cv2.resize(cls, (W // s, H // s), interpolation=cv2.INTER_NEAREST)
+    return _classes[(pid, s)]
+
+
+def epoch_water(pid, spec):
+    """Woda epoki (raster WATER_M m/px) złożona z planów w kolejności priorytetu, na dzisiejszej wodzie."""
+    s = WATER_M
+    year = spec['year']
+    others = [p for p in PLANS if p != pid and not PLANS[p].get('water_only')]
+    # najbliższe w czasie, przy remisie starszy; własny plan na końcu (najwyższy priorytet)
+    order = sorted(others, key=lambda p: (abs(PLANS[p]['year'] - year), PLANS[p]['year'] > year), reverse=True)
+    if not spec.get('water_only'):
+        order.append(pid)
+    water = today_water(spec['late_water'])
+    for p in order:
+        cls = plan_classes(p, s)
+        if cls is None:
+            continue
+        cover = (cls != OUTSIDE).astype(np.uint8)
+        edge = cv2.distanceTransform(np.pad(cover, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
+        w = (cls == WATER).astype(np.uint8) * 255
+        inner = (cover > 0) & (edge >= BLEND_M)
+        band = (cover > 0) & (edge < BLEND_M)
+        water[inner] = w[inner]
+        water[band] |= w[band]
+    return cv2.morphologyEx(water, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+
+
 def polygons(mask):
     """Wielokąty (metry lokalne, płaskie [x, y, ...]) z rastra WATER_M m/px, z dziurami."""
     cs, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
@@ -97,6 +135,14 @@ def polygons(mask):
 def bake(pid, spec):
     src = f'data/plans/{pid}'
     dst = f'public/data/history/{pid}'
+    if spec.get('water_only'):
+        if os.path.isdir(dst):
+            shutil.rmtree(dst)
+        os.makedirs(dst)
+        json.dump(polygons(epoch_water(pid, spec)), open(f'{dst}/water.json', 'w'), separators=(',', ':'))
+        Image.fromarray(np.ones((H // MASK_M, W // MASK_M), np.uint8)).save(f'{dst}/built.png', optimize=True)
+        print(f'{pid}: sama woda')
+        return {'tiles': [], 'mask': MASK_M}
     if not os.path.isdir(f'{src}/classes'):
         return None
     cls = load(src, 'classes', '.png', cv2.IMREAD_UNCHANGED)
@@ -141,22 +187,7 @@ def bake(pid, spec):
             pal.save(f'{dst}/{i}_{j}.png', optimize=True, transparency=idx)
             tiles.append(f'{i}_{j}')
 
-    # Woda epoki. Plan rozstrzyga o wodzie tylko blisko swojej zabudowy (TRUST_M m od kwartałów i gmachów): tam rysunek
-    # rzek jest wiarygodny, a dalej na polach bywa umowny i urywa się na brzegu arkusza. Poza tym obszarem dzisiejsze
-    # rzeki; w pasie BLEND_M m przy granicy obie wody naraz, żeby koryta się łączyły.
-    s = WATER_M
-    small = lambda m, interp=cv2.INTER_NEAREST: cv2.resize(m, (W // s, H // s), interpolation=interp)
-    cls_w = small(cls)
-    built_w = ((cls_w == BUILT_A) | (cls_w == BUILT_B)).astype(np.uint8)
-    near_built = cv2.distanceTransform(1 - built_w, cv2.DIST_L2, 5) * s < spec.get('trust', TRUST_M)
-    trust = (near_built & (cls_w != OUTSIDE)).astype(np.uint8)
-    trust_edge = cv2.distanceTransform(np.pad(trust, 1), cv2.DIST_L2, 5)[1:-1, 1:-1] * s
-    plan_w = (cls_w == WATER).astype(np.uint8) * 255
-    tw = today_water(spec['late_water'])
-    water = np.where(trust > 0, plan_w, tw)
-    band = (trust > 0) & (trust_edge < BLEND_M)
-    water[band] |= tw[band]
-    water = cv2.morphologyEx(water, cv2.MORPH_CLOSE, np.ones((3, 3), np.uint8))
+    water = epoch_water(pid, spec)
     json.dump(polygons(water), open(f'{dst}/water.json', 'w'), separators=(',', ':'))
 
     # maska zabudowy

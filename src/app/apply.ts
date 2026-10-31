@@ -20,7 +20,11 @@ export function applyEpoch({ city, state }: App, e: Epoch) {
   // Budynki pod planem: w jego zasięgu budynek bez daty stoi tylko na zabudowie planu (nigdy w jego wodzie),
   // z datą tylko od roku budowy; poza zasięgiem planu reguły epoki (src/history/epochs.ts).
   const opts = state.epochState.opts
-  if (plan?.buildings) {
+  if (plan && !plan.buildings) {
+    // sam podkład (np. Festung 1945): budynki według reguł epoki, ale nie w wodzie planu
+    const rule = opts.keep
+    opts.keep = (b, i) => city.history.maskAt(...centroid(b.o)) !== MASK.water && (rule ? rule(b, i) : true)
+  } else if (plan) {
     const rule = opts.keep
     const Y = e.year
     // reguła epoki obowiązuje też w zasięgu planu (np. pas startowy Festung), plan tylko ją zawęża

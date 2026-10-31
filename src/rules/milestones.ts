@@ -21,6 +21,8 @@ export const SINCE = {
 // do 1946 r. ma swój plan; w jego zasięgu ulice, woda i zabudowa są z planu, wokół łąka i dzisiejsze rzeki.
 // buildings: maska zabudowy planu decyduje, które budynki stoją (false: tylko podkład, budynki według reguł epoki).
 export const HISTORY_PLANS = [
+  // przed lokacją: tylko woda odtworzona z najstarszych planów (bez podkładu i bez maski zabudowy)
+  { id: 'early', from: 0, to: 1241, buildings: false },
   { id: '1732', from: 1242, to: 1807, buildings: true }, // plan twierdzy, Stare Miasto z przedmieściami (SLUB, CC BY-SA)
   { id: '1895', from: 1850, to: 1909, buildings: true }, // Neuer Plan der Stadt Breslau
   { id: 'pharus1914', from: 1910, to: 1944, buildings: true }, // Pharus-Plan Breslau 1901–1914
