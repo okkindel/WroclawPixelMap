@@ -36,9 +36,11 @@ export function buildGround(data: TileData) {
   // place pod zielenią: skwery bywają jednocześnie placem (place=square) i parkiem
   for (const p of data.plazas) flatPoly(ground, p.o, p.h, 0.03, S('plaza'))
 
-  const water = new Geo()
-  // woda nad zielenią i placami (fontanny i stawy bywają w środku łąki albo parku), pod drogami
-  for (const w of data.water) flatPoly(water, w.o, w.h, 0.1, S('water'))
+  const water = new Geo(),
+    waterLate = new Geo()
+  // woda nad zielenią i placami (fontanny i stawy bywają w środku łąki albo parku), pod drogami;
+  // późniejsza (kanały, porty, zbiorniki) w osobnej siatce, chowanej w dawnych epokach
+  for (const w of data.water) flatPoly(w.late ? waterLate : water, w.o, w.h, 0.1, S('water'))
 
   const roads = new Geo()
   // Każdy kolor drogi (rodzaj) na własnym poziomie, co ROAD_STEP m, węższe niżej: drogi różnych rodzajów
@@ -69,5 +71,5 @@ export function buildGround(data: TileData) {
       strip(bridges, r.p, 3.2, 1.1, S('rail'))
     }
 
-  return { ground: ground.build(), water: water.build(), roads: roads.build(), bridges: bridges.build() }
+  return { ground: ground.build(), water: water.build(), waterLate: waterLate.build(), roads: roads.build(), bridges: bridges.build() }
 }

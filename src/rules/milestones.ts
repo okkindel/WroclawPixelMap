@@ -6,6 +6,8 @@ export const SINCE = {
   stadium: 1928, // otwarcie Stadionu Olimpijskiego (trybuny)
   speedway: 1988, // easter egg: bieg żużlowy na Olimpijskim
   dwarfs: 2001, // pierwszy krasnal
+  // kanały Żeglugowy i Powodziowy (od 1897), port miejski, zbiorniki: wcześniej tylko rzeki i starorzecza
+  canals: 1897,
   arena: 2011, // Tarczyński Arena (mecz Śląska)
   gasLamps: 1850, // latarnie gazowe na Ostrowie Tumskim (gazownia miejska od 1847 r.)
   fireworks: 1990, // sylwester miejski na Rynku to współczesny zwyczaj

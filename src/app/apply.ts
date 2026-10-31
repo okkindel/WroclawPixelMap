@@ -39,6 +39,7 @@ export function applyLayers({ city, state, labels }: App) {
   city.structures.setYear(year)
   city.history.show(plan)
   city.tiles.setModernGround(!old)
+  city.tiles.setLateWater(year >= SINCE.canals)
   city.meadow.visible = old
   labels.year = year
   city.dwarfs.mesh.visible = layers.dwarfs && year >= SINCE.dwarfs

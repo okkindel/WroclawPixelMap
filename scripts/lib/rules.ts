@@ -126,6 +126,16 @@ export const constructionYear = (buildingTag: string) => (buildingTag === 'const
 export const isEstimatedHeight = (t: Tags, kind: BuildingKind) =>
   t.height == null && !t['roof:shape'] && kind !== 'church' && !t['building:part']
 
+// Woda powstała w XIX/XX w. (kanały, porty, zbiorniki, stawy, fontanny): w dawnych epokach jej nie ma (SINCE.canals).
+// Rzeki i starorzecza zostają zawsze.
+export const lateWater = (t: Tags) =>
+  ['canal', 'reservoir', 'basin', 'pond', 'lagoon', 'wastewater', 'fishpond'].includes(t.water ?? '') ||
+  t.waterway === 'canal' ||
+  t.waterway === 'dock' ||
+  t.amenity === 'fountain' ||
+  t.landuse === 'reservoir' ||
+  /Kanał|Basen|Port|Zalew|Staw|Zbiornik/i.test(t.name ?? '')
+
 // Ażurowa pergola: daszek na wysokości ok. 4 m.
 export const PERGOLA = { H: 4.2, m: 3.6 }
 

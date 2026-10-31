@@ -59,7 +59,8 @@ export interface World {
   origin: [number, number]
   bounds: [number, number, number, number]
   buildings: Building[]
-  water: (Poly & { n?: string })[]
+  // late: woda powstała w XIX/XX w. (kanały, porty, zbiorniki, stawy, fontanny), w dawnych epokach schowana
+  water: (Poly & { n?: string; late?: 1 })[]
   green: (Poly & { k: GreenKind })[]
   plazas: Poly[]
   roads: Road[]

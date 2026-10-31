@@ -1,7 +1,7 @@
 // Główny przebieg po danych świata: budynki, woda, zieleń, place, mury, drogi i tory (+ zbieranie POI).
 import type { GreenKind } from '../../../src/types/world.ts'
 import { num, type OsmEl, type Tags } from '../../lib/osm.ts'
-import { GREEN_MIN_AREA, PERGOLA, ROAD_MAX_WIDTH, SOCCER_MIN_AREA, STADIUM_MIN_AREA, isFestungRunway } from '../../lib/rules.ts'
+import { GREEN_MIN_AREA, PERGOLA, ROAD_MAX_WIDTH, SOCCER_MIN_AREA, STADIUM_MIN_AREA, isFestungRunway, lateWater } from '../../lib/rules.ts'
 import { toBuildings } from './buildings.ts'
 import { encodePoly, flat, inBox, polygons, proj, ringArea, wayPts } from './geometry.ts'
 import type { NidMatcher } from './nid-match.ts'
@@ -102,7 +102,8 @@ export function collectFeatures(raw: OsmEl[], s: BakeState, nid: NidMatcher) {
       continue
     }
     if (t.natural === 'water' || t.waterway === 'riverbank' || (t.amenity === 'fountain' && el.type !== 'node')) {
-      for (const p of polygons(el)) out.water.push({ ...encodePoly(p), n: t.name || undefined })
+      const late = lateWater(t) ? (1 as const) : undefined
+      for (const p of polygons(el)) out.water.push({ ...encodePoly(p), n: t.name || undefined, late })
       continue
     }
 

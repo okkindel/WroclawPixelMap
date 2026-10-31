@@ -11,12 +11,12 @@ import { POI_DEDUP_RADIUS, markerRule, poiLabel, sameName, stadiumLabel, uniTriv
 
 export function buildLabels(meta: WorldMeta, landmarks: Landmark[], rank: Record<string, 1 | 2>, eggs: Egg[], trivia: Trivia[]) {
   const labels = new Labels(byId('pins'), landmarks, rank, showLandmark)
-  for (const e of eggs) labels.addMarker(e, markerRule(e.trigger, 'egg'), () => showEgg(e))
+  for (const e of eggs) labels.addMarker(e, markerRule(e.trigger, 'egg', undefined, e.text), () => showEgg(e))
 
   for (const tr of trivia) {
     const onClick = () => showTrivia(tr)
-    if (tr.category === 'uczelnia') labels.addLabel(tr.title, tr.lat, tr.lon, uniTriviaLabel, onClick)
-    else labels.addMarker(tr, markerRule(tr.trigger, tr.category === 'kultowe' ? 'cult' : 'egg'), onClick)
+    if (tr.category === 'uczelnia') labels.addLabel(tr.title, tr.lat, tr.lon, uniTriviaLabel(tr.text), onClick)
+    else labels.addMarker(tr, markerRule(tr.trigger, tr.category === 'kultowe' ? 'cult' : 'egg', undefined, tr.text), onClick)
   }
 
   // ciekawostki przy neonach (galeria przy Ruskiej, ns-*, jako jeden znacznik)

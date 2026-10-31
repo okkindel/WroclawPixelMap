@@ -5,6 +5,7 @@ import type { PopupContent } from '../ui/popup.ts'
 import { showMonument } from '../app/popups.ts'
 import type { Pick, Pickable } from '../types/pick.ts'
 import { hash } from '../engine/geo.ts'
+import { SINCE } from '../rules/milestones.ts'
 import { lang } from '../i18n/index.ts'
 import { vertexLambert } from '../scenes/util.ts'
 import { attrF32 } from '../world/packed.ts'
@@ -249,19 +250,19 @@ export class Monuments implements Pickable {
     })
   }
 
-  // year: rok epoki — pomnik stoi od roku odsłonięcia (brak daty = zawsze)
+  // year: rok epoki; pomnik stoi od roku odsłonięcia, bez daty od SINCE.undatedStructures (jak maszty i wieże bez daty)
   update(_dt: number, year: number) {
     if (year === this.year) return
     this.year = year
     for (const { mesh, i } of this.specials) {
       const yr = this.list[i].yr
-      mesh.visible = yr == null || year >= yr
+      mesh.visible = year >= (yr ?? SINCE.undatedStructures)
     }
     for (const { mesh, idx, kind } of this.parts) {
       const H = SHAPES[kind].H
       idx.forEach((i, j) => {
         const d = this.list[i]
-        const on = d.yr == null || year >= d.yr
+        const on = year >= (d.yr ?? SINCE.undatedStructures)
         const k = on ? Math.min(MAX_H, Math.max(MIN_H, d.h ?? H)) / H : 0
         this.q.setFromAxisAngle(this.up, hash(i, 11) * Math.PI * 2)
         this.m.compose(this.v.set(d.x, 0, -d.y), this.q, this.s.setScalar(k))
@@ -286,7 +287,7 @@ export class Monuments implements Pickable {
       if (h?.instanceId == null || (best && best.d <= h.distance)) continue
       const i = idx[h.instanceId]
       const yr = this.list[i].yr
-      if (yr != null && this.year < yr) continue
+      if (this.year < (yr ?? SINCE.undatedStructures)) continue
       best = { d: h.distance, i }
     }
     for (const { mesh, i } of this.specials) {

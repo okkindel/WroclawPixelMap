@@ -22,11 +22,12 @@ function build(key: string, data: TileData, seed: number) {
     data,
     ground: pack(g.ground),
     water: pack(g.water),
+    waterLate: pack(g.waterLate),
     roads: pack(g.roads),
     bridges: pack(g.bridges),
     buildings: pack(buildBuildings(data.buildings, {}, seed)),
     simple: pack(buildBuildings(data.buildings, { simple: true }, seed)),
   }
   // przekazanie buforów bez kopiowania (wariant z opcjami pasuje i do typów okna, i wątku)
-  self.postMessage(out, { transfer: transfers(out.ground, out.water, out.roads, out.bridges, out.buildings, out.simple) })
+  self.postMessage(out, { transfer: transfers(out.ground, out.water, out.waterLate, out.roads, out.bridges, out.buildings, out.simple) })
 }

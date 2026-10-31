@@ -2,7 +2,7 @@
 import * as THREE from 'three'
 import { toLocal } from '../engine/geo.ts'
 import type { Egg, Landmark } from '../content/index.ts'
-import { PLACE_ZOOM, POI_DEDUP_RADIUS, type PinGroup, type PinRule, landmarkLabel, sameName } from '../rules/labels.ts'
+import { PLACE_FROM, PLACE_ZOOM, POI_DEDUP_RADIUS, type PinGroup, type PinRule, landmarkLabel, sameName } from '../rules/labels.ts'
 
 export type { PinGroup }
 
@@ -71,6 +71,7 @@ export class Labels {
       group: 'places',
       minZoom: PLACE_ZOOM.min[rank],
       maxZoom: PLACE_ZOOM.max[rank],
+      fromYear: PLACE_FROM,
     })
   }
 

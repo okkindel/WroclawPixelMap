@@ -230,7 +230,8 @@ export function epochScene(epoch: Epoch, world: World, walls: Walls): EpochScene
     const runway = world.runway ?? []
     const nearRunway = (b: Building) => runway.some((p) => distToPolyline(...anchor(b), p) < 70)
     for (const p of runway) {
-      const g = wallAlong(p, 70, 0.3, '#a4a9bd')
+      // pas startowy nad podkładem planu z 1895 r. (0.36 m, src/world/history.ts)
+      const g = wallAlong(p, 70, 0.5, '#a4a9bd')
       extras.add(g)
     }
     const s = smoke(world, 140)

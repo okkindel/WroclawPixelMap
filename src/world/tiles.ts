@@ -34,6 +34,8 @@ export interface Tile {
   trees: THREE.InstancedMesh | null
   // dzisiejszy teren: place i zieleń, drogi z torami, mosty (chowany przed lokacją miasta)
   modern: THREE.Mesh[]
+  // późniejsza woda: kanały, porty, zbiorniki (src/rules/milestones.ts SINCE.canals)
+  waterLate: THREE.Mesh
 }
 
 interface WorkerResult {
@@ -41,6 +43,7 @@ interface WorkerResult {
   data: TileData
   ground: Packed
   water: Packed
+  waterLate: Packed
   roads: Packed
   bridges: Packed
   buildings: Packed
@@ -130,7 +133,13 @@ export class Tiles implements Pickable {
 
   private add(key: string, data: TileData, seed: number, pre?: WorkerResult) {
     const ground = pre
-      ? { ground: unpack(pre.ground), water: unpack(pre.water), roads: unpack(pre.roads), bridges: unpack(pre.bridges) }
+      ? {
+          ground: unpack(pre.ground),
+          water: unpack(pre.water),
+          waterLate: unpack(pre.waterLate),
+          roads: unpack(pre.roads),
+          bridges: unpack(pre.bridges),
+        }
       : buildGround(data)
     const group = new THREE.Group()
     const mesh = (g: THREE.BufferGeometry, m: THREE.Material) => {
@@ -142,6 +151,8 @@ export class Tiles implements Pickable {
     const modern = [mesh(ground.ground, this.mats.ground), mesh(ground.roads, this.mats.roads), mesh(ground.bridges, this.mats.roads)]
     modern[2].castShadow = true
     mesh(ground.water, this.mats.water)
+    const waterLate = mesh(ground.waterLate, this.mats.water)
+    waterLate.visible = this.lateWaterOn
     for (const m of modern) m.visible = this.modernOn
     // z wątku przychodzą obie wersje w wyglądzie „dziś”; inaczej budujemy tylko widoczną, drugą przy pierwszym pokazaniu
     const ready = !!pre && this.defaultOpts,
@@ -175,6 +186,7 @@ export class Tiles implements Pickable {
       stale: { full: !ready && far, simple: !ready && !far },
       trees,
       modern,
+      waterLate,
     }
     this.list.push(t)
     this.group.add(group)
@@ -238,6 +250,12 @@ export class Tiles implements Pickable {
   setModernGround(v: boolean) {
     this.modernOn = v
     for (const t of this.list) for (const m of t.modern) m.visible = v
+  }
+
+  private lateWaterOn = true
+  setLateWater(v: boolean) {
+    this.lateWaterOn = v
+    for (const t of this.list) t.waterLate.visible = v
   }
 
   setTreesVisible(v: boolean) {

@@ -1,6 +1,7 @@
 // Reguły napisów i znaczników (jedno źródło): od jakiego przybliżenia widać napis, od którego roku istnieje obiekt,
 // jak wygląda (klasa CSS, ikona), do której grupy przełączników należy i co jest duplikatem.
 import type { PoiKind } from '../types/world.ts'
+import { LOCATION_YEAR } from './epochs.ts'
 import { SINCE } from './milestones.ts'
 
 // Grupy znaczników (osobne przełączniki w panelu „Znaczniki”).
@@ -142,8 +143,13 @@ export const landmarkLabel = (name: string, rank: 1 | 2 | undefined, year: strin
   from: yearOf(year),
 })
 
-// Ciekawostka o uczelni: niebieski napis z czapką, z bliska.
-export const uniTriviaLabel: PinRule = { minZoom: UNI_TRIVIA_MIN_ZOOM, cls: 'uni', group: 'unis' }
+// Ciekawostka o uczelni: niebieski napis z czapką, z bliska; od najwcześniejszego roku w tekście.
+export const uniTriviaLabel = (text: string): PinRule => ({
+  minZoom: UNI_TRIVIA_MIN_ZOOM,
+  cls: 'uni',
+  group: 'unis',
+  from: earliestYear(text) ?? MARKER_FROM,
+})
 
 // Stadion: Olimpijski od 1928 r., Tarczyński Arena od 2011 r.
 export const stadiumLabel = (name: string): PinRule => ({
@@ -161,11 +167,32 @@ export function poiLabel(name: string, kind: PoiKind, rank: 1 | 2, from?: number
   return { minZoom, cls, group: university ? 'unis' : 'pois', from: from ?? poiFrom(kind), school }
 }
 
+// Najwcześniejszy rok w tekście ciekawostki (czterocyfrowy albo wiek: „XIV w.”, „14th c.”), czyli od kiedy jest o czym
+// opowiadać; bez żadnego roku: MARKER_FROM (to zwykle rzeczy współczesne: krasnale, PRL, kluby).
+const MARKER_FROM = 1850
+export function earliestYear(text: string | undefined): number | undefined {
+  if (!text) return undefined
+  // rok w kontekście daty: „w 1997 r.”, „od 1871”, „1913 roku”, „in 1997” (a nie „1200 miejsc”)
+  const Y = '(1\\d{3}|20[0-2]\\d)'
+  const dated = new RegExp(`(?:\\b(?:w|we|od|do|z|roku|in|since|from|by|until)\\s+${Y}\\b)|(?:\\b${Y}\\s*(?:r\\.|roku|rok))`, 'gi')
+  const years = [...text.matchAll(dated)].map((m) => +(m[1] ?? m[2]))
+  // wiek z kropką i co najmniej X: „XIV w.” (nie „I wojna”); angielskie „14th c.”
+  for (const m of text.matchAll(/\b([XVI]+)\s*w\./g)) {
+    const c = yearOf(`${m[1]} w`)
+    if (c && c >= 950) years.push(c)
+  }
+  for (const m of text.matchAll(/\b(\d{2})(?:st|nd|rd|th)\s+c(?:entury|\.)/gi)) years.push((+m[1] - 1) * 100 + 50)
+  return years.length ? Math.min(...years) : undefined
+}
+
 // Znaczniki: „?” ciekawostki i neony, gwiazdka (z CSS) kultowe miejsca.
-export const markerRule = (trigger: string, kind: 'egg' | 'cult' | 'neon', from?: number): PinRule => ({
+export const markerRule = (trigger: string, kind: 'egg' | 'cult' | 'neon', from?: number, text?: string): PinRule => ({
   minZoom: markerMinZoom(trigger),
   icon: kind === 'cult' ? '' : '?',
   cls: kind === 'egg' ? '' : kind,
   group: kind === 'cult' ? 'cult' : 'eggs',
-  from: kind === 'cult' ? CULT_FROM : from,
+  from: kind === 'cult' ? CULT_FROM : (from ?? earliestYear(text) ?? MARKER_FROM),
 })
+
+// Nazwy dzielnic i osiedli: od lokacji miasta (w grodzie nie było jeszcze Starego Miasta ani przedmieść).
+export const PLACE_FROM = LOCATION_YEAR

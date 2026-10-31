@@ -186,7 +186,7 @@ export function encodeTile(t: TileData, x0: number, y0: number): Uint8Array {
   reset()
   w.u(t.water.length)
   for (const p of t.water) {
-    w.u((p.h ? 1 : 0) | (p.n != null ? 2 : 0))
+    w.u((p.h ? 1 : 0) | (p.n != null ? 2 : 0) | (p.late ? 4 : 0))
     if (p.n != null) S(p.n)
     pts(p.o)
     if (p.h) holes(p.h)
@@ -300,8 +300,9 @@ export function decodeTile(buf: ArrayBuffer | Uint8Array): TileData {
   const water: TileData['water'] = new Array(r.u())
   for (let i = 0; i < water.length; i++) {
     const f = r.u()
-    const p: Poly & { n?: string } = { o: [] }
+    const p: Poly & { n?: string; late?: 1 } = { o: [] }
     if (f & 2) p.n = S()
+    if (f & 4) p.late = 1
     p.o = pts()
     if (f & 1) p.h = holes()
     water[i] = p
