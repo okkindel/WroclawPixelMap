@@ -1,8 +1,10 @@
 // Service worker „Wrocław w pikselach”.
 // index.html (nawigacja): network-first z kopią offline.
-// Dane (data/**/*.json, kafle data/tiles/*.bin), assety builda, ikony i fonty: stale-while-revalidate (z cache od razu, w tle odświeżenie).
+// Dane mapy (data/**: JSON, kafle, plany): network-first z kopią offline, bo zmieniają się przy każdym wydaniu
+// (stara woda z cache przy nowym kodzie rysowała urwane rzeki).
+// Assety builda (nazwy z hashem), ikony i fonty: stale-while-revalidate (z cache od razu, w tle odświeżenie).
 // Zmiana VERSION czyści stare cache przy aktywacji.
-const VERSION = 'v2'
+const VERSION = 'v3'
 const PAGES = `wpm-pages-${VERSION}`
 const STATIC = `wpm-static-${VERSION}`
 const KEEP = [PAGES, STATIC]
@@ -28,6 +30,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url)
   if (req.mode === 'navigate') return e.respondWith(networkFirst(req))
   const local = url.origin === location.origin && url.pathname.startsWith(new URL(self.registration.scope).pathname)
+  if (local && url.pathname.includes('/data/')) return e.respondWith(networkFirstData(req))
   if ((local && /\.(json|bin|js|css|png|svg|webp|jpg|woff2?|webmanifest)$/.test(url.pathname)) || FONTS.test(req.url)) {
     if (local && url.pathname.endsWith('/sw.js')) return
     e.respondWith(staleWhileRevalidate(req, e))
@@ -43,6 +46,17 @@ async function networkFirst(req) {
   } catch {
     // offline: ostatnio pobrana strona (?lang=… i #widok nie zmieniają HTML-a)
     return (await cache.match('./')) ?? Response.error()
+  }
+}
+
+async function networkFirstData(req) {
+  const cache = await caches.open(STATIC)
+  try {
+    const res = await fetch(req)
+    if (res.ok) cache.put(req, res.clone())
+    return res
+  } catch {
+    return (await cache.match(req)) ?? Response.error()
   }
 }
 
