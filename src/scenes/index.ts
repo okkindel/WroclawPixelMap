@@ -103,7 +103,12 @@ export class Scenes implements Pickable {
         tick: (c) => {
           const month = c.now.getMonth()
           const season = month >= 4 && month <= 8 && c.night < 0.5
-          const show: Record<BoatKind, boolean> = { barge: true, cruise: season && c.year >= 1900, kayak: season && c.year >= 1960 }
+          const show: Record<BoatKind, boolean> = {
+            // statki to współczesne modele i płyną po dzisiejszym nurcie (w dawnych epokach rzeki biegną inaczej)
+            barge: c.year >= 1900,
+            cruise: season && c.year >= 1900,
+            kayak: season && c.year >= 1960,
+          }
           b.update(c.dt, show)
         },
         hit: (ray) => b.hit(ray),
